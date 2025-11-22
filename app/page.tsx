@@ -1,103 +1,173 @@
-import Image from "next/image";
+import { MapPin, AlertCircle, Calendar, Bell, Truck } from "lucide-react"
+import { redirect } from "next/navigation"
+import { createClient } from "@/lib/server"
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  // If no user and Supabase is configured, redirect to login
+  if (!user && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    redirect("/auth/login")
+  }
+
+  // If Supabase not configured, show demo dashboard
+  if (!user) {
+    // Demo mode - show the dashboard without redirect
+  } else {
+    // Get user role to redirect to appropriate portal
+    const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single()
+
+    const role = profile?.role || "driver"
+
+    // Redirect to appropriate portal based on role
+    if (role === "manager") {
+      redirect("/admin")
+    } else if (role === "finance") {
+      redirect("/finance")
+    } else if (role === "compliance") {
+      redirect("/compliance")
+    } else {
+      redirect("/mobile")
+    }
+  }
+
+  const activeTrip = {
+    id: "TRIP-2025-001",
+    vehicle: "Toyota Hiace - WRJ 2024",
+    status: "Active",
+    origin: "Warehouse A, Mumbai",
+    destination: "Distribution Center B, Pune",
+    startTime: "09:30 AM",
+    currentMileage: 45820,
+    nextCheckpoint: "Toll Gate - Mumbai-Pune",
+    distanceRemaining: 85.5,
+  }
+
+  const pendingInspections = [
+    { id: "INS-001", type: "Pre-Trip", dueDate: "Today", status: "pending" },
+    { id: "INS-002", type: "Post-Trip", dueDate: "Today", status: "pending" },
+  ]
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="pb-20">
+      {/* Active Trip Card */}
+      <div className="p-4 space-y-4">
+        <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-xl p-5 space-y-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">Active Trip</h2>
+              <p className="text-primary-foreground/80 text-sm">{activeTrip.id}</p>
+            </div>
+            <div className="bg-primary-foreground text-primary px-3 py-1 rounded-full text-xs font-semibold">
+              {activeTrip.status}
+            </div>
+          </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <Truck className="w-5 h-5 mt-0.5" />
+              <div>
+                <p className="text-sm opacity-90">Vehicle</p>
+                <p className="font-semibold">{activeTrip.vehicle}</p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <MapPin className="w-5 h-5 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm opacity-90">Route</p>
+                <p className="font-semibold">{activeTrip.origin}</p>
+                <div className="text-xs opacity-75 my-1">→</div>
+                <p className="font-semibold">{activeTrip.destination}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <p className="text-xs opacity-90">Distance Remaining</p>
+                <p className="text-lg font-bold">{activeTrip.distanceRemaining} km</p>
+              </div>
+              <div>
+                <p className="text-xs opacity-90">Current Mileage</p>
+                <p className="text-lg font-bold">{activeTrip.currentMileage} km</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button className="flex-1 bg-primary-foreground text-primary px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+              Pause Trip
+            </button>
+            <button className="flex-1 bg-primary-foreground/20 text-primary-foreground px-4 py-2 rounded-lg font-semibold hover:bg-primary-foreground/30 transition-colors">
+              Details
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Notifications */}
+        <div className="space-y-2">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Bell className="w-5 h-5" />
+            Notifications
+          </h3>
+          <div className="bg-accent/10 border border-accent rounded-lg p-3 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-sm">Pre-Trip Inspection Due</p>
+              <p className="text-xs text-muted-foreground">Complete your pre-trip inspection before proceeding</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Pending Inspections */}
+        <div className="space-y-2">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Calendar className="w-5 h-5" />
+            Pending Inspections ({pendingInspections.length})
+          </h3>
+          {pendingInspections.map((inspection) => (
+            <div
+              key={inspection.id}
+              className="bg-card border border-border rounded-lg p-4 flex items-center justify-between"
+            >
+              <div>
+                <p className="font-semibold">{inspection.type}</p>
+                <p className="text-sm text-muted-foreground">Due: {inspection.dueDate}</p>
+              </div>
+              <button className="px-3 py-1 bg-accent text-accent-foreground rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
+                Complete
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Driver Stats */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-card border border-border rounded-lg p-4 text-center">
+            <p className="text-xs text-muted-foreground mb-1">Violation Points</p>
+            <p className="text-2xl font-bold text-destructive">3</p>
+            <p className="text-xs text-muted-foreground">of 12</p>
+          </div>
+          <div className="bg-card border border-border rounded-lg p-4 text-center">
+            <p className="text-xs text-muted-foreground mb-1">License Valid</p>
+            <p className="text-2xl font-bold text-primary">325</p>
+            <p className="text-xs text-muted-foreground">days</p>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 gap-3">
+          <button className="bg-primary text-primary-foreground px-4 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            Report Incident
+          </button>
+          <button className="bg-primary text-primary-foreground px-4 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            Request Waiver
+          </button>
+        </div>
+      </div>
     </div>
-  );
+  )
 }

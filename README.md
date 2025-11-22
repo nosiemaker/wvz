@@ -1,36 +1,144 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fleet Management & Smart Driver Digital Log Application
+
+## Overview
+A comprehensive full-stack fleet management system with mobile app, admin web portal, finance portal, and compliance dashboard. Built with Next.js 16, Supabase, and Tailwind CSS.
+
+## Features
+
+### Mobile App (Driver Interface)
+- **Authentication**: Secure login/signup with Supabase Auth
+- **Home Dashboard**: Real-time active trip tracking, pending inspections, driver statistics
+- **Bookings**: Create, view, and manage vehicle bookings with cost center assignment
+- **Trip Logging**: Start, pause, and end trips with mileage tracking
+- **Inspections**: Pre-trip and post-trip vehicle inspection checklists
+- **Profile**: Driver profile management with license verification
+
+### Admin Web Portal (Fleet Managers)
+- **Dashboard**: Real-time metrics, charts, vehicle status, driver compliance
+- **Bookings Management**: Approve/reject bookings with driver and vehicle details
+- **Vehicles**: Fleet inventory with status tracking
+- **Drivers**: Driver profiles, license status, violation points
+- **Incidents**: Track accidents, violations, and breaches
+
+### Finance Portal
+- **Dashboard**: Financial metrics and cost analysis
+- **Analytics**: Fuel spend trends, cost-per-km analysis
+- **Reports**: Cost center breakdown and financial reports
+
+### Compliance Portal
+- **Dashboard**: Compliance metrics, violation tracking
+- **Violations**: Violation management and investigation workflow
+- **License Expiry**: License expiration tracking and alerts
+
+## Tech Stack
+- **Frontend**: Next.js 16, React 19, TypeScript, Tailwind CSS v4
+- **Backend**: Next.js Server Actions, API Routes
+- **Database**: Supabase PostgreSQL with Row Level Security (RLS)
+- **Authentication**: Supabase Auth (Email/Password)
+- **Charts**: Recharts
+- **Icons**: Lucide React
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+
+- Supabase Account
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Installation
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Clone the repository**
+   \`\`\`bash
+   git clone <repository-url>
+   cd fleet-management
+   \`\`\`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Install dependencies**
+   \`\`\`bash
+   npm install
+   \`\`\`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Set up environment variables**
+   Create `.env.local`:
+   \`\`\`env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   \`\`\`
 
-## Learn More
+4. **Run database migrations**
+   - Execute SQL scripts in `/scripts` folder on Supabase SQL Editor
+   - Scripts: `001_create_tables.sql`, `002_seed_data.sql`, `003_create_demo_user.sql`
 
-To learn more about Next.js, take a look at the following resources:
+5. **Start development server**
+   \`\`\`bash
+   npm run dev
+   \`\`\`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Login Credentials
+- **Email**: driver@fleet.com
+- **Password**: demo123
+- **Role**: driver
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## File Structure
+\`\`\`
+app/
+├── page.tsx              # Root page
+├── auth/                 # Authentication pages
+│   ├── login/
+│   ├── signup/
+│   └── signup-success/
+├── mobile/               # Mobile app portal
+├── admin/                # Admin portal
+├── finance/              # Finance portal
+└── compliance/           # Compliance portal
 
-## Deploy on Vercel
+lib/
+├── supabase/             # Supabase clients
+├── actions/              # Server actions
+│   ├── auth.ts
+│   ├── bookings.ts
+│   ├── trips.ts
+│   ├── vehicles.ts
+│   └── incidents.ts
+└── utils.ts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+scripts/
+├── 001_create_tables.sql
+├── 002_seed_data.sql
+└── 003_create_demo_user.sql
+\`\`\`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Database Schema
+- **users**: Driver and staff profiles
+- **vehicles**: Fleet vehicles
+- **bookings**: Vehicle booking requests
+- **trips**: Trip logs with mileage tracking
+- **inspections**: Pre/post-trip inspections
+- **incidents**: Accidents and violations
+
+## Security
+- Row Level Security (RLS) enabled on all tables
+- Users can only access their own data
+- Managers have elevated access
+- Session management via middleware
+- Secure authentication with Supabase Auth
+
+## API Routes
+All data operations are handled via Server Actions in `/lib/actions/`:
+- Bookings: CRUD operations
+- Trips: Start, end, track trips
+- Vehicles: List available vehicles
+- Incidents: Create and retrieve incidents
+- Auth: Login, signup, logout
+
+## Deployment
+Deploy to Vercel:
+\`\`\`bash
+npm run build
+vercel deploy
+\`\`\`
+
+Ensure all environment variables are set in Vercel project settings.
+
+## License
+MIT
