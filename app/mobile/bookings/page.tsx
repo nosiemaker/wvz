@@ -1,50 +1,81 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, Plus, ChevronRight } from "lucide-react"
-import { getBookings } from "@/lib/bookings"
+import { Calendar, Plus, ChevronRight, MapPin, Loader, Play } from "lucide-react"
+import { getMyRequests } from "@/lib/bookings"
+import { startTrip } from "@/lib/trips"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 export default function BookingsPage() {
-  const [bookings, setBookings] = useState<any[]>([])
+  const [requests, setRequests] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [processingId, setProcessingId] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
-    const loadBookings = async () => {
+    const loadRequests = async () => {
       try {
-        const data = await getBookings()
-        setBookings(data || [])
+        const data = await getMyRequests()
+        setRequests(data || [])
       } catch (error) {
-        console.log("[v0] Error loading bookings:", error)
+        console.log("[v0] Error loading requests:", error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    loadBookings()
+    loadRequests()
   }, [])
+
+  const handleStartTrip = async (e: React.MouseEvent, request: any) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (!confirm("Start this trip now?")) return
+
+    setProcessingId(request.id)
+    try {
+      // use vehicle_id if exists, else null (for external)
+      const vehicleId = request.vehicle_id || null
+      await startTrip(vehicleId, request.id)
+      router.push("/mobile/trips")
+    } catch (error: any) {
+      console.error("Error starting trip:", error)
+      alert("Failed to start trip: " + (error.message || "Unknown error"))
+    } finally {
+      setProcessingId(null)
+    }
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "approved":
-        return "bg-primary/10 text-primary"
-      case "pending":
-        return "bg-accent/10 text-accent"
-      case "draft":
-        return "bg-muted/50 text-muted-foreground"
+        return "bg-green-500/10 text-green-600"
+      case "pending_supervisor":
+        return "bg-orange-500/10 text-orange-600"
+      case "pending_allocation":
+        return "bg-blue-500/10 text-blue-600"
+      case "rejected":
+        return "bg-red-500/10 text-red-600"
+      case "completed":
+        return "bg-gray-500/10 text-gray-600"
       default:
         return "bg-muted text-muted-foreground"
     }
   }
 
   const getStatusLabel = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1)
+    if (!status) return "Unknown"
+    return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
   }
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading bookings...</p>
+      <div className="h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-2">
+          <Loader className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading your trips...</p>
+        </div>
       </div>
     )
   }
@@ -52,56 +83,81 @@ export default function BookingsPage() {
   return (
     <div className="pb-20">
       <div className="p-4 space-y-4">
-        {/* Create Booking Button */}
+        {/* Create Request Button */}
         <Link href="/mobile/bookings/create">
-          <button className="w-full bg-accent text-accent-foreground px-4 py-3 rounded-lg font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+          <button className="w-full bg-accent text-accent-foreground px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-sm">
             <Plus className="w-5 h-5" />
-            Create New Booking
+            Request New Trip
           </button>
         </Link>
 
-        {/* Bookings List */}
+        {/* Requests List */}
         <div className="space-y-3">
-          <h2 className="font-semibold text-lg">Your Bookings ({bookings.length})</h2>
-          {bookings.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">No bookings yet</p>
+          <h2 className="font-semibold text-lg">My Trips ({requests.length})</h2>
+          {requests.length === 0 ? (
+            <div className="text-center py-10 bg-card border border-border rounded-xl">
+              <p className="text-muted-foreground mb-2">No trip requests yet</p>
+              <p className="text-xs text-muted-foreground">Start by requesting a new trip above</p>
+            </div>
           ) : (
-            bookings.map((booking) => (
+            requests.map((request) => (
               <div
-                key={booking.id}
-                className="bg-card border border-border rounded-xl p-4 cursor-pointer hover:border-accent transition-colors"
+                key={request.id}
+                className="bg-card border border-border rounded-xl p-4 cursor-pointer hover:border-accent transition-colors shadow-sm"
               >
                 <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <p className="text-xs text-muted-foreground">{booking.id}</p>
-                    <p className="font-semibold">{booking.cost_center || "No cost center"}</p>
+                  <div className="flex items-start gap-2">
+                    <MapPin className="w-4 h-4 text-primary mt-1" />
+                    <div>
+                      <p className="font-semibold">{request.destination || "No destination"}</p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{request.purpose || "No purpose specified"}</p>
+                    </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(booking.status)}`}>
-                    {getStatusLabel(booking.status)}
+                  <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(request.status)}`}>
+                    {getStatusLabel(request.status)}
                   </span>
                 </div>
 
-                <div className="space-y-2 mb-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span>{new Date(booking.start_date).toLocaleDateString()}</span>
+                <div className="space-y-2 mb-3 border-t border-border pt-3">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="w-4 h-4" />
+                    <span>{new Date(request.start_date).toLocaleDateString()}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Vehicle</p>
-                      <p className="font-semibold">{booking.vehicles?.registration}</p>
+
+                  {request.vehicles && (
+                    <div className="text-sm">
+                      <p className="text-xs text-muted-foreground">Assigned Vehicle</p>
+                      <p className="font-semibold">{request.vehicles.registration} - {request.vehicles.model}</p>
                     </div>
-                    <div>
-                      <p className="text-xs text-muted-foreground">Status</p>
-                      <p className="font-semibold">{booking.status}</p>
+                  )}
+
+                  {!request.vehicles && request.status === 'approved' && !request.external_resource_details && (
+                    <div className="text-sm text-orange-600 font-medium">
+                      Vehicle assignment pending (Self-drive?)
                     </div>
-                  </div>
+                  )}
+                  {request.external_resource_details && (
+                    <div className="text-sm text-purple-600 font-medium">
+                      External Provider: {request.external_resource_details.provider}
+                    </div>
+                  )}
                 </div>
 
-                <button className="w-full text-accent font-semibold py-2 flex items-center justify-center gap-2 hover:bg-accent/10 rounded-lg transition-colors">
-                  View Details
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                {request.status === 'approved' ? (
+                  <button
+                    onClick={(e) => handleStartTrip(e, request)}
+                    disabled={!!processingId}
+                    className="w-full bg-primary text-primary-foreground font-bold py-3 flex items-center justify-center gap-2 rounded-lg hover:opacity-90 transition-opacity shadow-md"
+                  >
+                    {processingId === request.id ? <Loader className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                    Start Trip
+                  </button>
+                ) : (
+                  <button className="w-full bg-muted/50 text-accent font-semibold py-2 flex items-center justify-center gap-2 rounded-lg hover:bg-muted transition-colors text-sm">
+                    View Status
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             ))
           )}

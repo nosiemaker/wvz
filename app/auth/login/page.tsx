@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { LogIn } from "lucide-react"
+import Image from "next/image"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -31,7 +31,7 @@ export default function LoginPage() {
         password,
       })
       if (error) throw error
-      router.push("/mobile")
+      router.push("/")
       router.refresh()
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred")
@@ -43,14 +43,20 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <LogIn className="w-5 h-5 text-primary-foreground" />
+        <CardHeader className="space-y-4">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="relative w-48 h-24 mb-4">
+              <Image
+                src="/logo.svg"
+                alt="World Vision"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <CardTitle className="text-2xl">Fleet Manager</CardTitle>
           </div>
-          <CardDescription>Sign in to your account</CardDescription>
+          <CardDescription className="text-center">Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

@@ -2,36 +2,28 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 
 export async function createClient() {
-  // Always return a mock client for now to bypass auth
-  return {
-    auth: {
-      getUser: async () => ({
-        data: {
-          user: {
-            id: '00000000-0000-0000-0000-000000000001',
-            email: 'driver@fleet.com',
-            role: 'authenticated'
+  const cookieStore = await cookies()
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
           }
         },
-        error: null
-      }),
-    },
-    from: (table: string) => ({
-      select: () => ({
-        eq: () => ({
-          single: async () => ({
-            data: {
-              id: '00000000-0000-0000-0000-000000000001',
-              role: 'driver',
-              full_name: 'Demo Driver'
-            },
-            error: null
-          }),
-        }),
-        order: () => ({ data: [], error: null }),
-      }),
-      insert: async () => ({ data: null, error: null }),
-      update: async () => ({ data: null, error: null }),
-    }),
-  } as any
+      },
+    }
+  )
 }

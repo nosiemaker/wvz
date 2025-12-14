@@ -6,6 +6,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu, X, LayoutDashboard, Truck, Users, FileText, AlertTriangle, Settings, LogOut } from "lucide-react"
 import { logout } from "@/lib/auth"
+import Image from "next/image"
 
 export default function AdminLayout({
   children,
@@ -31,11 +32,14 @@ export default function AdminLayout({
     <div className="flex h-screen bg-background">
       {/* Admin Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground transition-transform duration-300 z-40 lg:static lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground transition-transform duration-300 z-40 lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
+
         <div className="p-6">
+          <div className="relative w-32 h-12 mb-6">
+            <Image src="/logo.svg" alt="Logo" fill className="object-contain object-left" />
+          </div>
           <h1 className="text-2xl font-bold text-accent mb-8">FleetManager</h1>
           <nav className="space-y-2">
             {navItems.map(({ href, label, icon: Icon }) => (

@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import { UserPlus } from "lucide-react"
+import Image from "next/image"
 
 export default function SignupPage() {
   const [email, setEmail] = useState("")
@@ -44,7 +44,7 @@ export default function SignupPage() {
             full_name: fullName,
             role: role,
           },
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/mobile`,
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/`,
         },
       })
 
@@ -73,9 +73,18 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-2">
+
+
+          // ... inside the component
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <UserPlus className="w-5 h-5 text-primary-foreground" />
+            <div className="relative w-12 h-12">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <CardTitle className="text-2xl">Create Account</CardTitle>
           </div>

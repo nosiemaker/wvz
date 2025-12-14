@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X, BarChart3, TrendingUp, FileText, Settings, LogOut } from "lucide-react"
+import Image from "next/image"
 
 export default function FinanceLayout({
   children,
@@ -24,11 +25,14 @@ export default function FinanceLayout({
     <div className="flex h-screen bg-background">
       {/* Finance Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground transition-transform duration-300 z-40 lg:static lg:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground transition-transform duration-300 z-40 lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
+
         <div className="p-6">
+          <div className="relative w-32 h-12 mb-6">
+            <Image src="/logo.svg" alt="Logo" fill className="object-contain object-left" />
+          </div>
           <h1 className="text-2xl font-bold text-accent mb-8">FleetFinance</h1>
           <nav className="space-y-2">
             {navItems.map(({ href, label, icon: Icon }) => (
@@ -43,12 +47,18 @@ export default function FinanceLayout({
               </Link>
             ))}
           </nav>
-        </div>
-        <div className="absolute bottom-6 left-6 right-6">
-          <button className="w-full flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-            <LogOut size={20} />
-            <span>Logout</span>
-          </button>
+          <div className="absolute bottom-6 left-6 right-6">
+            <button
+              onClick={async () => {
+                const { logout } = await import("@/lib/auth")
+                await logout()
+              }}
+              className="w-full flex items-center gap-2 px-4 py-3 rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+            >
+              <LogOut size={20} />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -72,9 +82,11 @@ export default function FinanceLayout({
       </div>
 
       {/* Overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
-    </div>
+      {
+        sidebarOpen && (
+          <div className="fixed inset-0 bg-black/50 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        )
+      }
+    </div >
   )
 }

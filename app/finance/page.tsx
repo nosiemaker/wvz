@@ -49,7 +49,7 @@ export default function FinanceDashboard() {
             <h3 className="font-semibold">Total Spend</h3>
             <DollarSign className="w-5 h-5 text-accent" />
           </div>
-          <p className="text-3xl font-bold">₹{(metrics.totalSpend / 100000).toFixed(2)}L</p>
+          <p className="text-3xl font-bold">K{(metrics.totalSpend / 1000).toFixed(1)}k</p>
           <p className="text-sm text-muted-foreground">Last 6 months</p>
         </div>
 
@@ -58,7 +58,7 @@ export default function FinanceDashboard() {
             <h3 className="font-semibold">Monthly Avg</h3>
             <TrendingUp className="w-5 h-5 text-primary" />
           </div>
-          <p className="text-3xl font-bold">₹{(metrics.monthlyAverage / 1000).toFixed(1)}K</p>
+          <p className="text-3xl font-bold">K{(metrics.monthlyAverage / 1000).toFixed(1)}k</p>
           <p className="text-sm text-muted-foreground">Average cost</p>
         </div>
 
@@ -67,7 +67,7 @@ export default function FinanceDashboard() {
             <h3 className="font-semibold">Cost Per KM</h3>
             <Fuel className="w-5 h-5 text-primary" />
           </div>
-          <p className="text-3xl font-bold">₹{metrics.costPerKm}</p>
+          <p className="text-3xl font-bold">K{metrics.costPerKm}</p>
           <p className="text-sm text-muted-foreground">Per kilometer</p>
         </div>
 
@@ -131,11 +131,11 @@ export default function FinanceDashboard() {
             <thead className="bg-muted border-b border-border">
               <tr>
                 <th className="px-4 py-3 text-left font-semibold">Cost Center</th>
-                <th className="px-4 py-3 text-right font-semibold">Fuel (₹)</th>
-                <th className="px-4 py-3 text-right font-semibold">Maintenance (₹)</th>
-                <th className="px-4 py-3 text-right font-semibold">Drivers (₹)</th>
-                <th className="px-4 py-3 text-right font-semibold">Insurance (₹)</th>
-                <th className="px-4 py-3 text-right font-semibold">Total (₹)</th>
+                <th className="px-4 py-3 text-right font-semibold">Fuel (K)</th>
+                <th className="px-4 py-3 text-right font-semibold">Maintenance (K)</th>
+                <th className="px-4 py-3 text-right font-semibold">Drivers (K)</th>
+                <th className="px-4 py-3 text-right font-semibold">Insurance (K)</th>
+                <th className="px-4 py-3 text-right font-semibold">Total (K)</th>
               </tr>
             </thead>
             <tbody>

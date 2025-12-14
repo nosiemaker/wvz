@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between">
                 <p className="font-semibold text-sm">{vehicle.vehicle}</p>
                 <p className="text-sm text-accent font-semibold">
-                  {vehicle.efficiency.toFixed(1)} km/l | ₹{vehicle.cost.toLocaleString()}
+                  {vehicle.efficiency.toFixed(1)} km/l | K{vehicle.cost.toLocaleString()}
                 </p>
               </div>
               <div className="w-full bg-muted rounded-full h-2">

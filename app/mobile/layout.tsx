@@ -5,6 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { Menu, X, Home, Truck, FileText, Clock, Settings, LogOut } from "lucide-react"
+import Image from "next/image"
 import { logout } from "@/lib/auth"
 
 export default function MobileLayout({
@@ -30,11 +31,14 @@ export default function MobileLayout({
     <div className="flex h-screen bg-background">
       {/* Mobile Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground transition-transform duration-300 z-40 md:static md:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 w-64 bg-sidebar text-sidebar-foreground transition-transform duration-300 z-40 md:static md:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
+
         <div className="p-6">
+          <div className="relative w-32 h-12 mb-6">
+            <Image src="/logo.svg" alt="Logo" fill className="object-contain object-left" />
+          </div>
           <h1 className="text-2xl font-bold text-accent mb-8">FleetLog</h1>
           <nav className="space-y-2">
             {navItems.map(({ href, label, icon: Icon }) => (

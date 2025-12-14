@@ -1,48 +1,37 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
-import { ArrowLeft, MapPin, Calendar, Loader } from "lucide-react"
+import { useState } from "react"
+import { ArrowLeft, MapPin, Calendar, Users, Car, FileText, Loader } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { createBooking } from "@/lib/bookings"
-import { getVehicles } from "@/lib/vehicles"
+import { createTripRequest, type TripRequestData } from "@/lib/bookings"
 
 export default function CreateBookingPage() {
-  const [formData, setFormData] = useState({
-    date: "",
-    origin: "",
+  const [formData, setFormData] = useState<TripRequestData>({
+    startDate: "",
+    endDate: "",
+    purpose: "",
     destination: "",
-    vehicle: "",
-    costCenter: "",
+    passengers: 1,
+    isSelfDrive: false,
+    vehicleId: undefined,
   })
-  const [vehicles, setVehicles] = useState<any[]>([])
+
   const [isLoading, setIsLoading] = useState(false)
-  const [isLoadingVehicles, setIsLoadingVehicles] = useState(true)
   const [error, setError] = useState("")
   const router = useRouter()
 
-  useEffect(() => {
-    const loadVehicles = async () => {
-      try {
-        const data = await getVehicles()
-        setVehicles(data || [])
-      } catch (err) {
-        console.log("[v0] Error loading vehicles:", err)
-        setError("Failed to load vehicles")
-      } finally {
-        setIsLoadingVehicles(false)
-      }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target
+
+    // Handle Checkbox
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked
+      setFormData((prev) => ({ ...prev, [name]: checked }))
+      return
     }
 
-    loadVehicles()
-  }, [])
-
-  const costCenters = ["CC-001", "CC-002", "CC-003"]
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
     setError("")
   }
@@ -53,21 +42,13 @@ export default function CreateBookingPage() {
     setError("")
 
     try {
-      await createBooking(formData.vehicle, formData.date, formData.date, formData.costCenter)
-      router.push("/mobile/bookings?success=Booking created successfully")
+      await createTripRequest(formData)
+      router.push("/mobile/bookings?success=Request submitted successfully")
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to create booking")
+      setError(err instanceof Error ? err.message : "Failed to create request")
     } finally {
       setIsLoading(false)
     }
-  }
-
-  if (isLoadingVehicles) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading vehicles...</p>
-      </div>
-    )
   }
 
   return (
@@ -75,14 +56,14 @@ export default function CreateBookingPage() {
       <div className="p-4">
         <Link
           href="/mobile/bookings"
-          className="inline-flex items-center gap-2 text-accent mb-4 hover:opacity-80 transition-opacity"
+          className="inline-flex items-center gap-2 text-primary mb-4 hover:opacity-80 transition-opacity"
         >
           <ArrowLeft className="w-5 h-5" />
-          Back to Bookings
+          Back to My Trips
         </Link>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h1 className="text-2xl font-bold mb-6">Create New Booking</h1>
+          <h1 className="text-2xl font-bold mb-6">Request New Trip</h1>
 
           {error && (
             <div className="bg-destructive/10 border border-destructive text-destructive rounded-lg p-3 text-sm">
@@ -90,36 +71,35 @@ export default function CreateBookingPage() {
             </div>
           )}
 
-          {/* Date */}
-          <div>
-            <label className="block text-sm font-semibold mb-2">Travel Date</label>
-            <div className="flex items-center bg-card border border-border rounded-lg px-4 py-3 focus-within:border-primary transition-colors">
-              <Calendar className="w-5 h-5 text-muted-foreground mr-3" />
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                className="flex-1 bg-transparent outline-none text-foreground"
-                required
-              />
+          {/* Dates */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold mb-2">Start Date</label>
+              <div className="flex items-center bg-card border border-border rounded-lg px-3 py-3 focus-within:border-primary transition-colors">
+                <Calendar className="w-4 h-4 text-muted-foreground mr-2" />
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  className="flex-1 bg-transparent outline-none text-foreground text-sm"
+                  required
+                />
+              </div>
             </div>
-          </div>
-
-          {/* Origin */}
-          <div>
-            <label className="block text-sm font-semibold mb-2">Origin</label>
-            <div className="flex items-center bg-card border border-border rounded-lg px-4 py-3 focus-within:border-primary transition-colors">
-              <MapPin className="w-5 h-5 text-muted-foreground mr-3" />
-              <input
-                type="text"
-                name="origin"
-                value={formData.origin}
-                onChange={handleChange}
-                placeholder="Pickup location"
-                className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
-                required
-              />
+            <div>
+              <label className="block text-sm font-semibold mb-2">End Date</label>
+              <div className="flex items-center bg-card border border-border rounded-lg px-3 py-3 focus-within:border-primary transition-colors">
+                <Calendar className="w-4 h-4 text-muted-foreground mr-2" />
+                <input
+                  type="date"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  className="flex-1 bg-transparent outline-none text-foreground text-sm"
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -133,64 +113,81 @@ export default function CreateBookingPage() {
                 name="destination"
                 value={formData.destination}
                 onChange={handleChange}
-                placeholder="Drop-off location"
+                placeholder="Where are you going?"
                 className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
                 required
               />
             </div>
           </div>
 
-          {/* Vehicle Selection */}
+          {/* Purpose */}
           <div>
-            <label className="block text-sm font-semibold mb-2">Select Vehicle</label>
-            <select
-              name="vehicle"
-              value={formData.vehicle}
-              onChange={handleChange}
-              className="w-full bg-card border border-border rounded-lg px-4 py-3 text-foreground focus:border-primary outline-none transition-colors"
-              required
-            >
-              <option value="">Choose a vehicle...</option>
-              {vehicles.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.make} {v.model} - {v.registration}
-                </option>
-              ))}
-            </select>
+            <label className="block text-sm font-semibold mb-2">Purpose of Trip</label>
+            <div className="flex items-start bg-card border border-border rounded-lg px-4 py-3 focus-within:border-primary transition-colors">
+              <FileText className="w-5 h-5 text-muted-foreground mr-3 mt-1" />
+              <textarea
+                name="purpose"
+                value={formData.purpose}
+                onChange={handleChange}
+                placeholder="Why is this trip necessary?"
+                className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground min-h-[80px] resize-none"
+                required
+              />
+            </div>
           </div>
 
-          {/* Cost Center */}
+          {/* Passengers */}
           <div>
-            <label className="block text-sm font-semibold mb-2">Cost Center</label>
-            <select
-              name="costCenter"
-              value={formData.costCenter}
-              onChange={handleChange}
-              className="w-full bg-card border border-border rounded-lg px-4 py-3 text-foreground focus:border-primary outline-none transition-colors"
-              required
-            >
-              <option value="">Select cost center...</option>
-              {costCenters.map((cc) => (
-                <option key={cc} value={cc}>
-                  {cc}
-                </option>
-              ))}
-            </select>
+            <label className="block text-sm font-semibold mb-2">Number of Passengers</label>
+            <div className="flex items-center bg-card border border-border rounded-lg px-4 py-3 focus-within:border-primary transition-colors">
+              <Users className="w-5 h-5 text-muted-foreground mr-3" />
+              <input
+                type="number"
+                name="passengers"
+                min="1"
+                max="60"
+                value={formData.passengers}
+                onChange={handleChange}
+                className="flex-1 bg-transparent outline-none text-foreground"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Self Drive Toggle */}
+          <div className="flex items-center justify-between bg-card border border-border p-4 rounded-lg">
+            <div className="flex items-center gap-3">
+              <Car className="w-5 h-5 text-primary" />
+              <div>
+                <p className="font-semibold">Self Drive Request</p>
+                <p className="text-xs text-muted-foreground">Request to drive yourself</p>
+              </div>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                name="isSelfDrive"
+                checked={formData.isSelfDrive}
+                onChange={handleChange}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+            </label>
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-accent text-accent-foreground font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-accent text-accent-foreground font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2 mt-6"
           >
             {isLoading ? (
               <>
                 <Loader className="w-5 h-5 animate-spin" />
-                Creating...
+                Submitting Request...
               </>
             ) : (
-              "Create Booking"
+              "Submit Request"
             )}
           </button>
         </form>

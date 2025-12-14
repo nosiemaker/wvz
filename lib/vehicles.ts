@@ -14,11 +14,17 @@ export async function getVehicles() {
 export async function getVehicleStats() {
   const supabase = await createClient()
 
-  const { data, error } = await supabase
-    .from("vehicles")
-    .select("status, COUNT(*) as count", { count: "exact" })
-    .group_by("status")
+  const { data, error } = await supabase.from("vehicles").select("status")
 
   if (error) throw error
-  return data
+
+  // Aggregate stats in JavaScript
+  const statsMap = (data || []).reduce((acc: Record<string, number>, curr) => {
+    const status = curr.status || "unknown"
+    acc[status] = (acc[status] || 0) + 1
+    return acc
+  }, {})
+
+  // Convert to array format matching typical database group-by result
+  return Object.entries(statsMap).map(([status, count]) => ({ status, count }))
 }

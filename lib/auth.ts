@@ -24,3 +24,15 @@ export async function getCurrentUser() {
 
   return { ...user, profile }
 }
+
+export async function getDrivers() {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("role", "driver")
+    .order("full_name", { ascending: true })
+
+  if (error) throw error
+  return data
+}
