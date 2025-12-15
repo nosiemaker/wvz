@@ -56,7 +56,7 @@ export async function getMyRequests() {
 
   const { data, error } = await supabase
     .from("bookings")
-    .select("*, vehicles(*)")
+    .select("*, vehicles(*), trips(*)")
     .eq("requester_id", user.id)
     .order("created_at", { ascending: false })
 
@@ -151,6 +151,26 @@ export async function getAllBookings() {
     .from("bookings")
     .select("*, vehicles(*), users!bookings_driver_id_fkey(full_name, email), requester:users!bookings_requester_id_fkey(full_name)")
     .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return data
+}
+
+export async function getMyAssignedBookings() {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) throw new Error("Not authenticated")
+
+  // Get bookings where current user is the assigned driver
+  const { data, error } = await supabase
+    .from("bookings")
+    .select("*, vehicles(*), requester:users!bookings_requester_id_fkey(full_name, email), trips(*)")
+    .eq("driver_id", user.id)
+    .in("status", ["approved", "pending_allocation"]) // Show approved trips ready to start
+    .order("start_date", { ascending: true })
 
   if (error) throw error
   return data

@@ -2,11 +2,12 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, Home, Truck, FileText, Clock, Settings, LogOut } from "lucide-react"
+import { Menu, X, Home, Truck, FileText, Clock, Settings, LogOut, Calendar } from "lucide-react"
 import Image from "next/image"
 import { logout } from "@/lib/auth"
+import { createClient } from "@/lib/client"
 
 export default function MobileLayout({
   children,
@@ -14,18 +15,39 @@ export default function MobileLayout({
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [userRole, setUserRole] = useState<string>("employee")
+
+  useEffect(() => {
+    const getUserRole = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setUserRole(user.user_metadata?.role || "employee")
+      }
+    }
+    getUserRole()
+  }, [])
 
   const handleLogout = async () => {
     await logout()
   }
 
-  const navItems = [
-    { href: "/mobile", label: "Home", icon: Home },
-    { href: "/mobile/bookings", label: "Bookings", icon: Truck },
-    { href: "/mobile/trips", label: "Trips", icon: FileText },
+  // Role-specific navigation
+  const driverNavItems = [
+    { href: "/mobile/driver", label: "Dashboard", icon: Home },
+    { href: "/mobile/trips", label: "My Trips", icon: Truck },
     { href: "/mobile/inspections", label: "Inspections", icon: Clock },
+    { href: "/mobile/profile", label: "Profile", icon: Settings },
+  ]
+
+  const employeeNavItems = [
+    { href: "/mobile/employee", label: "Dashboard", icon: Home },
+    { href: "/mobile/bookings", label: "My Requests", icon: Calendar },
+    { href: "/mobile/bookings/create", label: "New Request", icon: FileText },
     { href: "/mobile/settings", label: "Settings", icon: Settings },
   ]
+
+  const navItems = userRole === "driver" ? driverNavItems : employeeNavItems
 
   return (
     <div className="flex h-screen bg-background">

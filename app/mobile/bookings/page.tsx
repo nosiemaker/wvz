@@ -1,31 +1,44 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, Plus, ChevronRight, MapPin, Loader, Play } from "lucide-react"
-import { getMyRequests } from "@/lib/bookings"
+import { Calendar, Plus, ChevronRight, MapPin, Loader, Play, CheckCircle } from "lucide-react"
+import { getMyRequests, getMyAssignedBookings } from "@/lib/bookings"
 import { startTrip } from "@/lib/trips"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { createClient } from "@/lib/client"
 
 export default function BookingsPage() {
   const [requests, setRequests] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [processingId, setProcessingId] = useState<string | null>(null)
+  const [userRole, setUserRole] = useState<string>("employee")
   const router = useRouter()
 
   useEffect(() => {
-    const loadRequests = async () => {
+    const loadData = async () => {
       try {
-        const data = await getMyRequests()
-        setRequests(data || [])
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        const role = user?.user_metadata?.role || "employee"
+        setUserRole(role)
+
+        // Load different data based on role
+        if (role === "driver") {
+          const data = await getMyAssignedBookings()
+          setRequests(data || [])
+        } else {
+          const data = await getMyRequests()
+          setRequests(data || [])
+        }
       } catch (error) {
-        console.log("[v0] Error loading requests:", error)
+        console.log("Error loading data:", error)
       } finally {
         setIsLoading(false)
       }
     }
 
-    loadRequests()
+    loadData()
   }, [])
 
   const handleStartTrip = async (e: React.MouseEvent, request: any) => {
@@ -83,21 +96,31 @@ export default function BookingsPage() {
   return (
     <div className="pb-20">
       <div className="p-4 space-y-4">
-        {/* Create Request Button */}
-        <Link href="/mobile/bookings/create">
-          <button className="w-full bg-accent text-accent-foreground px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-sm">
-            <Plus className="w-5 h-5" />
-            Request New Trip
-          </button>
-        </Link>
+        {/* Create Request Button - Only for employees */}
+        {userRole !== "driver" && (
+          <Link href="/mobile/bookings/create">
+            <button className="w-full bg-accent text-accent-foreground px-4 py-3 rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-sm">
+              <Plus className="w-5 h-5" />
+              Request New Trip
+            </button>
+          </Link>
+        )}
 
         {/* Requests List */}
         <div className="space-y-3">
-          <h2 className="font-semibold text-lg">My Trips ({requests.length})</h2>
+          <h2 className="font-semibold text-lg">
+            {userRole === "driver" ? `My Assigned Trips (${requests.length})` : `My Trips (${requests.length})`}
+          </h2>
           {requests.length === 0 ? (
             <div className="text-center py-10 bg-card border border-border rounded-xl">
-              <p className="text-muted-foreground mb-2">No trip requests yet</p>
-              <p className="text-xs text-muted-foreground">Start by requesting a new trip above</p>
+              <p className="text-muted-foreground mb-2">
+                {userRole === "driver" ? "No assigned trips" : "No trip requests yet"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {userRole === "driver"
+                  ? "You have no trips assigned by the fleet manager"
+                  : "Start by requesting a new trip above"}
+              </p>
             </div>
           ) : (
             requests.map((request) => (
@@ -143,21 +166,56 @@ export default function BookingsPage() {
                   )}
                 </div>
 
-                {request.status === 'approved' ? (
-                  <button
-                    onClick={(e) => handleStartTrip(e, request)}
-                    disabled={!!processingId}
-                    className="w-full bg-primary text-primary-foreground font-bold py-3 flex items-center justify-center gap-2 rounded-lg hover:opacity-90 transition-opacity shadow-md"
-                  >
-                    {processingId === request.id ? <Loader className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-                    Start Trip
-                  </button>
-                ) : (
-                  <button className="w-full bg-muted/50 text-accent font-semibold py-2 flex items-center justify-center gap-2 rounded-lg hover:bg-muted transition-colors text-sm">
-                    View Status
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                )}
+                {/* Action Buttons */}
+                {(() => {
+                  // Check if trip exists for this booking
+                  const existingTrip = request.trips && request.trips.length > 0 ? request.trips[0] : null
+
+                  if (existingTrip) {
+                    // Trip exists - show status or view details
+                    if (existingTrip.status === "completed") {
+                      return (
+                        <button
+                          onClick={() => router.push(`/mobile/trips/${existingTrip.id}`)}
+                          className="w-full bg-green-500/10 text-green-700 font-semibold py-2 flex items-center justify-center gap-2 rounded-lg hover:bg-green-500/20 transition-colors border border-green-200"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                          Trip Completed - View Details
+                        </button>
+                      )
+                    } else if (existingTrip.status === "active") {
+                      return (
+                        <button
+                          onClick={() => router.push("/mobile/trips")}
+                          className="w-full bg-blue-500/10 text-blue-700 font-semibold py-2 flex items-center justify-center gap-2 rounded-lg hover:bg-blue-500/20 transition-colors border border-blue-200"
+                        >
+                          <Play className="w-4 h-4" />
+                          Trip In Progress - Manage
+                        </button>
+                      )
+                    }
+                  }
+
+                  // No trip exists yet
+                  if (request.status === 'approved') {
+                    return (
+                      <button
+                        onClick={(e) => handleStartTrip(e, request)}
+                        disabled={!!processingId}
+                        className="w-full bg-primary text-primary-foreground font-bold py-3 flex items-center justify-center gap-2 rounded-lg hover:opacity-90 transition-opacity shadow-md"
+                      >
+                        {processingId === request.id ? <Loader className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                        Start Trip
+                      </button>
+                    )
+                  } else {
+                    return (
+                      <button className="w-full bg-muted/50 text-accent font-semibold py-2 flex items-center justify-center gap-2 rounded-lg hover:bg-muted transition-colors text-sm">
+                        View Status
+                      </button>
+                    )
+                  }
+                })()}
               </div>
             ))
           )}

@@ -20,9 +20,10 @@ export default function AdminLayout({
   }
 
   const navItems = [
-    { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/admin/dashboard", label: "Fleet Dashboard", icon: LayoutDashboard },
     { href: "/admin/bookings", label: "Bookings", icon: FileText },
     { href: "/admin/vehicles", label: "Vehicles", icon: Truck },
+    { href: "/admin/contracts", label: "Contracts", icon: FileText },
     { href: "/admin/drivers", label: "Drivers", icon: Users },
     { href: "/admin/incidents", label: "Incidents", icon: AlertTriangle },
     { href: "/admin/settings", label: "Settings", icon: Settings },

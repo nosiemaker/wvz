@@ -72,23 +72,20 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
-        <CardHeader className="space-y-2">
-
-
-          // ... inside the component
-          <div className="flex items-center gap-2">
-            <div className="relative w-12 h-12">
+        <CardHeader className="space-y-4">
+          <div className="flex flex-col items-center justify-center text-center">
+            <div className="relative w-48 h-24 mb-4">
               <Image
-                src="/logo.png"
-                alt="Logo"
+                src="/logo.svg"
+                alt="World Vision"
                 fill
                 className="object-contain"
                 priority
               />
             </div>
-            <CardTitle className="text-2xl">Create Account</CardTitle>
+            <CardTitle className="text-2xl">Fleet Manager</CardTitle>
           </div>
-          <CardDescription>Join our fleet management system</CardDescription>
+          <CardDescription className="text-center">Create your account</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSignup} className="space-y-4">
