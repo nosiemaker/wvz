@@ -19,7 +19,7 @@ export default function MobilePage() {
         return
       }
 
-      // Get user role from metadata
+      // Get user role from metadata gggggg
       const role = user.user_metadata?.role || "employee"
 
       // Route based on role
