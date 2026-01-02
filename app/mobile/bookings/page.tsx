@@ -50,7 +50,12 @@ export default function BookingsPage() {
     try {
       // use vehicle_id if exists, else null (for external)
       const vehicleId = request.vehicle_id || null
-      await startTrip(vehicleId, request.id)
+      await startTrip({
+        vehicleId: vehicleId,
+        bookingId: request.id,
+        destination: request.destination,
+        purpose: request.purpose,
+      })
       router.push("/mobile/trips")
     } catch (error: any) {
       console.error("Error starting trip:", error)

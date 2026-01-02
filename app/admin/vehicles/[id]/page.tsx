@@ -5,6 +5,7 @@ import { ArrowLeft, FileText, Calendar, Wrench, Camera, AlertCircle, CheckCircle
 import Link from "next/link"
 import Image from "next/image"
 
+
 export default function VehicleDetailPage() {
     const [activeTab, setActiveTab] = useState("overview")
 
@@ -117,8 +118,8 @@ export default function VehicleDetailPage() {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`pb-3 px-1 border-b-2 transition-colors capitalize ${activeTab === tab
-                                    ? "border-primary text-primary font-semibold"
-                                    : "border-transparent text-muted-foreground hover:text-foreground"
+                                ? "border-primary text-primary font-semibold"
+                                : "border-transparent text-muted-foreground hover:text-foreground"
                                 }`}
                         >
                             {tab}

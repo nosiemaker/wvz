@@ -1,0 +1,20 @@
+{
+    "appId": "com.worldvision.fleet",
+    "appName": "World Vision Fleet",
+    "webDir": "out",
+    "server": {
+        "url": "http://10.0.2.2:3000",
+        "cleartext": true
+    },
+    "plugins": {
+        "SplashScreen": {
+            "launchShowDuration": 2000,
+            "backgroundColor": "#EE401D",
+            "showSpinner": false
+        },
+        "StatusBar": {
+            "backgroundColor": "#EE401D",
+            "style": "LIGHT"
+        }
+    }
+}

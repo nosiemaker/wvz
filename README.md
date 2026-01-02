@@ -140,5 +140,30 @@ vercel deploy
 
 Ensure all environment variables are set in Vercel project settings.
 
+## Mobile Deployment (Capacitor)
+
+The mobile application is built using Capacitor to wrap the Next.js web application for native platforms.
+
+### Android Setup
+
+1. **Prerequisites**: Install Android Studio and the Android SDK.
+2. **Run with Live Reload** (for development):
+   ```bash
+   npm run mobile
+   ```
+   *Note: Ensure your development server is running on `npm run dev`.*
+3. **Open in Android Studio**:
+   ```bash
+   npm run cap:open
+   ```
+4. **Sync Project**:
+   ```bash
+   npm run cap:sync
+   ```
+
+### Configuration
+- **Capacitor Config**: `capacitor.config.json`
+- **Native Project**: `/android` folder
+
 ## License
 MIT

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { ArrowLeft, MapPin, Calendar, Clock, Fuel, Coffee, Play, Square, User, Truck } from "lucide-react"
 import { getTripDetails, getTripLogs } from "@/lib/trips"
 
+
 export default function TripDetailsPage() {
     const params = useParams()
     const router = useRouter()

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { ArrowLeft, Camera, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
 
+
 export default function PreTripInspectionPage() {
     const router = useRouter()
     const params = useParams()
@@ -111,8 +112,8 @@ export default function PreTripInspectionPage() {
                                     <button
                                         onClick={() => handleStatusChange(item.id, true)}
                                         className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors ${item.status === true
-                                                ? "bg-green-600 text-white"
-                                                : "bg-green-100 text-green-700 hover:bg-green-200"
+                                            ? "bg-green-600 text-white"
+                                            : "bg-green-100 text-green-700 hover:bg-green-200"
                                             }`}
                                     >
                                         Pass
@@ -120,8 +121,8 @@ export default function PreTripInspectionPage() {
                                     <button
                                         onClick={() => handleStatusChange(item.id, false)}
                                         className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors ${item.status === false
-                                                ? "bg-red-600 text-white"
-                                                : "bg-red-100 text-red-700 hover:bg-red-200"
+                                            ? "bg-red-600 text-white"
+                                            : "bg-red-100 text-red-700 hover:bg-red-200"
                                             }`}
                                     >
                                         Fail
