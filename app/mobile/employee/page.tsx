@@ -70,61 +70,65 @@ export default function EmployeeDashboard() {
     }
 
     return (
-        <div className="pb-20">
-            <div className="p-4 space-y-4">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold">My Trips</h1>
-                        <p className="text-sm text-muted-foreground">Request and track your trips</p>
+        <div className="bg-[#F8F9FA] min-h-screen pb-24">
+            <div className="p-6 space-y-6">
+                {/* Header Section */}
+                <div className="flex items-center justify-between pt-2">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-6 bg-[#EE401D] rounded-full"></div>
+                            <h1 className="text-[26px] font-black text-slate-800 tracking-tighter">My Trips</h1>
+                        </div>
+                        <p className="text-[12px] font-black text-slate-400 uppercase tracking-[2px] ml-3.5">Request and track your trips</p>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="p-2 hover:bg-muted rounded-lg"
-                    >
-                        <LogOut className="w-5 h-5" />
-                    </button>
                 </div>
 
-                {/* Quick Request Button */}
+                {/* Quick Request Button - High Fidelity */}
                 <button
                     onClick={() => router.push("/mobile/bookings/create")}
-                    className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground px-6 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-3 shadow-lg"
+                    className="w-full h-[68px] bg-[#EE401D] text-white px-8 rounded-[24px] font-black text-[18px] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 shadow-2xl shadow-red-900/40 uppercase tracking-[2px]"
                 >
-                    <Plus className="w-6 h-6" />
+                    <Plus className="w-6 h-6 stroke-[3px]" />
                     Request New Trip
                 </button>
 
-                {/* Pending Requests */}
+                {/* Pending Requests Section */}
                 {pendingRequests.length > 0 && (
-                    <div className="space-y-2">
-                        <h3 className="font-semibold flex items-center gap-2">
-                            <Clock className="w-5 h-5 text-yellow-500" />
-                            Pending Requests ({pendingRequests.length})
-                        </h3>
-                        <div className="space-y-2">
+                    <div className="space-y-5">
+                        <div className="flex items-center justify-between px-2">
+                            <h3 className="text-[12px] font-black text-slate-800 uppercase tracking-[2px] flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-[#EE401D]" />
+                                Pending Requests
+                            </h3>
+                            <span className="bg-slate-100 text-slate-500 text-[10px] font-black px-2.5 py-1 rounded-full">{pendingRequests.length}</span>
+                        </div>
+                        <div className="space-y-4">
                             {pendingRequests.map((request) => (
-                                <div key={request.id} className="bg-card border border-border rounded-lg p-4">
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div className="flex items-start gap-3">
-                                            {getStatusIcon(request.status)}
-                                            <div>
-                                                <p className="font-semibold">{request.destination}</p>
-                                                <p className="text-sm text-muted-foreground">{request.purpose}</p>
-                                            </div>
+                                <div key={request.id} className="bg-white rounded-[32px] border border-slate-100 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.03)] space-y-4">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1">
+                                            <h4 className="text-[20px] font-black text-slate-800 tracking-tight leading-none">{request.destination}</h4>
+                                            <p className="text-[13px] text-slate-500 font-bold italic">{request.purpose || "Official business trip."}</p>
                                         </div>
-                                        {getStatusBadge(request.status)}
+                                        <div className="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-inner">
+                                            {request.status.replace("_", " ")}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
-                                        <div className="flex items-center gap-1">
-                                            <Calendar className="w-3 h-3" />
-                                            {new Date(request.start_date).toLocaleDateString()}
-                                        </div>
-                                        {request.cost_center && (
-                                            <div className="bg-muted px-2 py-0.5 rounded">
-                                                {request.cost_center}
+                                    <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+                                        <div className="flex items-center gap-4 text-slate-400">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-3.5 h-3.5" />
+                                                <span className="text-[11px] font-black uppercase tracking-wider">{new Date(request.start_date).toLocaleDateString()}</span>
                                             </div>
-                                        )}
+                                            {request.cost_center && (
+                                                <div className="bg-slate-50 px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-tighter border border-slate-100">
+                                                    {request.cost_center}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <button className="text-[11px] font-black text-[#EE401D] uppercase tracking-widest hover:underline">
+                                            Details
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -132,36 +136,44 @@ export default function EmployeeDashboard() {
                     </div>
                 )}
 
-                {/* Upcoming Trips */}
+                {/* Upcoming/Approved Section */}
                 {upcomingTrips.length > 0 && (
-                    <div className="space-y-2">
-                        <h3 className="font-semibold flex items-center gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-500" />
-                            Approved Trips ({upcomingTrips.length})
-                        </h3>
-                        <div className="space-y-2">
+                    <div className="space-y-5">
+                        <div className="flex items-center justify-between px-2">
+                            <h3 className="text-[12px] font-black text-slate-800 uppercase tracking-[2px] flex items-center gap-2">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                Approved Trips
+                            </h3>
+                            <span className="bg-green-50 text-green-600 text-[10px] font-black px-2.5 py-1 rounded-full">{upcomingTrips.length}</span>
+                        </div>
+                        <div className="space-y-4">
                             {upcomingTrips.map((trip) => (
-                                <div key={trip.id} className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900 border border-green-200 dark:border-green-800 rounded-lg p-4">
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div className="flex items-start gap-3">
-                                            <MapPin className="w-5 h-5 text-green-600" />
-                                            <div>
-                                                <p className="font-semibold">{trip.destination}</p>
-                                                <p className="text-sm text-muted-foreground">{trip.purpose}</p>
-                                            </div>
+                                <div key={trip.id} className="bg-white rounded-[32px] border border-green-100 p-6 shadow-[0_12px_40px_rgba(0,0,0,0.04)] space-y-4 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-green-50/50 rounded-full translate-x-12 -translate-y-12 -z-0"></div>
+                                    <div className="relative z-10 flex items-start justify-between">
+                                        <div className="space-y-1">
+                                            <h4 className="text-[20px] font-black text-slate-800 tracking-tight leading-none">{trip.destination}</h4>
+                                            <p className="text-[13px] text-slate-500 font-bold italic">{trip.purpose || "Official business trip."}</p>
                                         </div>
-                                        {getStatusBadge(trip.status)}
+                                        <div className="bg-green-500 text-white px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-green-900/10">
+                                            APPROVED
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
-                                        <div className="flex items-center gap-1">
-                                            <Calendar className="w-3 h-3" />
-                                            {new Date(trip.start_date).toLocaleDateString()}
-                                        </div>
-                                        {trip.vehicles && (
-                                            <div className="bg-white/50 dark:bg-black/20 px-2 py-0.5 rounded font-medium">
-                                                {trip.vehicles.plate_number}
+                                    <div className="relative z-10 flex items-center justify-between pt-3 border-t border-slate-50">
+                                        <div className="flex items-center gap-4 text-slate-400">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-3.5 h-3.5 text-green-500" />
+                                                <span className="text-[11px] font-black uppercase tracking-wider text-slate-800">{new Date(trip.start_date).toLocaleDateString()}</span>
                                             </div>
-                                        )}
+                                            {trip.vehicles && (
+                                                <div className="bg-[#3E2723] text-white px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tight shadow-lg shadow-brown-900/20">
+                                                    {trip.vehicles.plate_number || trip.vehicles.registration}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <button className="text-[11px] font-black text-green-600 uppercase tracking-widest hover:underline">
+                                            View Ticket
+                                        </button>
                                     </div>
                                 </div>
                             ))}
@@ -171,42 +183,25 @@ export default function EmployeeDashboard() {
 
                 {/* Empty State */}
                 {requests.length === 0 && (
-                    <div className="bg-card border border-dashed border-border rounded-xl p-8 text-center">
-                        <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                        <p className="font-semibold text-lg mb-2">No Trip Requests Yet</p>
-                        <p className="text-sm text-muted-foreground mb-4">
+                    <div className="py-20 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-100 shadow-sm">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <Calendar className="w-10 h-10 text-slate-200" />
+                        </div>
+                        <p className="font-black text-xl text-slate-800 mb-2">No Trip Requests Yet</p>
+                        <p className="text-sm font-bold text-slate-400 max-w-[200px] mx-auto leading-relaxed">
                             Click the button above to request your first trip
                         </p>
                     </div>
                 )}
 
-                {/* Recent History */}
-                {requests.length > 0 && (
-                    <div className="space-y-2">
-                        <h3 className="font-semibold">Recent Requests</h3>
-                        <div className="space-y-2">
-                            {requests.slice(0, 3).map((request) => (
-                                <div key={request.id} className="bg-card border border-border rounded-lg p-3 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        {getStatusIcon(request.status)}
-                                        <div>
-                                            <p className="font-medium text-sm">{request.destination}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {new Date(request.start_date).toLocaleDateString()}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    {getStatusBadge(request.status)}
-                                </div>
-                            ))}
-                        </div>
-                        <button
-                            onClick={() => router.push("/mobile/bookings")}
-                            className="w-full text-primary hover:underline text-sm font-medium"
-                        >
-                            View All Requests
-                        </button>
-                    </div>
+                {/* Recent History Shortcut */}
+                {requests.length > 5 && (
+                    <button
+                        onClick={() => router.push("/mobile/bookings")}
+                        className="w-full py-4 bg-slate-50 text-slate-500 rounded-[20px] text-[11px] font-black uppercase tracking-[2px] transition-all active:scale-95 border border-slate-100"
+                    >
+                        View older requests ({requests.length - 3})
+                    </button>
                 )}
             </div>
         </div>

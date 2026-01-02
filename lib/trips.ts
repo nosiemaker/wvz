@@ -3,31 +3,21 @@
 import { createClient } from "@/lib/server"
 import { revalidatePath } from "next/cache"
 
-export async function startTrip(vehicleId: string | null, bookingId?: string) {
+export async function startTrip(params: {
+  vehicleId: string | null;
+  bookingId?: string;
+  startMileage?: number;
+  startLocation?: string;
+  destination?: string;
+  purpose?: string;
+}) {
+  const { vehicleId, bookingId, startMileage, startLocation, destination, purpose } = params;
   const supabase = await createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error("Not authenticated")
-
-  // Optional: Verify booking is approved and assigned to this driver
-  if (bookingId) {
-    const { data: booking } = await supabase
-      .from("bookings")
-      .select("status, driver_id")
-      .eq("id", bookingId)
-      .single()
-
-    if (booking?.status !== 'approved') {
-      // In a strict system, we might block. For MVP/Demo flexibility, we allow it but log a warning?
-      // Let's strictly block if it's not approved or assigned.
-      if (booking?.driver_id !== user.id) {
-        // Allow self-drive exception if implemented, but for now strict check:
-        // throw new Error("You are not assigned to this trip")
-      }
-    }
-  }
 
   const { data, error } = await supabase
     .from("trips")
@@ -36,6 +26,10 @@ export async function startTrip(vehicleId: string | null, bookingId?: string) {
       vehicle_id: vehicleId,
       booking_id: bookingId,
       start_time: new Date().toISOString(),
+      start_mileage: startMileage,
+      start_location: startLocation,
+      destination: destination,
+      purpose: purpose,
       status: "active",
     })
     .select()
