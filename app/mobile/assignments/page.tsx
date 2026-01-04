@@ -1,88 +1,88 @@
 "use client"
 
-import { useState } from "react"
-import { Car, Calendar, MapPin, User, Clock, CheckCircle, Play, RotateCw, ChevronRight, Compass, Hash } from "lucide-react"
-
-interface AssignmentEntry {
-    id: string
-    vehicle: string
-    plate: string
-    vehicleCode: string
-    driver: string
-    destination: string
-    purpose: string
-    startDate: string
-    endDate: string
-    odometer: string
-    tripCount: number
-    status: "active" | "upcoming" | "completed"
-}
+import { useState, useEffect } from "react"
+import { Car, Calendar, MapPin, User, Clock, CheckCircle, Play, RotateCw, ChevronRight, Compass, Hash, Loader, StopCircle } from "lucide-react"
+import { getMyAssignedBookings, startTrip, completeTrip } from "@/lib/bookings"
 
 export default function AssignmentsPage() {
-    const [assignments] = useState<AssignmentEntry[]>([
-        {
-            id: "1",
-            vehicle: "Toyota Land Cruiser",
-            plate: "CAA 9371",
-            vehicleCode: "V01",
-            driver: "Ruth Zulu",
-            destination: "Lusaka",
-            purpose: "Security and Admin follow ups and operations across regional offices.",
-            startDate: "02/01/26",
-            endDate: "Active",
-            odometer: "1,291 KM",
-            tripCount: 33,
-            status: "active"
-        },
-        {
-            id: "2",
-            vehicle: "Nissan Patrol",
-            plate: "BAB 1245",
-            vehicleCode: "V05",
-            driver: "John Banda",
-            destination: "Chipata",
-            purpose: "Community Health Outreach program delivery and monitoring.",
-            startDate: "05/01/26",
-            endDate: "10/01/26",
-            odometer: "0 KM",
-            tripCount: 0,
-            status: "upcoming"
-        },
-        {
-            id: "3",
-            vehicle: "Toyota Hilux",
-            plate: "CAC 5567",
-            vehicleCode: "V12",
-            driver: "Grace Mwale",
-            destination: "Ndola",
-            purpose: "Education program assessment and school visits.",
-            startDate: "28/12/25",
-            endDate: "31/12/25",
-            odometer: "847 KM",
-            tripCount: 12,
-            status: "completed"
-        },
-        {
-            id: "4",
-            vehicle: "Ford Ranger",
-            plate: "BAD 7788",
-            vehicleCode: "V08",
-            driver: "Peter Tembo",
-            destination: "Livingstone",
-            purpose: "Emergency response coordination and supplies delivery.",
-            startDate: "03/01/26",
-            endDate: "08/01/26",
-            odometer: "0 KM",
-            tripCount: 0,
-            status: "upcoming"
-        },
-    ])
+    const [assignments, setAssignments] = useState<any[]>([])
+    const [isLoading, setIsLoading] = useState(true)
+    const [processingId, setProcessingId] = useState<string | null>(null)
+
+    const loadData = async () => {
+        try {
+            const data = await getMyAssignedBookings()
+            setAssignments(data || [])
+        } catch (error) {
+            console.error("Failed to load assignments", error)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        loadData()
+    }, [])
+
+    const handleStartTrip = async (id: string) => {
+        // For MVP, using prompt. In production, use a nice modal.
+        const mileageStr = prompt("Enter Current Odometer Reading (Start Mileage):")
+        if (!mileageStr) return
+
+        const mileage = parseInt(mileageStr)
+        if (isNaN(mileage)) {
+            alert("Invalid mileage")
+            return
+        }
+
+        setProcessingId(id)
+        try {
+            const confirmInspection = confirm("Have you completed the Pre-Trip Inspection Checklist?")
+            if (!confirmInspection) return
+
+            await startTrip(id, mileage)
+            await loadData()
+        } catch (error) {
+            alert("Failed to start trip")
+        } finally {
+            setProcessingId(null)
+        }
+    }
+
+    const handleCompleteTrip = async (id: string, startMileage: number) => {
+        const mileageStr = prompt("Enter Final Odometer Reading (End Mileage):")
+        if (!mileageStr) return
+
+        const mileage = parseInt(mileageStr)
+        if (isNaN(mileage)) {
+            alert("Invalid mileage")
+            return
+        }
+
+        if (mileage < (startMileage || 0)) {
+            alert(`End mileage cannot be less than start mileage (${startMileage})`)
+            return
+        }
+
+        setProcessingId(id)
+        try {
+            const confirmInspection = confirm("Have you completed the Post-Trip Inspection Checklist?")
+            if (!confirmInspection) return
+
+            await completeTrip(id, mileage)
+            await loadData()
+        } catch (error) {
+            alert("Failed to complete trip")
+        } finally {
+            setProcessingId(null)
+        }
+    }
 
     const getStatusStyle = (status: string) => {
         switch (status) {
-            case "active":
+            case "in_progress":
                 return "bg-green-500 text-white"
-            case "upcoming":
+            case "approved":
                 return "bg-blue-500 text-white"
             case "completed":
                 return "bg-slate-400 text-white"
@@ -93,9 +93,9 @@ export default function AssignmentsPage() {
 
     const getStatusBorderStyle = (status: string) => {
         switch (status) {
-            case "active":
+            case "in_progress":
                 return "border-l-green-500"
-            case "upcoming":
+            case "approved":
                 return "border-l-blue-500"
             case "completed":
                 return "border-l-slate-300"
@@ -104,11 +104,19 @@ export default function AssignmentsPage() {
         }
     }
 
-    const activeCount = assignments.filter(a => a.status === "active").length
-    const upcomingCount = assignments.filter(a => a.status === "upcoming").length
+    const activeCount = assignments.filter(a => a.status === "in_progress").length
+    const upcomingCount = assignments.filter(a => a.status === "approved").length
+
+    if (isLoading) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loader className="w-8 h-8 animate-spin text-primary" />
+            </div>
+        )
+    }
 
     return (
-        <div className="bg-[#F8F9FA] min-h-screen">
+        <div className="bg-[#F8F9FA] min-h-screen pb-20">
             {/* Header */}
             <div className="p-6 bg-white border-b border-slate-100 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
@@ -116,7 +124,9 @@ export default function AssignmentsPage() {
                         <div className="w-1.5 h-6 bg-[#EE401D] rounded-full"></div>
                         <h2 className="text-[18px] font-black text-slate-800 tracking-tight">Assignments</h2>
                     </div>
-                    <RotateCw size={20} className="text-[#00897B]" />
+                    <button onClick={loadData}>
+                        <RotateCw size={20} className="text-[#00897B]" />
+                    </button>
                 </div>
 
                 <div className="flex gap-3">
@@ -139,81 +149,105 @@ export default function AssignmentsPage() {
 
             {/* Assignment List */}
             <div className="p-4 space-y-4">
-                {assignments.map((entry) => (
-                    <div key={entry.id} className={`bg-white rounded-[28px] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden border-l-4 ${getStatusBorderStyle(entry.status)}`}>
-                        <div className="p-6 space-y-4">
-                            {/* Header Row */}
-                            <div className="flex justify-between items-start">
-                                <div className="space-y-1.5">
-                                    <div className="flex items-center gap-3 text-slate-400">
-                                        <Calendar size={14} />
-                                        <span className="text-[10px] font-black uppercase tracking-[2px]">Assignment Date</span>
-                                        <span className="text-[11px] font-black text-slate-800">{entry.startDate}</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-slate-400">
-                                        <Clock size={14} />
-                                        <span className="text-[10px] font-black uppercase tracking-[2px]">Return Date</span>
-                                        <span className="text-[11px] font-black text-slate-800">{entry.endDate}</span>
-                                    </div>
-                                </div>
-                                <div className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusStyle(entry.status)}`}>
-                                    {entry.status}
-                                </div>
-                            </div>
-
-                            {/* Destination */}
-                            <div className="flex items-center gap-3">
-                                <div className="w-2 h-6 bg-[#EE401D] rounded-full"></div>
-                                <h3 className="text-[22px] font-black text-slate-800 tracking-tighter">{entry.destination}</h3>
-                            </div>
-
-                            {/* Purpose */}
-                            <div className="bg-slate-50 rounded-[20px] p-4 border border-slate-100/50">
-                                <div className="flex items-start gap-3">
-                                    <User size={16} className="text-slate-400 mt-0.5" />
-                                    <div>
-                                        <p className="text-[14px] font-black text-slate-700 mb-1">{entry.driver}</p>
-                                        <p className="text-[13px] font-bold italic text-slate-500 leading-relaxed">{entry.purpose}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Footer Stats */}
-                            <div className="flex items-center justify-between pt-3 border-t border-slate-50">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-xl bg-[#3E2723] text-white flex items-center justify-center text-[10px] font-black shadow-lg">
-                                        {entry.vehicleCode}
-                                    </div>
-                                    <span className="font-black text-slate-800 text-[15px] tracking-tighter uppercase">{entry.plate}</span>
-                                </div>
-                                <div className="flex gap-5">
-                                    <div className="flex items-center gap-2">
-                                        <Compass size={18} className="text-[#EE401D]" />
-                                        <span className="text-[14px] font-black text-slate-800">{entry.odometer}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <Hash size={16} className="text-slate-300" />
-                                        <span className="text-[14px] font-black text-slate-800">{entry.tripCount}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Action Button for Active */}
-                            {entry.status === "active" && (
-                                <button className="w-full py-4 bg-slate-900 text-white rounded-[20px] text-[12px] font-black uppercase tracking-[1.5px] flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform">
-                                    <Play size={14} className="fill-current" />
-                                    Continue Trip
-                                </button>
-                            )}
-                            {entry.status === "upcoming" && (
-                                <button className="w-full py-4 bg-blue-500 text-white rounded-[20px] text-[12px] font-black uppercase tracking-[1.5px] flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform">
-                                    <CheckCircle size={14} />
-                                    Accept Assignment
-                                </button>
-                            )}
-                        </div>
+                {assignments.length === 0 ? (
+                    <div className="text-center py-10 text-slate-400">
+                        <p>No active assignments.</p>
                     </div>
-                ))}
+                ) : (
+                    assignments.map((entry) => (
+                        <div key={entry.id} className={`bg-white rounded-[28px] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden border-l-4 ${getStatusBorderStyle(entry.status)}`}>
+                            <div className="p-6 space-y-4">
+                                {/* Header Row */}
+                                <div className="flex justify-between items-start">
+                                    <div className="space-y-1.5">
+                                        <div className="flex items-center gap-3 text-slate-400">
+                                            <Calendar size={14} />
+                                            <span className="text-[10px] font-black uppercase tracking-[2px]">Date</span>
+                                            <span className="text-[11px] font-black text-slate-800">{new Date(entry.start_date).toLocaleDateString()}</span>
+                                        </div>
+                                    </div>
+                                    <div className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusStyle(entry.status)}`}>
+                                        {entry.status === 'in_progress' ? 'ON TRIP' : entry.status}
+                                    </div>
+                                </div>
+
+                                {/* Destination */}
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-6 bg-[#EE401D] rounded-full"></div>
+                                    <h3 className="text-[22px] font-black text-slate-800 tracking-tighter">{entry.destination}</h3>
+                                </div>
+
+                                {/* Purpose */}
+                                <div className="bg-slate-50 rounded-[20px] p-4 border border-slate-100/50">
+                                    <div className="flex items-start gap-3">
+                                        <User size={16} className="text-slate-400 mt-0.5" />
+                                        <div>
+                                            <p className="text-[14px] font-black text-slate-700 mb-1">Requester: {entry.requester?.full_name}</p>
+                                            <p className="text-[13px] font-bold italic text-slate-500 leading-relaxed">{entry.purpose}</p>
+                                        </div>
+                                    </div>
+                                    {entry.cost_center && (
+                                        <div className="mt-2 text-[10px] font-bold bg-white inline-block px-2 py-1 rounded text-slate-600 border border-slate-200">
+                                            {entry.cost_center}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Footer Stats - Vehicle */}
+                                {entry.vehicles && (
+                                    <div className="flex items-center justify-between pt-3 border-t border-slate-50">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-xl bg-[#3E2723] text-white flex items-center justify-center text-[10px] font-black shadow-lg">
+                                                V
+                                            </div>
+                                            <span className="font-black text-slate-800 text-[15px] tracking-tighter uppercase">{entry.vehicles.registration}</span>
+                                        </div>
+                                        {entry.status === 'in_progress' && (
+                                            <div className="flex items-center gap-2">
+                                                <Compass size={18} className="text-[#EE401D]" />
+                                                <span className="text-[14px] font-black text-slate-800">Start: {entry.start_mileage} KM</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                {/* Action Buttons */}
+                                {entry.status === "in_progress" && (
+                                    <button
+                                        onClick={() => handleCompleteTrip(entry.id, entry.start_mileage)}
+                                        disabled={processingId === entry.id}
+                                        className="w-full py-4 bg-slate-900 text-white rounded-[20px] text-[12px] font-black uppercase tracking-[1.5px] flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform hover:opacity-90 disabled:opacity-70"
+                                    >
+                                        {processingId === entry.id ? (
+                                            <Loader className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <>
+                                                <StopCircle size={14} className="fill-current" />
+                                                Complete Trip
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                                {(entry.status === "approved" || entry.status === "pending_allocation") && (
+                                    <button
+                                        onClick={() => handleStartTrip(entry.id)}
+                                        disabled={processingId === entry.id}
+                                        className="w-full py-4 bg-[#EE401D] text-white rounded-[20px] text-[12px] font-black uppercase tracking-[1.5px] flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform hover:opacity-90 disabled:opacity-70"
+                                    >
+                                        {processingId === entry.id ? (
+                                            <Loader className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <>
+                                                <Play size={14} className="fill-current" />
+                                                Start Trip
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     )

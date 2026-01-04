@@ -1,38 +1,68 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { createClient } from "@/lib/client"
 import { MapPin, AlertCircle, Calendar, Bell, Truck } from "lucide-react"
-import { redirect } from "next/navigation"
-import { createClient } from "@/lib/server"
 
-export default async function Home() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+export default function Home() {
+  const [isDemo, setIsDemo] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+  const supabase = createClient()
 
-  // If no user and Supabase is configured, redirect to login
-  if (!user && process.env.NEXT_PUBLIC_SUPABASE_URL) {
-    redirect("/auth/login")
-  }
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const hasSupabase = !!process.env.NEXT_PUBLIC_SUPABASE_URL
 
-  // If Supabase not configured, show demo dashboard
-  if (!user) {
-    // Demo mode - show the dashboard without redirect
-  } else {
-    // Get user role to redirect to appropriate portal
-    const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single()
+        if (!hasSupabase) {
+          setIsDemo(true)
+          setIsLoading(false)
+          return
+        }
 
-    const role = profile?.role || "driver"
+        const { data: { user } } = await supabase.auth.getUser()
 
-    // Redirect to appropriate portal based on role
-    if (role === "manager") {
-      redirect("/admin")
-    } else if (role === "finance") {
-      redirect("/finance")
-    } else if (role === "compliance") {
-      redirect("/compliance")
-    } else {
-      redirect("/mobile")
+        if (!user) {
+          router.push("/auth/login")
+          return
+        }
+
+        // Get user role to redirect to appropriate portal
+        const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single()
+        const role = profile?.role || "driver"
+
+        if (role === "admin") {
+          router.push("/admin")
+        } else if (role === "finance") {
+          router.push("/finance")
+        } else if (role === "compliance") {
+          router.push("/compliance")
+        } else {
+          router.push("/mobile")
+        }
+      } catch (error) {
+        console.error("Error checking session:", error)
+        // Fallback or error state
+        setIsLoading(false)
+      }
     }
+
+    checkSession()
+  }, [router, supabase])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    )
   }
+
+  // If we are here and not demo, we are likely redirecting or something failed, 
+  // but if we strictly follow the logic, we only render this dashboard in demo mode (no supabase config).
+  if (!isDemo) return null
 
   const activeTrip = {
     id: "TRIP-2025-001",

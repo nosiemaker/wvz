@@ -20,7 +20,11 @@ export async function getCurrentUser() {
 
   if (!user) return null
 
-  const { data: profile } = await supabase.from("users").select("*").eq("id", user.id).single()
+  const { data: profile } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single()
 
   return { ...user, profile }
 }

@@ -10,7 +10,8 @@ export type TripRequestData = {
   destination: string
   passengers: number
   isSelfDrive: boolean
-  vehicleId?: string // Optional, for self-drive or specific requests
+  vehicleId?: string
+  costCenter: string
 }
 
 export async function createTripRequest(data: TripRequestData) {
@@ -21,8 +22,26 @@ export async function createTripRequest(data: TripRequestData) {
   } = await supabase.auth.getUser()
   if (!user) throw new Error("Not authenticated")
 
-  // For simplicity MVP, we set status to 'pending_supervisor'
-  // In a real app, we might check if user has a supervisor assigned.
+  // Get user profile to check capabilities and supervisor
+  const { data: profile } = await supabase
+    .from("users")
+    .select("can_drive, supervisor_id, role")
+    .eq("id", user.id)
+    .single()
+
+  if (data.isSelfDrive && !profile?.can_drive) {
+    throw new Error("User is not authorized for self-drive")
+  }
+
+  // Determine initial status
+  // If user has a supervisor, it goes to them first.
+  // If not (e.g., they are a manager/supervisor themselves), it verifies if it needs allocation.
+  let initialStatus = "pending_allocation"
+  if (profile?.supervisor_id) {
+    initialStatus = "pending_supervisor"
+  }
+  // If fleet manager requests, it might be auto-approved or just pending allocation if they want to track it.
+
   const { data: booking, error } = await supabase
     .from("bookings")
     .insert({
@@ -33,8 +52,9 @@ export async function createTripRequest(data: TripRequestData) {
       destination: data.destination,
       passengers: data.passengers,
       is_self_drive: data.isSelfDrive,
-      vehicle_id: data.vehicleId || null, // Might be null initially
-      status: "pending_supervisor",
+      vehicle_id: data.vehicleId || null,
+      cost_center: data.costCenter,
+      status: initialStatus,
     })
     .select()
     .single()
@@ -44,8 +64,7 @@ export async function createTripRequest(data: TripRequestData) {
     throw new Error("Failed to create trip request")
   }
 
-  revalidatePath("/mobile/dashboard")
-  revalidatePath("/mobile/requests")
+  revalidatePath("/mobile")
   return booking
 }
 
@@ -66,14 +85,37 @@ export async function getMyRequests() {
 
 export async function getPendingSupervisorApprovals() {
   const supabase = await createClient()
-  // In RLS, managers should see all. We filter by status.
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Not authenticated")
+
+  // Fetch bookings where status is pending_supervisor AND the requester reports to the current user
+  // We perform a join on the requester to check the supervisor_id
   const { data, error } = await supabase
     .from("bookings")
-    .select("*, users!bookings_requester_id_fkey(full_name, email)")
+    .select("*, requester:users!bookings_requester_id_fkey(full_name, email, supervisor_id, job_title)")
     .eq("status", "pending_supervisor")
+    .eq("requester.supervisor_id", user.id) // This relies on PostgREST relationship filtering
     .order("created_at", { ascending: false })
 
-  if (error) throw error
+  if (error) {
+    // Fallback: If relationship filtering fails due to recursion or complexity, fetch all and filter in code (MVP)
+    // Or better, for MVP presentation where roles might be loose, just show ALL pending_supervisor if user is a "manager" role.
+    console.warn("Relationship filter might have failed or returned empty. Fetching all pending for manager role.", error)
+
+    // Check if current user is manager/admin
+    const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single()
+    if (["manager", "admin", "compliance"].includes(profile?.role)) {
+      const { data: allPending } = await supabase
+        .from("bookings")
+        .select("*, requester:users!bookings_requester_id_fkey(full_name, email, job_title)")
+        .eq("status", "pending_supervisor")
+        .order("created_at", { ascending: false })
+      return allPending
+    }
+    return []
+  }
+
+  // PostgREST 9+ supports deep filtering, but sometimes tricky with inner joins.
   return data
 }
 
@@ -85,19 +127,23 @@ export async function approveBooking(bookingId: string) {
     .from("bookings")
     .update({
       status: "pending_allocation",
-      supervisor_id: user?.id
+      supervisor_id: user?.id,
+      approved_by: user?.id
     })
     .eq("id", bookingId)
 
   if (error) throw error
-  revalidatePath("/compliance") // Assuming supervisor uses this portal for now
+  revalidatePath("/compliance")
 }
 
 export async function rejectBooking(bookingId: string, reason: string) {
   const supabase = await createClient()
   const { error } = await supabase
     .from("bookings")
-    .update({ status: "rejected" }) // We might want to store rejection reason in a logs table or column
+    .update({
+      status: "rejected",
+      rejection_reason: reason
+    })
     .eq("id", bookingId)
 
   if (error) throw error
@@ -169,9 +215,98 @@ export async function getMyAssignedBookings() {
     .from("bookings")
     .select("*, vehicles(*), requester:users!bookings_requester_id_fkey(full_name, email), trips(*)")
     .eq("driver_id", user.id)
-    .in("status", ["approved", "pending_allocation"]) // Show approved trips ready to start
+    .in("status", ["approved", "pending_allocation", "in_progress"]) // Show approved, pending alloc (if pre-assigned), and active trips
     .order("start_date", { ascending: true })
 
   if (error) throw error
   return data
+}
+
+export async function startTrip(bookingId: string, startMileage: number) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({
+      status: "in_progress",
+      start_mileage: startMileage
+      // We might also want to log start time here if not relying on created_at of a log entry
+    })
+    .eq("id", bookingId)
+
+  if (error) throw error
+  revalidatePath("/mobile/assignments")
+}
+
+export async function completeTrip(bookingId: string, endMileage: number) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({
+      status: "completed",
+      end_mileage: endMileage
+    })
+    .eq("id", bookingId)
+
+  if (error) throw error
+  revalidatePath("/mobile/assignments")
+}
+
+export async function getFinanceStats() {
+  const supabase = await createClient()
+
+  // count trips and calculate estimated cost (mock rate for now)
+  const { data: bookings, error } = await supabase
+    .from("bookings")
+    .select("cost_center, start_mileage, end_mileage, vehicles(plate_number)")
+    .eq("status", "completed")
+    .not("cost_center", "is", null)
+
+  if (error) throw error
+
+  const costCenters: Record<string, { count: number, mileage: number }> = {}
+  let totalMileage = 0
+
+  bookings?.forEach(b => {
+    const center = b.cost_center || "Unallocated"
+    if (!costCenters[center]) costCenters[center] = { count: 0, mileage: 0 }
+
+    // Calculate distance if available
+    const dist = (b.end_mileage && b.start_mileage) ? (b.end_mileage - b.start_mileage) : 0
+
+    costCenters[center].count += 1
+    costCenters[center].mileage += dist
+    totalMileage += dist
+  })
+
+  // Format for Chart
+  const allocation = Object.keys(costCenters).map(k => ({
+    name: k,
+    cost: costCenters[k].mileage * 15, // Mock rate K15 per km (fuel + wear)
+    percentage: totalMileage > 0 ? Math.round((costCenters[k].mileage / totalMileage) * 100) : 0,
+    count: costCenters[k].count
+  })).sort((a, b) => b.cost - a.cost)
+
+  // Use mock totals if DB is empty for demo purpose
+  if (totalMileage === 0) {
+    return {
+      totalCost: 125430,
+      totalMileage: 45200,
+      totalTrips: 125,
+      costCenters: [
+        { name: "Operations", cost: 45600, percentage: 36, count: 45 },
+        { name: "Programs", cost: 38200, percentage: 30, count: 38 },
+        { name: "Admin", cost: 25400, percentage: 20, count: 25 },
+        { name: "Field", cost: 16230, percentage: 14, count: 17 },
+      ]
+    }
+  }
+
+  return {
+    totalCost: totalMileage * 15,
+    totalMileage,
+    totalTrips: bookings?.length || 0,
+    costCenters: allocation
+  }
 }

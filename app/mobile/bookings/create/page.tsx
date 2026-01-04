@@ -1,11 +1,12 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import { ArrowLeft, MapPin, Calendar, Users, Car, FileText, Loader } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ArrowLeft, MapPin, Calendar, Users, Car, FileText, Loader, Briefcase } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createTripRequest, type TripRequestData } from "@/lib/bookings"
+import { getCurrentUser } from "@/lib/auth"
 
 export default function CreateBookingPage() {
   const [formData, setFormData] = useState<TripRequestData>({
@@ -16,16 +17,27 @@ export default function CreateBookingPage() {
     passengers: 1,
     isSelfDrive: false,
     vehicleId: undefined,
+    costCenter: "",
   })
 
+  const [canDrive, setCanDrive] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
 
+  useEffect(() => {
+    const checkUser = async () => {
+      const user = await getCurrentUser()
+      if (user?.profile?.can_drive) {
+        setCanDrive(true)
+      }
+    }
+    checkUser()
+  }, [])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
 
-    // Handle Checkbox
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked
       setFormData((prev) => ({ ...prev, [name]: checked }))
@@ -120,6 +132,29 @@ export default function CreateBookingPage() {
             </div>
           </div>
 
+          {/* Cost Center */}
+          <div>
+            <label className="block text-sm font-semibold mb-2">Cost Center</label>
+            <div className="flex items-center bg-card border border-border rounded-lg px-4 py-3 focus-within:border-primary transition-colors">
+              <Briefcase className="w-5 h-5 text-muted-foreground mr-3" />
+              <select
+                name="costCenter"
+                value={formData.costCenter}
+                onChange={handleChange}
+                className="flex-1 bg-transparent outline-none text-foreground"
+                required
+              >
+                <option value="">Select Cost Center / Project</option>
+                <option value="Administration">Administration</option>
+                <option value="Operations">Operations</option>
+                <option value="Grant-Health-2025">Grant - Health 2025</option>
+                <option value="Grant-Education-2025">Grant - Education 2025</option>
+                <option value="Emergency-Response">Emergency Response</option>
+                <option value="HR">Human Resources</option>
+              </select>
+            </div>
+          </div>
+
           {/* Purpose */}
           <div>
             <label className="block text-sm font-semibold mb-2">Purpose of Trip</label>
@@ -154,26 +189,28 @@ export default function CreateBookingPage() {
             </div>
           </div>
 
-          {/* Self Drive Toggle */}
-          <div className="flex items-center justify-between bg-card border border-border p-4 rounded-lg">
-            <div className="flex items-center gap-3">
-              <Car className="w-5 h-5 text-primary" />
-              <div>
-                <p className="font-semibold">Self Drive Request</p>
-                <p className="text-xs text-muted-foreground">Request to drive yourself</p>
+          {/* Self Drive Toggle - Conditional */}
+          {canDrive && (
+            <div className="flex items-center justify-between bg-card border border-border p-4 rounded-lg">
+              <div className="flex items-center gap-3">
+                <Car className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="font-semibold">Self Drive Request</p>
+                  <p className="text-xs text-muted-foreground">Request to drive yourself</p>
+                </div>
               </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  name="isSelfDrive"
+                  checked={formData.isSelfDrive}
+                  onChange={handleChange}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+              </label>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                name="isSelfDrive"
-                checked={formData.isSelfDrive}
-                onChange={handleChange}
-                className="sr-only peer"
-              />
-              <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-            </label>
-          </div>
+          )}
 
           {/* Submit Button */}
           <button

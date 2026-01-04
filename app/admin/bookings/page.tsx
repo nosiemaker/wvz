@@ -79,20 +79,28 @@ function AllocationModal({ booking, vehicles, drivers, onClose, onAllocate }: Al
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Select Driver</label>
-                <select
-                  className="w-full bg-input border border-border rounded-md px-3 py-2"
-                  value={formData.driverId}
-                  onChange={e => setFormData({ ...formData, driverId: e.target.value })}
-                  required
-                >
-                  <option value="">Choose Driver...</option>
-                  {drivers.map(d => (
-                    <option key={d.id} value={d.id}>{d.full_name}</option>
-                  ))}
-                </select>
-              </div>
+
+              {booking.is_self_drive ? (
+                <div className="bg-blue-50 text-blue-700 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+                  <User className="w-4 h-4" />
+                  <span>Self-Drive: Requester will be assigned as driver.</span>
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Select Driver</label>
+                  <select
+                    className="w-full bg-input border border-border rounded-md px-3 py-2"
+                    value={formData.driverId}
+                    onChange={e => setFormData({ ...formData, driverId: e.target.value })}
+                    required
+                  >
+                    <option value="">Choose Driver...</option>
+                    {drivers.map(d => (
+                      <option key={d.id} value={d.id}>{d.full_name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </>
           ) : (
             <>
@@ -209,7 +217,7 @@ export default function AdminBookingsPage() {
     await allocateBooking(
       selectedBooking.id,
       data.isExternal ? "" : data.vehicleId,
-      data.isExternal ? "" : data.driverId,
+      data.isExternal ? "" : (selectedBooking.is_self_drive ? selectedBooking.requester_id : data.driverId),
       data.isExternal,
       externalDetails
     )

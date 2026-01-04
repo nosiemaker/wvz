@@ -45,10 +45,15 @@ export default function MobileLayout({
     { href: userRole === "driver" ? "/mobile/driver" : "/mobile/employee", label: "Home", icon: Home },
     { href: "/mobile/fuel", label: "Fuel", icon: Fuel },
     { href: "/mobile/surrender", label: "Surrender", icon: History },
-    { href: "/mobile/violations", label: "Driving Violations", icon: Gavel },
-    { href: "/mobile/assignments", label: "Assignments", icon: FileCheck },
-    { href: "/mobile/t-codes", label: "T Codes", icon: FileText },
+    { href: "/mobile/violations", label: "Violations", icon: Gavel },
+    { href: "/mobile/assignments", label: "My Assignments", icon: FileCheck },
+    { href: "/mobile/t-codes", label: "Budget Allocation", icon: FileText },
   ]
+
+  // Add Approvals for Managers
+  if (['manager', 'admin'].includes(userRole)) {
+    generalNavItems.splice(1, 0, { href: "/mobile/approvals", label: "Approvals", icon: FileText })
+  }
 
   const vehicleRequestItems = [
     { href: "/mobile/bookings", label: "My Requests", icon: User },
@@ -116,9 +121,9 @@ export default function MobileLayout({
                 { href: userRole === "driver" ? "/mobile/driver" : "/mobile/employee", label: "Home", icon: Home },
                 { href: "/mobile/fuel", label: "Fuel", icon: Fuel },
                 { href: "/mobile/surrender", label: "Surrender", icon: History },
-                { href: "/mobile/violations", label: "Driving Violations", icon: MapPin },
-                { href: "/mobile/assignments", label: "Assignments", icon: FileCheck },
-                { href: "/mobile/t-codes", label: "T Codes", icon: FileText },
+                { href: "/mobile/violations", label: "Violations", icon: MapPin },
+                { href: "/mobile/assignments", label: "My Assignments", icon: FileCheck },
+                { href: "/mobile/t-codes", label: "Budget Allocation", icon: FileText },
                 { label: "Logout", icon: LogOut, onClick: handleLogout },
               ].map((item, idx) => {
                 const isLink = 'href' in item;
@@ -208,6 +213,7 @@ export default function MobileLayout({
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex items-stretch h-[68px] z-40 px-2 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
           {[
             { href: userRole === "driver" ? "/mobile/driver" : "/mobile/employee", label: "Home", icon: Home },
+            ...(['manager', 'admin'].includes(userRole) ? [{ href: "/mobile/approvals", label: "Approvals", icon: FileCheck }] : []),
             { href: "/mobile/trips", label: "Trips", icon: MapPin },
             { href: "/mobile/fuel", label: "Fuel", icon: Fuel },
           ].map((item) => {

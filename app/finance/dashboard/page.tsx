@@ -1,37 +1,31 @@
 "use client"
 
-import { useState } from "react"
-import { DollarSign, TrendingUp, PieChart, Download, Filter } from "lucide-react"
+import { useState, useEffect } from "react"
+import { DollarSign, TrendingUp, PieChart, Download, Filter, Loader } from "lucide-react"
+import { getFinanceStats } from "@/lib/bookings"
 
 export default function FinanceDashboard() {
     const [timeRange, setTimeRange] = useState("month")
+    const [data, setData] = useState<any>(null)
+    const [isLoading, setIsLoading] = useState(true)
 
-    const mockData = {
-        totalCost: 125430,
-        fuelCost: 45230,
-        maintenanceCost: 28900,
-        otherCosts: 51300,
-        costPerKm: 2.45,
-        costPerVehicle: 2787,
-        topVehicles: [
-            { id: 1, plate: "ABC123", cost: 8450, km: 3200 },
-            { id: 2, plate: "XYZ789", cost: 7890, km: 2950 },
-            { id: 3, plate: "DEF456", cost: 7120, km: 2800 },
-        ],
-        costCenters: [
-            { name: "Operations", cost: 45600, percentage: 36 },
-            { name: "Programs", cost: 38200, percentage: 30 },
-            { name: "Admin", cost: 25400, percentage: 20 },
-            { name: "Field", cost: 16230, percentage: 14 },
-        ],
-        monthlyTrend: [
-            { month: "Jul", cost: 98000 },
-            { month: "Aug", cost: 105000 },
-            { month: "Sep", cost: 112000 },
-            { month: "Oct", cost: 118000 },
-            { month: "Nov", cost: 125430 },
-        ]
-    }
+    useEffect(() => {
+        async function load() {
+            try {
+                const stats = await getFinanceStats()
+                setData(stats)
+            } catch (e) {
+                console.error(e)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        load()
+    }, [])
+
+    if (isLoading) return <div className="h-screen flex items-center justify-center"><Loader className="animate-spin" /></div>
+
+    if (!data) return <div>Failed to load data</div>
 
     return (
         <div className="pb-20">
@@ -40,7 +34,7 @@ export default function FinanceDashboard() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold">Finance Dashboard</h1>
-                        <p className="text-sm text-muted-foreground">Fleet cost analytics</p>
+                        <p className="text-sm text-muted-foreground">Fleet cost analytics (Est. K15/km)</p>
                     </div>
                     <div className="flex gap-2">
                         <button className="p-2 border rounded-lg hover:bg-muted">
@@ -59,8 +53,8 @@ export default function FinanceDashboard() {
                             key={range}
                             onClick={() => setTimeRange(range)}
                             className={`px-4 py-2 rounded-lg font-semibold capitalize transition-colors ${timeRange === range
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted text-muted-foreground hover:bg-muted/80"
                                 }`}
                         >
                             {range}
@@ -72,66 +66,28 @@ export default function FinanceDashboard() {
                 <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-xl p-6">
                     <div className="flex items-start justify-between mb-4">
                         <div>
-                            <p className="text-sm opacity-90">Total Fleet Cost</p>
-                            <p className="text-4xl font-bold">K{mockData.totalCost.toLocaleString()}</p>
-                            <p className="text-sm opacity-75 mt-1">This month</p>
+                            <p className="text-sm opacity-90">Total Estimated Cost</p>
+                            <p className="text-4xl font-bold">K{data.totalCost.toLocaleString()}</p>
+                            <p className="text-sm opacity-75 mt-1">{data.totalTrips} Completed Trips</p>
                         </div>
                         <DollarSign className="w-10 h-10 opacity-75" />
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                         <TrendingUp className="w-4 h-4" />
-                        <span>+8.2% from last month</span>
-                    </div>
-                </div>
-
-                {/* Cost Breakdown */}
-                <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-card border rounded-lg p-4">
-                        <p className="text-xs text-muted-foreground mb-1">Fuel</p>
-                        <p className="text-2xl font-bold text-blue-600">K{mockData.fuelCost.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">{((mockData.fuelCost / mockData.totalCost) * 100).toFixed(0)}%</p>
-                    </div>
-                    <div className="bg-card border rounded-lg p-4">
-                        <p className="text-xs text-muted-foreground mb-1">Maintenance</p>
-                        <p className="text-2xl font-bold text-orange-600">K{mockData.maintenanceCost.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">{((mockData.maintenanceCost / mockData.totalCost) * 100).toFixed(0)}%</p>
-                    </div>
-                    <div className="bg-card border rounded-lg p-4">
-                        <p className="text-xs text-muted-foreground mb-1">Other</p>
-                        <p className="text-2xl font-bold text-green-600">K{mockData.otherCosts.toLocaleString()}</p>
-                        <p className="text-xs text-muted-foreground">{((mockData.otherCosts / mockData.totalCost) * 100).toFixed(0)}%</p>
+                        <span>Based on {data.totalMileage} km total mileage</span>
                     </div>
                 </div>
 
                 {/* Metrics */}
                 <div className="grid grid-cols-2 gap-3">
                     <div className="bg-card border rounded-lg p-4 text-center">
-                        <p className="text-xs text-muted-foreground mb-1">Cost per KM</p>
-                        <p className="text-3xl font-bold text-primary">K{mockData.costPerKm}</p>
+                        <p className="text-xs text-muted-foreground mb-1">Total Mileage</p>
+                        <p className="text-3xl font-bold text-primary">{data.totalMileage.toLocaleString()} km</p>
                     </div>
                     <div className="bg-card border rounded-lg p-4 text-center">
-                        <p className="text-xs text-muted-foreground mb-1">Cost per Vehicle</p>
-                        <p className="text-3xl font-bold text-primary">K{mockData.costPerVehicle}</p>
+                        <p className="text-xs text-muted-foreground mb-1">Avg Cost/Trip</p>
+                        <p className="text-3xl font-bold text-primary">K{data.totalTrips > 0 ? Math.round(data.totalCost / data.totalTrips).toLocaleString() : 0}</p>
                     </div>
-                </div>
-
-                {/* Top Vehicles by Cost */}
-                <div className="space-y-2">
-                    <h3 className="font-semibold">Top Vehicles by Cost</h3>
-                    {mockData.topVehicles.map((vehicle, index) => (
-                        <div key={vehicle.id} className="bg-card border rounded-lg p-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
-                                    {index + 1}
-                                </div>
-                                <div>
-                                    <p className="font-semibold">{vehicle.plate}</p>
-                                    <p className="text-xs text-muted-foreground">{vehicle.km.toLocaleString()} km</p>
-                                </div>
-                            </div>
-                            <p className="text-lg font-bold">K{vehicle.cost.toLocaleString()}</p>
-                        </div>
-                    ))}
                 </div>
 
                 {/* Cost Center Allocation */}
@@ -140,39 +96,28 @@ export default function FinanceDashboard() {
                         <PieChart className="w-5 h-5" />
                         <h3 className="font-semibold">Cost Center Allocation</h3>
                     </div>
-                    {mockData.costCenters.map((center) => (
-                        <div key={center.name} className="bg-card border rounded-lg p-4">
-                            <div className="flex items-center justify-between mb-2">
-                                <p className="font-semibold">{center.name}</p>
-                                <p className="font-bold">K{center.cost.toLocaleString()}</p>
-                            </div>
-                            <div className="w-full bg-muted rounded-full h-2">
-                                <div
-                                    className="bg-primary h-2 rounded-full"
-                                    style={{ width: `${center.percentage}%` }}
-                                />
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">{center.percentage}% of total</p>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Monthly Trend */}
-                <div className="space-y-2">
-                    <h3 className="font-semibold">Cost Trend</h3>
-                    <div className="bg-card border rounded-lg p-4">
-                        <div className="flex items-end justify-between gap-2 h-32">
-                            {mockData.monthlyTrend.map((data, index) => (
-                                <div key={data.month} className="flex-1 flex flex-col items-center gap-2">
-                                    <div
-                                        className="w-full bg-primary rounded-t transition-all hover:opacity-80"
-                                        style={{ height: `${(data.cost / 130000) * 100}%` }}
-                                    />
-                                    <p className="text-xs text-muted-foreground">{data.month}</p>
+                    {data.costCenters.length === 0 ? (
+                        <p className="text-muted-foreground text-sm">No data available for this period.</p>
+                    ) : (
+                        data.costCenters.map((center: any) => (
+                            <div key={center.name} className="bg-card border rounded-lg p-4">
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="font-semibold">{center.name}</p>
+                                    <p className="font-bold">K{center.cost.toLocaleString()}</p>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
+                                <div className="w-full bg-muted rounded-full h-2">
+                                    <div
+                                        className="bg-primary h-2 rounded-full"
+                                        style={{ width: `${center.percentage}%` }}
+                                    />
+                                </div>
+                                <div className="flex justify-between mt-1">
+                                    <p className="text-xs text-muted-foreground">{center.percentage}% of total cost</p>
+                                    <p className="text-xs text-muted-foreground">{center.count} trips</p>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
 
                 {/* Export Button */}
