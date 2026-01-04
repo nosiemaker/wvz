@@ -1,7 +1,5 @@
-"use server"
 
-import { createClient } from "@/lib/server"
-import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/client"
 
 export type TripRequestData = {
   startDate: string
@@ -15,7 +13,7 @@ export type TripRequestData = {
 }
 
 export async function createTripRequest(data: TripRequestData) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const {
     data: { user },
@@ -34,13 +32,10 @@ export async function createTripRequest(data: TripRequestData) {
   }
 
   // Determine initial status
-  // If user has a supervisor, it goes to them first.
-  // If not (e.g., they are a manager/supervisor themselves), it verifies if it needs allocation.
   let initialStatus = "pending_allocation"
   if (profile?.supervisor_id) {
     initialStatus = "pending_supervisor"
   }
-  // If fleet manager requests, it might be auto-approved or just pending allocation if they want to track it.
 
   const { data: booking, error } = await supabase
     .from("bookings")
@@ -64,12 +59,11 @@ export async function createTripRequest(data: TripRequestData) {
     throw new Error("Failed to create trip request")
   }
 
-  revalidatePath("/mobile")
   return booking
 }
 
 export async function getMyRequests() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Not authenticated")
 
@@ -84,25 +78,21 @@ export async function getMyRequests() {
 }
 
 export async function getPendingSupervisorApprovals() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Not authenticated")
 
   // Fetch bookings where status is pending_supervisor AND the requester reports to the current user
-  // We perform a join on the requester to check the supervisor_id
   const { data, error } = await supabase
     .from("bookings")
     .select("*, requester:users!bookings_requester_id_fkey(full_name, email, supervisor_id, job_title)")
     .eq("status", "pending_supervisor")
-    .eq("requester.supervisor_id", user.id) // This relies on PostgREST relationship filtering
+    .eq("requester.supervisor_id", user.id)
     .order("created_at", { ascending: false })
 
   if (error) {
-    // Fallback: If relationship filtering fails due to recursion or complexity, fetch all and filter in code (MVP)
-    // Or better, for MVP presentation where roles might be loose, just show ALL pending_supervisor if user is a "manager" role.
-    console.warn("Relationship filter might have failed or returned empty. Fetching all pending for manager role.", error)
-
-    // Check if current user is manager/admin
+    console.warn("Relationship filter failed, falling back to role check.", error)
+    // Fallback for managers seeing all requests if structure is loose
     const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single()
     if (["manager", "admin", "compliance"].includes(profile?.role)) {
       const { data: allPending } = await supabase
@@ -115,12 +105,11 @@ export async function getPendingSupervisorApprovals() {
     return []
   }
 
-  // PostgREST 9+ supports deep filtering, but sometimes tricky with inner joins.
   return data
 }
 
 export async function approveBooking(bookingId: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   const { error } = await supabase
@@ -133,11 +122,10 @@ export async function approveBooking(bookingId: string) {
     .eq("id", bookingId)
 
   if (error) throw error
-  revalidatePath("/compliance")
 }
 
 export async function rejectBooking(bookingId: string, reason: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { error } = await supabase
     .from("bookings")
     .update({
@@ -147,11 +135,10 @@ export async function rejectBooking(bookingId: string, reason: string) {
     .eq("id", bookingId)
 
   if (error) throw error
-  revalidatePath("/compliance")
 }
 
 export async function getPendingAllocations() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data, error } = await supabase
     .from("bookings")
     .select("*, users!bookings_requester_id_fkey(full_name, email)")
@@ -169,10 +156,10 @@ export async function allocateBooking(
   isExternal: boolean = false,
   externalDetails?: any
 ) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const updateData: any = {
-    status: "approved", // Ready for trip
+    status: "approved",
     vehicle_id: vehicleId,
     driver_id: driverId,
   }
@@ -187,11 +174,10 @@ export async function allocateBooking(
     .eq("id", bookingId)
 
   if (error) throw error
-  revalidatePath("/admin/bookings")
 }
 
 export async function getAllBookings() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { data, error } = await supabase
     .from("bookings")
@@ -203,19 +189,18 @@ export async function getAllBookings() {
 }
 
 export async function getMyAssignedBookings() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error("Not authenticated")
 
-  // Get bookings where current user is the assigned driver
   const { data, error } = await supabase
     .from("bookings")
     .select("*, vehicles(*), requester:users!bookings_requester_id_fkey(full_name, email), trips(*)")
     .eq("driver_id", user.id)
-    .in("status", ["approved", "pending_allocation", "in_progress"]) // Show approved, pending alloc (if pre-assigned), and active trips
+    .in("status", ["approved", "pending_allocation", "in_progress"])
     .order("start_date", { ascending: true })
 
   if (error) throw error
@@ -223,23 +208,21 @@ export async function getMyAssignedBookings() {
 }
 
 export async function startTrip(bookingId: string, startMileage: number) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { error } = await supabase
     .from("bookings")
     .update({
       status: "in_progress",
       start_mileage: startMileage
-      // We might also want to log start time here if not relying on created_at of a log entry
     })
     .eq("id", bookingId)
 
   if (error) throw error
-  revalidatePath("/mobile/assignments")
 }
 
 export async function completeTrip(bookingId: string, endMileage: number) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { error } = await supabase
     .from("bookings")
@@ -250,13 +233,11 @@ export async function completeTrip(bookingId: string, endMileage: number) {
     .eq("id", bookingId)
 
   if (error) throw error
-  revalidatePath("/mobile/assignments")
 }
 
 export async function getFinanceStats() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
-  // count trips and calculate estimated cost (mock rate for now)
   const { data: bookings, error } = await supabase
     .from("bookings")
     .select("cost_center, start_mileage, end_mileage, vehicles(plate_number)")
@@ -272,7 +253,6 @@ export async function getFinanceStats() {
     const center = b.cost_center || "Unallocated"
     if (!costCenters[center]) costCenters[center] = { count: 0, mileage: 0 }
 
-    // Calculate distance if available
     const dist = (b.end_mileage && b.start_mileage) ? (b.end_mileage - b.start_mileage) : 0
 
     costCenters[center].count += 1
@@ -283,12 +263,12 @@ export async function getFinanceStats() {
   // Format for Chart
   const allocation = Object.keys(costCenters).map(k => ({
     name: k,
-    cost: costCenters[k].mileage * 15, // Mock rate K15 per km (fuel + wear)
+    cost: costCenters[k].mileage * 15, // Mock rate K15 per km
     percentage: totalMileage > 0 ? Math.round((costCenters[k].mileage / totalMileage) * 100) : 0,
     count: costCenters[k].count
   })).sort((a, b) => b.cost - a.cost)
 
-  // Use mock totals if DB is empty for demo purpose
+  // Use mock totals if DB is empty
   if (totalMileage === 0) {
     return {
       totalCost: 125430,
