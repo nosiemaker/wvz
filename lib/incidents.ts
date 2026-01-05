@@ -1,10 +1,8 @@
-"use server"
 
-import { createClient } from "@/lib/server"
-import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/client"
 
 export async function createIncident(vehicleId: string, type: string, severity: string, description: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const {
     data: { user },
@@ -23,12 +21,11 @@ export async function createIncident(vehicleId: string, type: string, severity: 
     .select()
 
   if (error) throw error
-  revalidatePath("/admin/incidents")
   return data
 }
 
 export async function getAllIncidents() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { data, error } = await supabase
     .from("incidents")

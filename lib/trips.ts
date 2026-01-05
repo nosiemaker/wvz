@@ -1,7 +1,5 @@
-"use server"
 
-import { createClient } from "@/lib/server"
-import { revalidatePath } from "next/cache"
+import { createClient } from "@/lib/client"
 
 export async function startTrip(params: {
   vehicleId: string | null;
@@ -12,7 +10,7 @@ export async function startTrip(params: {
   purpose?: string;
 }) {
   const { vehicleId, bookingId, startMileage, startLocation, destination, purpose } = params;
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const {
     data: { user },
@@ -35,12 +33,11 @@ export async function startTrip(params: {
     .select()
 
   if (error) throw error
-  revalidatePath("/mobile/trips")
   return data[0]
 }
 
 export async function logTripEvent(tripId: string, eventType: string, reason?: string, notes?: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { error } = await supabase
     .from("trip_logs")
@@ -57,7 +54,7 @@ export async function logTripEvent(tripId: string, eventType: string, reason?: s
 }
 
 export async function endTrip(tripId: string, endMileage: number) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { error } = await supabase
     .from("trips")
@@ -69,11 +66,10 @@ export async function endTrip(tripId: string, endMileage: number) {
     .eq("id", tripId)
 
   if (error) throw error
-  revalidatePath("/mobile/trips")
 }
 
 export async function getTripLogs(tripId: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { data, error } = await supabase
     .from("trip_logs")
@@ -86,7 +82,7 @@ export async function getTripLogs(tripId: string) {
 }
 
 export async function getTripDetails(tripId: string) {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { data, error } = await supabase
     .from("trips")
@@ -99,7 +95,7 @@ export async function getTripDetails(tripId: string) {
 }
 
 export async function getActiveTrips() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const {
     data: { user },
@@ -119,7 +115,7 @@ export async function getActiveTrips() {
 }
 
 export async function getAllTrips() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const {
     data: { user },

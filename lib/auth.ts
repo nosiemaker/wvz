@@ -1,18 +1,17 @@
-"use server"
 
-import { createClient } from "@/lib/server"
-import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
+import { createClient } from "@/lib/client"
 
 export async function logout() {
-  const supabase = await createClient()
+  const supabase = createClient()
   await supabase.auth.signOut()
-  revalidatePath("/")
-  redirect("/auth/login")
+  // Client-side redirect happens in the UI or via router, or we can force reload
+  if (typeof window !== "undefined") {
+    window.location.href = "/auth/login"
+  }
 }
 
 export async function getCurrentUser() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const {
     data: { user },
@@ -30,7 +29,7 @@ export async function getCurrentUser() {
 }
 
 export async function getDrivers() {
-  const supabase = await createClient()
+  const supabase = createClient()
   const { data, error } = await supabase
     .from("users")
     .select("*")

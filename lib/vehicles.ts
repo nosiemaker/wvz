@@ -1,9 +1,8 @@
-"use server"
 
-import { createClient } from "@/lib/server"
+import { createClient } from "@/lib/client"
 
 export async function getVehicles() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { data, error } = await supabase.from("vehicles").select("*").order("created_at", { ascending: false })
 
@@ -12,7 +11,7 @@ export async function getVehicles() {
 }
 
 export async function getVehicleStats() {
-  const supabase = await createClient()
+  const supabase = createClient()
 
   const { data, error } = await supabase.from("vehicles").select("status")
 
