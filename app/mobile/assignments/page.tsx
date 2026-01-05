@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Car, Calendar, MapPin, User, Clock, CheckCircle, Play, RotateCw, ChevronRight, Compass, Hash, Loader, StopCircle } from "lucide-react"
-import { getMyAssignedBookings, startTrip, completeTrip } from "@/lib/bookings"
+import { getMyAssignedBookings } from "@/lib/bookings"
+import { startTrip, endTrip } from "@/lib/trips"
 
 export default function AssignmentsPage() {
     const [assignments, setAssignments] = useState<any[]>([])
@@ -24,54 +25,60 @@ export default function AssignmentsPage() {
         loadData()
     }, [])
 
-    const handleStartTrip = async (id: string) => {
-        // For MVP, using prompt. In production, use a nice modal.
+    const handleStartTrip = async (entry: any) => {
+        // For MVP, using prompt.
         const mileageStr = prompt("Enter Current Odometer Reading (Start Mileage):")
         if (!mileageStr) return
 
         const mileage = parseInt(mileageStr)
-        if (isNaN(mileage)) {
-            alert("Invalid mileage")
-            return
-        }
+        if (isNaN(mileage)) return
 
-        setProcessingId(id)
+        setProcessingId(entry.id)
         try {
             const confirmInspection = confirm("Have you completed the Pre-Trip Inspection Checklist?")
             if (!confirmInspection) return
 
-            await startTrip(id, mileage)
+            // Use the unified startTrip from lib/trips
+            await startTrip({
+                vehicleId: entry.vehicle_id, // Assigned vehicle
+                bookingId: entry.id,
+                startMileage: mileage,
+                startLocation: "Assigned Location",
+                destination: entry.destination,
+                purpose: entry.purpose
+            })
             await loadData()
         } catch (error) {
+            console.error(error)
             alert("Failed to start trip")
         } finally {
             setProcessingId(null)
         }
     }
 
-    const handleCompleteTrip = async (id: string, startMileage: number) => {
+    const handleCompleteTrip = async (entry: any) => {
         const mileageStr = prompt("Enter Final Odometer Reading (End Mileage):")
         if (!mileageStr) return
 
         const mileage = parseInt(mileageStr)
-        if (isNaN(mileage)) {
-            alert("Invalid mileage")
-            return
-        }
+        if (isNaN(mileage)) return
 
-        if (mileage < (startMileage || 0)) {
-            alert(`End mileage cannot be less than start mileage (${startMileage})`)
-            return
-        }
-
-        setProcessingId(id)
+        setProcessingId(entry.id)
         try {
-            const confirmInspection = confirm("Have you completed the Post-Trip Inspection Checklist?")
-            if (!confirmInspection) return
+            // Find the active trip ID associated with this booking
+            const activeTrip = entry.trips?.find((t: any) => t.status === 'active')
 
-            await completeTrip(id, mileage)
+            if (activeTrip) {
+                await endTrip(activeTrip.id, mileage)
+            } else {
+                // Fallback if no trip record found (legacy data), just force close the booking
+                // We import completeTrip from bookings for this fallback if needed, but better to enforce Trips
+                alert("No active trip record found to end. Contact support.")
+            }
+
             await loadData()
         } catch (error) {
+            console.error(error)
             alert("Failed to complete trip")
         } finally {
             setProcessingId(null)

@@ -181,7 +181,7 @@ export default function BookingsPage() {
                     if (existingTrip.status === "completed") {
                       return (
                         <button
-                          onClick={() => router.push(`/mobile/trips/${existingTrip.id}`)}
+                          onClick={() => router.push(`/mobile/trip-details?id=${existingTrip.id}`)}
                           className="w-full bg-green-500/10 text-green-700 font-semibold py-2 flex items-center justify-center gap-2 rounded-lg hover:bg-green-500/20 transition-colors border border-green-200"
                         >
                           <CheckCircle className="w-4 h-4" />
@@ -203,6 +203,20 @@ export default function BookingsPage() {
 
                   // No trip exists yet
                   if (request.status === 'approved') {
+                    // Start Button Logic:
+                    // 1. Drivers see it (via Assigned Trips)
+                    // 2. Staff (Requesters) only see it if it's Self-Drive
+                    const canStart = userRole === 'driver' || request.is_self_drive;
+
+                    if (!canStart) {
+                      return (
+                        <div className="w-full bg-slate-100 text-slate-500 font-semibold py-3 flex items-center justify-center gap-2 rounded-lg border border-slate-200 text-sm">
+                          <CheckCircle className="w-4 h-4 text-slate-400" />
+                          Waiting for Driver to Start
+                        </div>
+                      )
+                    }
+
                     return (
                       <button
                         onClick={(e) => handleStartTrip(e, request)}

@@ -193,7 +193,7 @@ export default function TripsPage() {
               <div
                 key={trip.id}
                 className="bg-white rounded-[24px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-5 active:bg-slate-50 transition-colors"
-                onClick={() => router.push(`/mobile/trips/${trip.id}`)}
+                onClick={() => router.push(`/mobile/trip-details?id=${trip.id}`)}
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-3">

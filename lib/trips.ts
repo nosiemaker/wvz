@@ -53,10 +53,12 @@ export async function logTripEvent(tripId: string, eventType: string, reason?: s
   return { success: true }
 }
 
+
 export async function endTrip(tripId: string, endMileage: number) {
   const supabase = createClient()
 
-  const { error } = await supabase
+  // 1. Update Trip
+  const { data: trip, error } = await supabase
     .from("trips")
     .update({
       end_time: new Date().toISOString(),
@@ -64,8 +66,25 @@ export async function endTrip(tripId: string, endMileage: number) {
       status: "completed",
     })
     .eq("id", tripId)
+    .select("booking_id")
+    .single()
 
   if (error) throw error
+
+  // 2. Update Parent Booking (so it leaves "Pending Assignments")
+  if (trip?.booking_id) {
+    const { error: bookingError } = await supabase
+      .from("bookings")
+      .update({
+        status: "completed",
+        end_mileage: endMileage
+      })
+      .eq("id", trip.booking_id)
+
+    if (bookingError) {
+      console.warn("Failed to update parent booking status", bookingError)
+    }
+  }
 }
 
 export async function getTripLogs(tripId: string) {
@@ -122,13 +141,32 @@ export async function getAllTrips() {
   } = await supabase.auth.getUser()
   if (!user) throw new Error("Not authenticated")
 
-  // Get trips where user is the assigned driver
-  const { data, error } = await supabase
+  // Get trips where user is the assigned driver OR the requester
+  // Complex OR filter with joined table is tricky, so we do two queries and merge for MVP simplicity/robustness
+
+  // 1. Trips where I am the driver
+  const { data: driverTrips, error: err1 } = await supabase
     .from("trips")
-    .select("*, vehicles(*), users(full_name), bookings(requester_id, is_self_drive)")
+    .select("*, vehicles(*), users(full_name), bookings!inner(requester_id, is_self_drive)")
     .eq("driver_id", user.id)
     .order("created_at", { ascending: false })
 
-  if (error) throw error
-  return data
+  if (err1) throw err1
+
+  // 2. Trips where I am the requester (via booking)
+  // We use !inner to ensure we filter by the joined booking's requester_id
+  const { data: requesterTrips, error: err2 } = await supabase
+    .from("trips")
+    .select("*, vehicles(*), users(full_name), bookings!inner(requester_id, is_self_drive)")
+    .eq("bookings.requester_id", user.id)
+    .order("created_at", { ascending: false })
+
+  if (err2) throw err2
+
+  // Merge and dedupe by ID
+  const allTrips = [...(driverTrips || []), ...(requesterTrips || [])]
+  const uniqueTrips = Array.from(new Map(allTrips.map(item => [item.id, item])).values())
+
+  // Re-sort by date
+  return uniqueTrips.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 }

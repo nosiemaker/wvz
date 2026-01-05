@@ -200,7 +200,7 @@ export async function getMyAssignedBookings() {
     .from("bookings")
     .select("*, vehicles(*), requester:users!bookings_requester_id_fkey(full_name, email), trips(*)")
     .eq("driver_id", user.id)
-    .in("status", ["approved", "pending_allocation", "in_progress"])
+    .in("status", ["approved", "pending_allocation", "in_progress"]) // Exclude "completed"
     .order("start_date", { ascending: true })
 
   if (error) throw error

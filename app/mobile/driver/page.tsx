@@ -61,6 +61,7 @@ export default function DriverDashboard() {
 
             await startTrip({
                 vehicleId: vId,
+                bookingId: booking?.id,
                 startMileage: parseInt(mileage),
                 startLocation: fromLocation,
                 destination: toLocation,
