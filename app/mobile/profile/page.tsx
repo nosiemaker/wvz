@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Shield, AlertTriangle, TrendingDown, Award, Calendar } from "lucide-react"
 
 export default function DriverProfilePage() {
@@ -35,6 +36,13 @@ export default function DriverProfilePage() {
         <div>
           <h1 className="text-2xl font-bold">Driver Profile</h1>
           <p className="text-sm text-muted-foreground">Performance & Compliance</p>
+          <div className="mt-2">
+            <Link href="/mobile/change-password">
+              <span className="text-xs font-semibold text-[#EE401D] border border-[#EE401D] px-3 py-1.5 rounded-full inline-block">
+                Change Password
+              </span>
+            </Link>
+          </div>
         </div>
 
         {/* License Status */}

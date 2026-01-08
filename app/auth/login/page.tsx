@@ -81,6 +81,14 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <div className="text-right mt-1">
+                <Link
+                  href="/mobile/forgot-password"
+                  className="text-xs font-medium text-primary hover:underline text-[#EE401D]"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
             </div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             <Button type="submit" className="w-full" disabled={isLoading}>

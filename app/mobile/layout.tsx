@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 import {
   Menu, X, Home, Truck, FileText, Clock, Settings,
   LogOut, Calendar, Fuel, Gavel, FileCheck, Info, User,
-  PlusCircle, History, MapPin, Lock, Key, ClipboardCheck
+  PlusCircle, History, MapPin, ClipboardCheck
 } from "lucide-react"
 import Image from "next/image"
 import { logout } from "@/lib/auth"
@@ -124,8 +124,6 @@ export default function MobileLayout({
                 { href: "/mobile/violations", label: "Violations", icon: MapPin },
                 { href: "/mobile/assignments", label: "My Assignments", icon: FileCheck },
                 { href: "/mobile/vehicle-inspection", label: "Vehicle Inspection", icon: ClipboardCheck },
-                { href: "/mobile/change-password", label: "Change Password", icon: Lock },
-                { href: "/mobile/forgot-password", label: "Forgot Password", icon: Key },
                 { href: "/mobile/t-codes", label: "Budget Allocation", icon: FileText },
                 { label: "Logout", icon: LogOut, onClick: handleLogout },
               ].map((item, idx) => {
