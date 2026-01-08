@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Save, User, Shield, Award, Trash2 } from "lucide-react"
 import { getUser, updateUser } from "@/lib/auth"
 
-export default function EditDriverPage() {
+function EditDriverContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const id = searchParams.get("id")
@@ -23,6 +23,7 @@ export default function EditDriverPage() {
 
     useEffect(() => {
         const loadDriver = async () => {
+            if (!id) return
             try {
                 const data = await getUser(id as string)
                 if (data) {
@@ -47,6 +48,7 @@ export default function EditDriverPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!id) return
         setIsSaving(true)
 
         try {
@@ -208,5 +210,20 @@ export default function EditDriverPage() {
                 </div>
             </form>
         </div>
+    )
+}
+
+export default function EditDriverPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex h-screen items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <div className="w-8 h-8 border-2 border-[#EE401D] border-t-transparent rounded-full animate-spin mb-2"></div>
+                    <p className="text-sm font-medium text-slate-500">Initializing editor...</p>
+                </div>
+            </div>
+        }>
+            <EditDriverContent />
+        </Suspense>
     )
 }

@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Save, Truck, Calendar, FileText, Trash2 } from "lucide-react"
 import { getVehicle, updateVehicle } from "@/lib/vehicles"
 
-export default function EditVehiclePage() {
+function EditVehicleContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const id = searchParams.get("id")
@@ -27,6 +27,7 @@ export default function EditVehiclePage() {
 
     useEffect(() => {
         const loadVehicle = async () => {
+            if (!id) return
             try {
                 const data = await getVehicle(id as string)
                 if (data) {
@@ -55,6 +56,7 @@ export default function EditVehiclePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!id) return
         setIsSaving(true)
 
         try {
@@ -269,5 +271,20 @@ export default function EditVehiclePage() {
                 </div>
             </form>
         </div>
+    )
+}
+
+export default function EditVehiclePage() {
+    return (
+        <Suspense fallback={
+            <div className="flex h-screen items-center justify-center">
+                <div className="flex flex-col items-center">
+                    <div className="w-8 h-8 border-2 border-[#EE401D] border-t-transparent rounded-full animate-spin mb-2"></div>
+                    <p className="text-sm font-medium text-slate-500">Initializing editor...</p>
+                </div>
+            </div>
+        }>
+            <EditVehicleContent />
+        </Suspense>
     )
 }
