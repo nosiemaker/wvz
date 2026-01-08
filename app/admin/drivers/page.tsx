@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { createClient } from "@/lib/client"
-import { PlusCircle } from "lucide-react"
+import { PlusCircle, FileText } from "lucide-react"
 
 export default function DriversPage() {
   const [drivers, setDrivers] = useState<any[]>([])
@@ -74,32 +74,40 @@ export default function DriversPage() {
                 <th className="px-6 py-3 text-left text-sm font-semibold">License</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">License Expiry</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
+                <th className="px-6 py-3 text-right text-sm font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {drivers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-muted-foreground">
+                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
                     No drivers found
                   </td>
                 </tr>
               ) : (
                 drivers.map((driver, idx) => (
-                  <tr key={driver.id} className={idx !== drivers.length - 1 ? "border-b border-border" : ""}>
-                    <td className="px-6 py-4 text-sm font-semibold">{driver.full_name}</td>
-                    <td className="px-6 py-4 text-sm">
-                      <p className="text-xs">{driver.email}</p>
+                  <tr key={driver.id} className={idx !== drivers.length - 1 ? "border-b border-border hover:bg-slate-50 transition-colors" : "hover:bg-slate-50 transition-colors"}>
+                    <td className="px-6 py-4 text-sm font-semibold text-slate-800">{driver.full_name}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {driver.email}
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <p className="text-xs text-muted-foreground">{driver.license_number || "N/A"}</p>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {driver.license_number || "N/A"}
                     </td>
-                    <td className="px-6 py-4 text-sm">
-                      <p className="text-xs">
-                        {driver.license_expiry ? new Date(driver.license_expiry).toLocaleDateString() : "N/A"}
-                      </p>
+                    <td className="px-6 py-4 text-sm text-slate-600">
+                      {driver.license_expiry ? new Date(driver.license_expiry).toLocaleDateString() : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span className={getStatusBadge("active")}>Active</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-right">
+                      <Link
+                        href={`/admin/drivers/manage/?id=${driver.id}`}
+                        className="text-[#EE401D] hover:underline font-bold text-xs flex items-center justify-end gap-1.5"
+                      >
+                        <FileText size={14} />
+                        Details
+                      </Link>
                     </td>
                   </tr>
                 ))

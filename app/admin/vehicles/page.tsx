@@ -125,10 +125,10 @@ export default function VehiclesPage() {
 
               {/* Actions */}
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <button className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors">
+                <Link href={`/admin/vehicles/manage/?id=${vehicle.id}`} className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors">
                   <FileText size={16} />
                   View Details
-                </button>
+                </Link>
                 <button className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors">
                   <Wrench size={16} />
                   Schedule Service

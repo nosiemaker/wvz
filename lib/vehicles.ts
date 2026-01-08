@@ -30,8 +30,23 @@ export async function getVehicleStats() {
 
 export async function createVehicle(vehicleData: any) {
   const supabase = createClient()
-
   const { data, error } = await supabase.from("vehicles").insert([vehicleData]).select().single()
+
+  if (error) throw error
+  return data
+}
+
+export async function getVehicle(id: string) {
+  const supabase = createClient()
+  const { data, error } = await supabase.from("vehicles").select("*").eq("id", id).single()
+
+  if (error) throw error
+  return data
+}
+
+export async function updateVehicle(id: string, vehicleData: any) {
+  const supabase = createClient()
+  const { data, error } = await supabase.from("vehicles").update(vehicleData).eq("id", id).select().single()
 
   if (error) throw error
   return data

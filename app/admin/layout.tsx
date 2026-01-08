@@ -37,7 +37,7 @@ export default function AdminLayout({
   }
 
   const navItems = [
-    { href: "/admin/dashboard", label: "Fleet Dashboard", icon: LayoutDashboard },
+    { href: "/admin", label: "Fleet Dashboard", icon: LayoutDashboard },
     { href: "/admin/bookings", label: "Bookings", icon: FileText },
     { href: "/admin/vehicles", label: "Vehicles", icon: Truck },
     { href: "/admin/contracts", label: "Contracts", icon: FileText },

@@ -39,3 +39,27 @@ export async function getDrivers() {
   if (error) throw error
   return data
 }
+export async function getUser(id: string) {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function updateUser(id: string, userData: any) {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("users")
+    .update(userData)
+    .eq("id", id)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}

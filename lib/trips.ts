@@ -170,3 +170,25 @@ export async function getAllTrips() {
   // Re-sort by date
   return uniqueTrips.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
 }
+
+export async function getAdminActiveTrips() {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("trips")
+    .select("*, vehicles(*), users(*)")
+    .eq("status", "active")
+
+  if (error) throw error
+  return data
+}
+
+export async function getAdminAllTrips() {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("trips")
+    .select("*, vehicles(*), users(*)")
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return data
+}
