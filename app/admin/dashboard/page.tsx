@@ -1,6 +1,6 @@
 "use client"
 
-import { Car, Wrench, AlertTriangle, DollarSign, TrendingUp, TrendingDown, Calendar, Fuel, Users } from "lucide-react"
+import { Car, Wrench, AlertTriangle, DollarSign, TrendingUp, TrendingDown, Fuel, Users, Calendar, ArrowRight } from "lucide-react"
 
 export default function FleetDashboardPage() {
     // Mock dashboard data
@@ -16,15 +16,15 @@ export default function FleetDashboardPage() {
     }
 
     const upcomingMaintenance = [
-        { id: 1, vehicle: "ABC123", type: "Oil Change", dueDate: "2024-12-18", daysLeft: 3, status: "urgent" },
-        { id: 2, vehicle: "XYZ789", type: "Tire Rotation", dueDate: "2024-12-22", daysLeft: 7, status: "soon" },
-        { id: 3, vehicle: "DEF456", type: "Brake Inspection", dueDate: "2024-12-28", daysLeft: 13, status: "scheduled" }
+        { id: 1, vehicle: "Toyota Hilux - ABC 123", type: "Oil Change", dueDate: "2024-12-18", daysLeft: 3, status: "urgent" },
+        { id: 2, vehicle: "Nissan Patrol - XYZ 789", type: "Tire Rotation", dueDate: "2024-12-22", daysLeft: 7, status: "soon" },
+        { id: 3, vehicle: "Ford Ranger - DEF 456", type: "Brake Inspection", dueDate: "2024-12-28", daysLeft: 13, status: "scheduled" }
     ]
 
     const recentAlerts = [
-        { id: 1, type: "warning", message: "Vehicle GHI012 exceeded speed limit", time: "2 hours ago" },
-        { id: 2, type: "info", message: "Insurance for JKL345 expires in 15 days", time: "5 hours ago" },
-        { id: 3, type: "error", message: "Fuel card transaction failed for MNO678", time: "1 day ago" }
+        { id: 1, type: "warning", message: "Vehicle GHI 012 exceeded speed limit", time: "2 hours ago" },
+        { id: 2, type: "info", message: "Insurance for JKL 345 expires in 15 days", time: "5 hours ago" },
+        { id: 3, type: "error", message: "Fuel card transaction failed for MNO 678", time: "1 day ago" }
     ]
 
     const costTrend = [
@@ -37,114 +37,165 @@ export default function FleetDashboardPage() {
     ]
 
     return (
-        <div className="space-y-6">
-            {/* Header */}
+        <div className="space-y-8 pb-10">
+            {/* Header Section */}
             <div>
-                <h1 className="text-3xl font-bold">Fleet Dashboard</h1>
-                <p className="text-muted-foreground">Real-time overview of your entire fleet</p>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="w-1.5 h-6 bg-[#EE401D] rounded-full"></div>
+                    <h2 className="text-[20px] font-black text-slate-800 tracking-tight uppercase">Fleet Overview</h2>
+                </div>
+                <p className="text-slate-500 font-medium text-sm pl-4">Real-time supervision of fleet operations and health.</p>
             </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl p-6 shadow-lg">
-                    <div className="flex items-center justify-between mb-2">
-                        <Car className="w-8 h-8 opacity-80" />
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Total</span>
-                    </div>
-                    <p className="text-4xl font-bold">{stats.totalVehicles}</p>
-                    <p className="text-sm opacity-90 mt-1">Total Vehicles</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl p-6 shadow-lg">
-                    <div className="flex items-center justify-between mb-2">
-                        <TrendingUp className="w-8 h-8 opacity-80" />
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Active</span>
-                    </div>
-                    <p className="text-4xl font-bold">{stats.activeTrips}</p>
-                    <p className="text-sm opacity-90 mt-1">Active Trips</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl p-6 shadow-lg">
-                    <div className="flex items-center justify-between mb-2">
-                        <Wrench className="w-8 h-8 opacity-80" />
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Service</span>
-                    </div>
-                    <p className="text-4xl font-bold">{stats.inMaintenance}</p>
-                    <p className="text-sm opacity-90 mt-1">In Maintenance</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl p-6 shadow-lg">
-                    <div className="flex items-center justify-between mb-2">
-                        <Users className="w-8 h-8 opacity-80" />
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Ready</span>
-                    </div>
-                    <p className="text-4xl font-bold">{stats.available}</p>
-                    <p className="text-sm opacity-90 mt-1">Available</p>
-                </div>
-            </div>
-
-            {/* Secondary Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-card border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Monthly Distance</p>
-                            <p className="text-2xl font-bold">{stats.monthlyKm.toLocaleString()} km</p>
+            {/* KPI Cards - Premium Style */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Total Vehicles */}
+                <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] group hover:shadow-lg transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-600 group-hover:bg-slate-900 group-hover:text-white transition-colors">
+                            <Car size={20} strokeWidth={2.5} />
                         </div>
-                        <TrendingUp className="w-6 h-6 text-green-500" />
+                        <span className="text-[10px] font-black bg-slate-100 text-slate-600 uppercase tracking-widest px-2 py-1 rounded-full">Total</span>
                     </div>
-                    <p className="text-xs text-green-600 mt-2">+12% from last month</p>
+                    <div className="space-y-1">
+                        <h3 className="text-[36px] font-black text-slate-800 leading-none tracking-tight">{stats.totalVehicles}</h3>
+                        <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Fleet Size</p>
+                    </div>
                 </div>
 
-                <div className="bg-card border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Fuel Cost</p>
-                            <p className="text-2xl font-bold">${stats.monthlyFuelCost.toLocaleString()}</p>
+                {/* Active Trips */}
+                <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] group hover:shadow-lg transition-all duration-300 border-l-4 border-l-green-500">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-10 h-10 rounded-2xl bg-green-50 flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
+                            <TrendingUp size={20} strokeWidth={2.5} />
                         </div>
-                        <Fuel className="w-6 h-6 text-orange-500" />
+                        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
                     </div>
-                    <p className="text-xs text-red-600 mt-2">+5% from last month</p>
+                    <div className="space-y-1">
+                        <h3 className="text-[36px] font-black text-slate-800 leading-none tracking-tight">{stats.activeTrips}</h3>
+                        <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Active Trips</p>
+                    </div>
                 </div>
 
-                <div className="bg-card border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Utilization Rate</p>
-                            <p className="text-2xl font-bold">{stats.utilizationRate}%</p>
+                {/* In Maintenance */}
+                <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] group hover:shadow-lg transition-all duration-300 border-l-4 border-l-orange-500">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 group-hover:rotate-12 transition-transform">
+                            <Wrench size={20} strokeWidth={2.5} />
                         </div>
-                        <TrendingDown className="w-6 h-6 text-blue-500" />
+                        <span className="text-[10px] font-black bg-orange-50 text-orange-600 uppercase tracking-widest px-2 py-1 rounded-full">Service</span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">Target: 75%</p>
+                    <div className="space-y-1">
+                        <h3 className="text-[36px] font-black text-slate-800 leading-none tracking-tight">{stats.inMaintenance}</h3>
+                        <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">In Maintenance</p>
+                    </div>
                 </div>
 
-                <div className="bg-card border rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-muted-foreground">Avg Cost/Vehicle</p>
-                            <p className="text-2xl font-bold">${stats.avgCostPerVehicle}</p>
+                {/* Available */}
+                <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] group hover:shadow-lg transition-all duration-300">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
+                            <Users size={20} strokeWidth={2.5} />
                         </div>
-                        <DollarSign className="w-6 h-6 text-purple-500" />
+                        <span className="text-[10px] font-black bg-blue-50 text-blue-600 uppercase tracking-widest px-2 py-1 rounded-full">Ready</span>
                     </div>
-                    <p className="text-xs text-green-600 mt-2">-3% from last month</p>
+                    <div className="space-y-1">
+                        <h3 className="text-[36px] font-black text-slate-800 leading-none tracking-tight">{stats.available}</h3>
+                        <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Drivers/Vehicles</p>
+                    </div>
                 </div>
             </div>
 
-            {/* Charts and Lists */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Cost Trend Chart */}
-                <div className="bg-card border rounded-lg p-6">
-                    <h3 className="font-bold text-lg mb-4">Monthly Cost Trend</h3>
-                    <div className="space-y-3">
-                        {costTrend.map((item, index) => (
-                            <div key={index} className="flex items-center gap-3">
-                                <span className="text-sm font-medium w-12">{item.month}</span>
-                                <div className="flex-1 bg-muted rounded-full h-8 overflow-hidden">
-                                    <div
-                                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-full flex items-center justify-end pr-2"
-                                        style={{ width: `${(item.cost / 55000) * 100}%` }}
-                                    >
-                                        <span className="text-xs text-white font-semibold">${(item.cost / 1000).toFixed(0)}k</span>
+            {/* Split Section: Metrics & Maintenance */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Secondary Metrics */}
+                <div className="grid grid-cols-2 gap-4 lg:col-span-2">
+                    <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Dist.</p>
+                                <p className="text-2xl font-black text-slate-800">{stats.monthlyKm.toLocaleString()} <span className="text-sm text-slate-400 font-bold">km</span></p>
+                            </div>
+                            <div className="bg-green-50 p-2 rounded-xl text-green-600">
+                                <TrendingUp size={18} />
+                            </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-slate-50">
+                            <span className="text-[11px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">+12% vs last month</span>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Fuel Cost</p>
+                                <p className="text-2xl font-black text-slate-800">ZM {stats.monthlyFuelCost.toLocaleString()}</p>
+                            </div>
+                            <div className="bg-orange-50 p-2 rounded-xl text-orange-600">
+                                <Fuel size={18} />
+                            </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-slate-50">
+                            <span className="text-[11px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-lg">+5% vs last month</span>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Utilization</p>
+                                <p className="text-2xl font-black text-slate-800">{stats.utilizationRate}%</p>
+                            </div>
+                            <div className="bg-blue-50 p-2 rounded-xl text-blue-600">
+                                <TrendingDown size={18} />
+                            </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-slate-50">
+                            <p className="text-[11px] font-bold text-slate-400 italic">Target: 75%</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Cost / Vehicle</p>
+                                <p className="text-2xl font-black text-slate-800">ZM {stats.avgCostPerVehicle}</p>
+                            </div>
+                            <div className="bg-purple-50 p-2 rounded-xl text-purple-600">
+                                <DollarSign size={18} />
+                            </div>
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-slate-50">
+                            <span className="text-[11px] font-bold text-green-600 bg-green-50 px-2 py-1 rounded-lg">-3% vs last month</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Upcoming Maintenance List */}
+                <div className="bg-white rounded-[28px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] lg:row-span-2">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-[16px] font-black text-slate-800 italic">Upcoming Service</h3>
+                        <button className="text-[12px] font-bold text-[#EE401D] hover:underline">View All</button>
+                    </div>
+                    <div className="space-y-4">
+                        {upcomingMaintenance.map((item) => (
+                            <div key={item.id} className="group flex items-start gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 hover:shadow-md transition-all cursor-pointer">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${item.status === "urgent" ? "bg-red-100 text-red-600" :
+                                        item.status === "soon" ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
+                                    }`}>
+                                    <Wrench size={18} strokeWidth={2.5} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="text-[14px] font-black text-slate-800 truncate">{item.vehicle}</h4>
+                                    <p className="text-[12px] font-medium text-slate-500 mt-0.5">{item.type}</p>
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <Calendar size={12} className="text-slate-400" />
+                                        <span className="text-[11px] font-bold text-slate-400">{new Date(item.dueDate).toLocaleDateString()}</span>
+                                        <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded ml-auto ${item.status === "urgent" ? "bg-red-100 text-red-600" :
+                                                item.status === "soon" ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
+                                            }`}>
+                                            {item.daysLeft} Days Left
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -152,29 +203,24 @@ export default function FleetDashboardPage() {
                     </div>
                 </div>
 
-                {/* Upcoming Maintenance */}
-                <div className="bg-card border rounded-lg p-6">
-                    <h3 className="font-bold text-lg mb-4">Upcoming Maintenance</h3>
-                    <div className="space-y-3">
-                        {upcomingMaintenance.map((item) => (
-                            <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${item.status === "urgent" ? "bg-red-100" :
-                                            item.status === "soon" ? "bg-yellow-100" : "bg-blue-100"
-                                        }`}>
-                                        <Wrench className={`w-5 h-5 ${item.status === "urgent" ? "text-red-600" :
-                                                item.status === "soon" ? "text-yellow-600" : "text-blue-600"
-                                            }`} />
-                                    </div>
-                                    <div>
-                                        <p className="font-semibold">{item.vehicle}</p>
-                                        <p className="text-sm text-muted-foreground">{item.type}</p>
-                                    </div>
+                {/* Cost Trend (Simple Visual) */}
+                <div className="bg-white rounded-[28px] p-6 border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] lg:col-span-2">
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-[16px] font-black text-slate-800 italic">Financial Overview</h3>
+                    </div>
+                    <div className="space-y-4">
+                        {costTrend.map((item, index) => (
+                            <div key={index} className="flex items-center gap-4">
+                                <span className="text-[12px] font-black text-slate-400 w-8">{item.month}</span>
+                                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-slate-800 rounded-full"
+                                        style={{ width: `${(item.cost / 60000) * 100}%` }}
+                                    ></div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-medium">{item.daysLeft} days</p>
-                                    <p className="text-xs text-muted-foreground">{new Date(item.dueDate).toLocaleDateString()}</p>
-                                </div>
+                                <span className="text-[12px] font-bold text-slate-600 w-16 text-right">
+                                    {(item.cost / 1000).toFixed(1)}k
+                                </span>
                             </div>
                         ))}
                     </div>
@@ -182,18 +228,25 @@ export default function FleetDashboardPage() {
             </div>
 
             {/* Recent Alerts */}
-            <div className="bg-card border rounded-lg p-6">
-                <h3 className="font-bold text-lg mb-4">Recent Alerts</h3>
-                <div className="space-y-3">
+            <div className="bg-slate-900 rounded-[28px] p-6 text-white shadow-2xl">
+                <div className="flex items-center gap-3 mb-6">
+                    <AlertTriangle className="text-[#EE401D]" />
+                    <h3 className="text-[18px] font-black italic tracking-wide">System Alerts</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {recentAlerts.map((alert) => (
-                        <div key={alert.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                            <AlertTriangle className={`w-5 h-5 mt-0.5 ${alert.type === "error" ? "text-red-500" :
-                                    alert.type === "warning" ? "text-yellow-500" : "text-blue-500"
-                                }`} />
-                            <div className="flex-1">
-                                <p className="font-medium">{alert.message}</p>
-                                <p className="text-xs text-muted-foreground mt-1">{alert.time}</p>
+                        <div key={alert.id} className="bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-colors">
+                            <div className="flex items-start justify-between mb-2">
+                                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg ${alert.type === "error" ? "bg-red-500/20 text-red-400" :
+                                        alert.type === "warning" ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"
+                                    }`}>
+                                    {alert.type}
+                                </span>
+                                <span className="text-[11px] font-bold text-white/40">{alert.time}</span>
                             </div>
+                            <p className="text-[13px] font-bold leading-relaxed opacity-90">
+                                {alert.message}
+                            </p>
                         </div>
                     ))}
                 </div>
