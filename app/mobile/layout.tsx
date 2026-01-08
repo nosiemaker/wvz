@@ -44,7 +44,7 @@ export default function MobileLayout({
   const generalNavItems = [
     { href: userRole === "driver" ? "/mobile/driver" : "/mobile/employee", label: "Home", icon: Home },
     { href: "/mobile/fuel", label: "Fuel", icon: Fuel },
-    { href: "/mobile/surrender", label: "Surrender", icon: History },
+    { href: "/mobile/surrender", label: "Hand Over Vehicle", icon: History },
     { href: "/mobile/violations", label: "Violations", icon: Gavel },
     { href: "/mobile/assignments", label: "My Assignments", icon: FileCheck },
     { href: "/mobile/t-codes", label: "Budget Allocation", icon: FileText },
@@ -120,7 +120,7 @@ export default function MobileLayout({
               {[
                 { href: userRole === "driver" ? "/mobile/driver" : "/mobile/employee", label: "Home", icon: Home },
                 { href: "/mobile/fuel", label: "Fuel", icon: Fuel },
-                { href: "/mobile/surrender", label: "Surrender", icon: History },
+                { href: "/mobile/surrender", label: "Hand Over Vehicle", icon: History },
                 { href: "/mobile/violations", label: "Violations", icon: MapPin },
                 { href: "/mobile/assignments", label: "My Assignments", icon: FileCheck },
                 { href: "/mobile/t-codes", label: "Budget Allocation", icon: FileText },
