@@ -27,3 +27,12 @@ export async function getVehicleStats() {
   // Convert to array format matching typical database group-by result
   return Object.entries(statsMap).map(([status, count]) => ({ status, count }))
 }
+
+export async function createVehicle(vehicleData: any) {
+  const supabase = createClient()
+
+  const { data, error } = await supabase.from("vehicles").insert([vehicleData]).select().single()
+
+  if (error) throw error
+  return data
+}

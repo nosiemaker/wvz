@@ -4,6 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Save, Truck, Calendar, FileText } from "lucide-react"
 
+import { createVehicle } from "@/lib/vehicles"
+
 export default function AddVehiclePage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
@@ -23,13 +25,34 @@ export default function AddVehiclePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
-        // Simulate API call
-        // In a real app: await supabase.from('vehicles').insert(formData)
-        setTimeout(() => {
-            setIsLoading(false)
+
+        try {
+            // Map camelCase form state to snake_case DB columns
+            const vehicleData = {
+                registration: formData.registration,
+                make: formData.make,
+                model: formData.model,
+                year: formData.year,
+                vin: formData.vin,
+                color: formData.color,
+                fuel_type: formData.fuelType, // snake_case
+                status: formData.status,
+                license_required: formData.licenseRequired, // snake_case
+                maintenance_interval_km: formData.maintenanceIntervalKm, // snake_case
+                current_mileage: 0, // Default for new vehicle
+                next_service_date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString() // Default 3 months
+            }
+
+            await createVehicle(vehicleData)
+
             alert("Vehicle added successfully!")
             router.push("/admin/vehicles")
-        }, 1500)
+        } catch (error) {
+            console.error("Error creating vehicle:", error)
+            alert("Failed to create vehicle. Please try again.")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (

@@ -1,54 +1,44 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Truck, Check, Wrench, FileText, PlusCircle } from "lucide-react"
+import { getVehicles } from "@/lib/vehicles"
 
 export default function VehiclesPage() {
-  const [vehicles] = useState([
-    {
-      id: "VH-001",
-      registration: "WRJ 2024",
-      type: "Toyota Hiace",
-      status: "active",
-      lastMaintenance: "2025-11-15",
-      nextMaintenance: "2025-12-15",
-      roadTax: "Valid",
-      insurance: "Valid",
-      fitness: "Valid",
-      currentKm: 45820,
-    },
-    {
-      id: "VH-002",
-      registration: "MH-02-AB-1234",
-      type: "Tata 407",
-      status: "maintenance",
-      lastMaintenance: "2025-11-10",
-      nextMaintenance: "2025-11-25",
-      roadTax: "Valid",
-      insurance: "Valid",
-      fitness: "Valid",
-      currentKm: 32250,
-    },
-    {
-      id: "VH-003",
-      registration: "MH-05-CD-5678",
-      type: "Mahindra Bolero",
-      status: "active",
-      lastMaintenance: "2025-11-20",
-      nextMaintenance: "2025-12-20",
-      roadTax: "Expires in 15 days",
-      insurance: "Valid",
-      fitness: "Valid",
-      currentKm: 28500,
-    },
-  ])
+  const [vehicles, setVehicles] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadVehicles = async () => {
+      try {
+        const data = await getVehicles()
+        setVehicles(data || [])
+      } catch (error) {
+        console.error("Failed to load vehicles:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadVehicles()
+  }, [])
 
   const getStatusBadge = (status: string) => {
     const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
     if (status === "active") return `${baseStyle} bg-primary/10 text-primary`
     if (status === "maintenance") return `${baseStyle} bg-accent/10 text-accent`
     return `${baseStyle} bg-destructive/10 text-destructive`
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 border-2 border-[#EE401D] border-t-transparent rounded-full animate-spin mb-2"></div>
+          <p className="text-sm font-medium text-slate-500">Loading Fleet...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -71,74 +61,82 @@ export default function VehiclesPage() {
 
       {/* Vehicles Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {vehicles.map((vehicle) => (
-          <div key={vehicle.id} className="bg-card border border-border rounded-lg p-6 space-y-4">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <Truck className="w-8 h-8 text-primary mt-1" />
-                <div>
-                  <h3 className="font-semibold text-lg">{vehicle.type}</h3>
-                  <p className="text-sm text-muted-foreground">{vehicle.registration}</p>
-                </div>
-              </div>
-              <span className={getStatusBadge(vehicle.status)}>
-                {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
-              </span>
-            </div>
-
-            {/* Details Grid */}
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground">Current KM</p>
-                <p className="font-semibold">{vehicle.currentKm.toLocaleString()}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Status</p>
-                <p className="font-semibold">{vehicle.status}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Last Maintenance</p>
-                <p className="font-semibold">{new Date(vehicle.lastMaintenance).toLocaleDateString()}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Next Maintenance</p>
-                <p className="font-semibold">{new Date(vehicle.nextMaintenance).toLocaleDateString()}</p>
-              </div>
-            </div>
-
-            {/* Compliance Status */}
-            <div className="border-t border-border pt-4 space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground">Compliance Status</p>
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="flex items-center gap-1">
-                  <Check className="w-4 h-4 text-primary" />
-                  <span>Road Tax</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Check className="w-4 h-4 text-primary" />
-                  <span>Insurance</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Check className="w-4 h-4 text-primary" />
-                  <span>Fitness</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="grid grid-cols-2 gap-2">
-              <button className="px-3 py-2 rounded-lg border border-border hover:bg-muted text-sm font-semibold flex items-center justify-center gap-2">
-                <FileText className="w-4 h-4" />
-                View Details
-              </button>
-              <button className="px-3 py-2 rounded-lg border border-border hover:bg-muted text-sm font-semibold flex items-center justify-center gap-2">
-                <Wrench className="w-4 h-4" />
-                Schedule Maintenance
-              </button>
-            </div>
+        {vehicles.length === 0 ? (
+          <div className="col-span-full text-center py-12 bg-white rounded-[24px] border border-slate-100">
+            <Truck size={48} className="mx-auto text-slate-200 mb-4" />
+            <h3 className="text-lg font-bold text-slate-400">No vehicles found</h3>
+            <p className="text-slate-400 text-sm">Add a vehicle to get started.</p>
           </div>
-        ))}
+        ) : (
+          vehicles.map((vehicle) => (
+            <div key={vehicle.id} className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] space-y-4 hover:shadow-lg transition-shadow">
+              {/* Header */}
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-700">
+                    <Truck size={24} strokeWidth={2} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-lg text-slate-800 tracking-tight">{vehicle.make} {vehicle.model}</h3>
+                    <p className="text-[13px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">
+                      {vehicle.registration}
+                      <span className="mx-2 text-slate-300">•</span>
+                      {vehicle.year}
+                    </p>
+                  </div>
+                </div>
+                <span className={getStatusBadge(vehicle.status || 'unknown')}>
+                  {(vehicle.status || 'Unknown').charAt(0).toUpperCase() + (vehicle.status || 'unknown').slice(1)}
+                </span>
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-4 text-sm bg-slate-50 rounded-xl p-4 border border-slate-100/50">
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Current Mileage</p>
+                  <p className="font-bold text-slate-700">{vehicle.current_mileage ? parseInt(vehicle.current_mileage).toLocaleString() : 0} KM</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Fuel Type</p>
+                  <p className="font-bold text-slate-700 capitalize">{vehicle.fuel_type || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Color</p>
+                  <p className="font-bold text-slate-700">{vehicle.color || 'N/A'}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Next Service</p>
+                  <p className="font-bold text-slate-700">{vehicle.next_service_date ? new Date(vehicle.next_service_date).toLocaleDateString() : 'Not Scheduled'}</p>
+                </div>
+              </div>
+
+              {/* Compliance Status */}
+              <div className="pt-2">
+                <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-3 pl-1">Compliance Status</p>
+                <div className="flex gap-2">
+                  {['Road Tax', 'Insurance', 'Fitness'].map((item) => (
+                    <div key={item} className="flex items-center gap-1.5 px-2.5 py-1.5 bg-green-50 text-green-700 rounded-lg border border-green-100">
+                      <Check size={12} strokeWidth={3} />
+                      <span className="text-[11px] font-bold uppercase tracking-tight">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors">
+                  <FileText size={16} />
+                  View Details
+                </button>
+                <button className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors">
+                  <Wrench size={16} />
+                  Schedule Service
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   )
