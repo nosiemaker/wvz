@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { createClient } from "@/lib/client"
+import { PlusCircle } from "lucide-react"
 
 export default function DriversPage() {
   const [drivers, setDrivers] = useState<any[]>([])
@@ -45,9 +47,20 @@ export default function DriversPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Drivers Management</h1>
-        <p className="text-muted-foreground">Manage driver profiles and compliance</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-1.5 h-6 bg-[#EE401D] rounded-full"></div>
+            <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Drivers Management</h1>
+          </div>
+          <p className="text-slate-500 text-sm font-medium pl-4">Manage driver profiles, licenses, and compliance.</p>
+        </div>
+        <Link href="/admin/drivers/create">
+          <button className="px-6 py-3 bg-[#EE401D] text-white rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 hover:shadow-xl hover:translate-y-[-2px] active:scale-95 transition-all flex items-center gap-2">
+            <PlusCircle size={18} />
+            Add Driver
+          </button>
+        </Link>
       </div>
 
       {/* Drivers Table */}

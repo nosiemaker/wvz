@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Truck, Check, Wrench, FileText } from "lucide-react"
+import Link from "next/link"
+import { Truck, Check, Wrench, FileText, PlusCircle } from "lucide-react"
 
 export default function VehiclesPage() {
   const [vehicles] = useState([
@@ -52,9 +53,20 @@ export default function VehiclesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Vehicles Management</h1>
-        <p className="text-muted-foreground">Manage fleet vehicles and maintenance</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-1.5 h-6 bg-[#EE401D] rounded-full"></div>
+            <h1 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Vehicles Management</h1>
+          </div>
+          <p className="text-slate-500 text-sm font-medium pl-4">Manage fleet vehicles and maintenance schedules.</p>
+        </div>
+        <Link href="/admin/vehicles/add">
+          <button className="px-6 py-3 bg-[#EE401D] text-white rounded-xl font-bold text-sm shadow-lg shadow-orange-500/20 hover:shadow-xl hover:translate-y-[-2px] active:scale-95 transition-all flex items-center gap-2">
+            <PlusCircle size={18} />
+            Add Vehicle
+          </button>
+        </Link>
       </div>
 
       {/* Vehicles Grid */}
