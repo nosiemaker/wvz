@@ -221,7 +221,7 @@ export default function AssignmentsPage() {
                                 {/* Action Buttons */}
                                 {entry.status === "in_progress" && (
                                     <button
-                                        onClick={() => handleCompleteTrip(entry.id, entry.start_mileage)}
+                                        onClick={() => handleCompleteTrip(entry)}
                                         disabled={processingId === entry.id}
                                         className="w-full py-4 bg-slate-900 text-white rounded-[20px] text-[12px] font-black uppercase tracking-[1.5px] flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform hover:opacity-90 disabled:opacity-70"
                                     >
@@ -237,7 +237,7 @@ export default function AssignmentsPage() {
                                 )}
                                 {(entry.status === "approved" || entry.status === "pending_allocation") && (
                                     <button
-                                        onClick={() => handleStartTrip(entry.id)}
+                                        onClick={() => handleStartTrip(entry)}
                                         disabled={processingId === entry.id}
                                         className="w-full py-4 bg-[#EE401D] text-white rounded-[20px] text-[12px] font-black uppercase tracking-[1.5px] flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform hover:opacity-90 disabled:opacity-70"
                                     >
