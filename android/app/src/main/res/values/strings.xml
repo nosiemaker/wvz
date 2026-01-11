@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">World Vision Fleet</string>
-    <string name="title_activity_main">World Vision Fleet</string>
+    <string name="app_name">World Vision Fleet Manager</string>
+    <string name="title_activity_main">World Vision Fleet Manager</string>
     <string name="package_name">com.worldvision.fleet</string>
     <string name="custom_url_scheme">com.worldvision.fleet</string>
 </resources>
