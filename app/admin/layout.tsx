@@ -1,15 +1,24 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  Menu, X, LayoutDashboard, Truck, Users, FileText,
-  AlertTriangle, Settings, LogOut, User, Bell, Search
+  Menu,
+  LayoutDashboard,
+  Truck,
+  Users,
+  FileText,
+  AlertTriangle,
+  Settings,
+  LogOut,
+  User,
+  Bell,
+  Info,
 } from "lucide-react"
-import { logout } from "@/lib/auth"
 import Image from "next/image"
+import { logout } from "@/lib/auth"
 import { createClient } from "@/lib/client"
 
 export default function AdminLayout({
@@ -18,8 +27,9 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [userName, setUserName] = useState<string>("Admin")
+  const [showNotifications, setShowNotifications] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -37,156 +47,261 @@ export default function AdminLayout({
     await logout()
   }
 
-  const navItems = [
+  const generalNavItems = [
     { href: "/admin", label: "Fleet Dashboard", icon: LayoutDashboard },
     { href: "/admin/bookings", label: "Bookings", icon: FileText },
     { href: "/admin/vehicles", label: "Vehicles", icon: Truck },
     { href: "/admin/contracts", label: "Contracts", icon: FileText },
+  ]
+
+  const operationsNavItems = [
     { href: "/admin/drivers", label: "Drivers", icon: Users },
     { href: "/admin/incidents", label: "Incidents", icon: AlertTriangle },
+  ]
+
+  const settingsNavItems = [
     { href: "/admin/settings", label: "Settings", icon: Settings },
   ]
 
   return (
-    <div className="flex h-screen bg-[#F7F7F9] font-sans overflow-hidden">
+    <div className="flex h-screen bg-[#F5F5F5] font-sans">
       {/* Sidebar */}
-      <aside
+      <div
         className={
-          "fixed inset-y-0 left-0 bg-white text-slate-800 transition-transform duration-300 z-50 shadow-2xl flex flex-col " +
-          (sidebarOpen ? "translate-x-0" : "-translate-x-full") +
-          " lg:static lg:translate-x-0 " +
-          (sidebarCollapsed ? "lg:w-20" : "lg:w-72") +
-          " w-72"
+          "fixed inset-y-0 left-0 w-72 bg-white text-slate-800 transition-transform duration-300 z-50 shadow-2xl flex flex-col " +
+          (sidebarOpen ? "translate-x-0" : "-translate-x-full")
         }
       >
-        {/* Sidebar Header with Geometric Pattern (Matching Mobile) */}
-        <div className="relative h-[180px] bg-[#212121] overflow-hidden flex-shrink-0 shadow-lg cursor-pointer group" onClick={() => setSidebarOpen(false)}>
+        {/* Sidebar Header */}
+        <div
+          className="relative h-[180px] bg-[#212121] overflow-hidden flex-shrink-0 cursor-pointer shadow-lg"
+          onClick={() => setSidebarOpen(false)}
+        >
           <div className="absolute top-0 left-0 w-full h-full bg-[#212121]"></div>
           <div
             className="absolute top-0 left-0 w-[120px] h-full bg-[#EE401D]"
-            style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}
+            style={{ clipPath: "polygon(0 0, 100% 0, 0 100%)" }}
           ></div>
           <div
-            className="absolute top-0 left-[60px] w-[180px] h-full bg-[#333333] opacity-40"
-            style={{ clipPath: 'polygon(20% 0, 100% 0, 0 100%, -20% 100%)' }}
+            className="absolute top-0 left-[60px] w-[180px] h-full bg-[#333333] opacity-50"
+            style={{ clipPath: "polygon(20% 0, 100% 0, 0 100%, -20% 100%)" }}
           ></div>
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-black/20 to-transparent pointer-events-none"></div>
 
           <div className="absolute bottom-6 left-6 flex items-center gap-4 z-10 w-full">
-            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-2xl border-2 border-white/20">
-              <User size={36} className="text-slate-400" />
-            </div>
-            {!sidebarCollapsed && (
-              <div className="text-white">
-                <h2 className="text-[18px] font-black leading-tight tracking-tight">{userName}</h2>
-                <p className="text-[11px] opacity-90 font-black tracking-[1px] uppercase text-[#EE401D]">
-                  Fleet Admin
-                </p>
+            <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-2xl">
+              <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                <User size={42} className="text-slate-400" />
               </div>
-            )}
+            </div>
+            <div className="text-white">
+              <h2 className="text-[20px] font-black leading-tight tracking-tight">{userName}</h2>
+              <p className="text-[13px] opacity-90 italic font-bold tracking-tight text-white/90">
+                Fleet Administrator
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className={"flex-1 overflow-y-auto py-6 " + (sidebarCollapsed ? "px-2" : "px-4")}>
-          {!sidebarCollapsed && (
-            <h3 className="px-5 py-2 text-[10px] font-black text-slate-300 uppercase tracking-[2.5px] mb-2">Management</h3>
-          )}
-          <nav className="space-y-1">
-            {navItems.map(({ href, label, icon: Icon }) => {
-              const isActive = pathname === href
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={
-                    "flex items-center rounded-2xl transition-all group " +
-                    (sidebarCollapsed ? "justify-center px-0 py-3.5" : "gap-4 px-5 py-3.5 ") +
-                    (isActive
-                      ? "bg-slate-50 text-[#EE401D]"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900")
-                  }
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <Icon size={22} strokeWidth={isActive ? 2.5 : 2} className={isActive ? "text-[#EE401D]" : "text-slate-400 group-hover:text-slate-600"} />
-                  {!sidebarCollapsed && (
-                    <span className={"text-[14px] font-black tracking-tight " + (isActive ? "opacity-100" : "opacity-80")}>
+        <div className="flex-1 overflow-y-auto px-1 py-4">
+          <div className="mb-6">
+            <h3 className="px-5 py-2 text-[13px] font-black text-slate-300 uppercase tracking-[1.5px] italic mb-1">General</h3>
+            <nav className="space-y-0">
+              {generalNavItems.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={
+                      "flex items-center gap-5 px-5 py-3 rounded-2xl transition-all active:bg-slate-50 " +
+                      (isActive ? "text-[#EE401D]" : "text-slate-900")
+                    }
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Icon size={22} strokeWidth={2.5} className={isActive ? "text-[#EE401D]" : "text-black"} />
+                    <span className="text-[16px] font-black italic tracking-tight">
                       {label}
                     </span>
-                  )}
-                </Link>
-              )
-            })}
-          </nav>
-        </div>
-
-        {/* Sidebar Footer */}
-        <div className="p-4 border-t border-slate-100">
-          <button
-            onClick={handleLogout}
-            className={
-              "w-full flex items-center rounded-2xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all font-black italic text-[15px] " +
-              (sidebarCollapsed ? "justify-center px-0 py-4" : "gap-4 px-5 py-4")
-            }
-          >
-            <LogOut size={22} strokeWidth={2.5} />
-            {!sidebarCollapsed && <span>Logout Account</span>}
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header (Matching Mobile Theme) */}
-        <header className="bg-[#EE401D] text-white flex items-center justify-between px-4 sm:px-6 sticky top-0 z-40 shadow-md flex-shrink-0 h-[64px]">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1 active:scale-90 transition-transform">
-              <Menu size={24} />
-            </button>
-            <button
-              onClick={() => setSidebarCollapsed((prev) => !prev)}
-              className="hidden lg:flex p-1 active:scale-90 transition-transform"
-              aria-label="Toggle sidebar"
-            >
-              {sidebarCollapsed ? <Menu size={22} /> : <X size={22} />}
-            </button>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 relative">
-                <Image src="/logo.svg" alt="WV" fill className="object-contain brightness-0 invert" />
-              </div>
-              <h1 className="text-[16px] font-black tracking-[1.5px] uppercase hidden sm:block">World Vision Admin</h1>
-            </div>
+                  </Link>
+                )
+              })}
+            </nav>
           </div>
 
-          <div className="flex items-center gap-4 sm:gap-6">
-            <div className="hidden md:flex items-center relative">
-              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
-              <input
-                type="text"
-                placeholder="Search resources..."
-                className="bg-white/10 border-none rounded-full pl-10 pr-4 py-2 text-sm text-white placeholder:text-white/60 focus:ring-2 focus:ring-white/20 outline-none w-48 transition-all focus:w-64"
-              />
+          <div className="mb-6 pt-4 border-t border-slate-100">
+            <h3 className="px-5 py-2 text-[13px] font-black text-slate-300 uppercase tracking-[1.5px] italic mb-1">Operations</h3>
+            <nav className="space-y-0">
+              {operationsNavItems.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={
+                      "flex items-center gap-5 px-5 py-3 rounded-2xl transition-all active:bg-slate-50 " +
+                      (isActive ? "text-[#EE401D]" : "text-slate-900")
+                    }
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Icon size={22} strokeWidth={2.5} className={isActive ? "text-[#EE401D]" : "text-black"} />
+                    <span className="text-[16px] font-black italic tracking-tight">
+                      {label}
+                    </span>
+                  </Link>
+                )
+              })}
+            </nav>
+          </div>
+
+          <div className="pt-4 border-t border-slate-100">
+            <h3 className="px-5 py-2 text-[13px] font-black text-slate-300 uppercase tracking-[1.5px] italic mb-1">Settings</h3>
+            <nav className="space-y-0">
+              {settingsNavItems.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={
+                      "flex items-center gap-5 px-5 py-3 rounded-2xl transition-all active:bg-slate-50 " +
+                      (isActive ? "text-[#EE401D]" : "text-slate-900")
+                    }
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Icon size={22} strokeWidth={2.5} className={isActive ? "text-[#EE401D]" : "text-black"} />
+                    <span className="text-[16px] font-black italic tracking-tight">
+                      {label}
+                    </span>
+                  </Link>
+                )
+              })}
+              <button
+                onClick={() => { setSidebarOpen(false); handleLogout() }}
+                className="w-full text-left"
+              >
+                <div className="flex items-center gap-5 px-5 py-3 rounded-2xl transition-all active:bg-slate-50 text-slate-900">
+                  <LogOut size={22} strokeWidth={2.5} className="text-black" />
+                  <span className="text-[16px] font-black italic tracking-tight">
+                    Logout Account
+                  </span>
+                </div>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        <header
+          className="bg-[#EE401D] text-white flex items-center justify-between px-4 sticky top-0 z-40 shadow-sm flex-shrink-0"
+          style={{
+            paddingTop: "env(safe-area-inset-top)",
+            height: "calc(56px + env(safe-area-inset-top))",
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <button onClick={() => setSidebarOpen(true)} className="p-1 active:scale-90 transition-transform">
+              <Menu size={24} />
+            </button>
+            <div className="flex items-center gap-2">
+              <h1 className="text-[19px] font-bold tracking-tight">World Vision</h1>
             </div>
-            <button className="p-2 relative hover:bg-white/10 rounded-full transition-colors">
+          </div>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setShowInfo(true)}
+              className="relative cursor-pointer p-1"
+              type="button"
+            >
+              <Info size={20} className="opacity-90" />
+              <div className="absolute -top-0 -right-0 w-3.5 h-3.5 bg-white text-[#EE401D] text-[9px] font-black rounded-full flex items-center justify-center border border-[#EE401D]">
+                ?
+              </div>
+            </button>
+            <button
+              className="p-2 relative hover:bg-white/10 rounded-full transition-colors"
+              onClick={() => setShowNotifications(true)}
+              type="button"
+            >
               <Bell size={22} className="opacity-90" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-white rounded-full"></span>
             </button>
-            <div className="w-9 h-9 rounded-full bg-white/20 border border-white/10 flex items-center justify-center font-black text-white text-sm">
-              {userName[0]}
-            </div>
           </div>
         </header>
 
-        {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto bg-gradient-to-b from-[#F7F7F9] to-white p-4 sm:p-6 lg:p-8">
-          <div className="max-w-6xl mx-auto">
+        <main className="flex-1 overflow-y-auto bg-white">
+          <div
+            className="max-w-7xl mx-auto min-h-full px-4 sm:px-6 lg:px-8 py-6"
+            style={{ paddingBottom: "calc(32px + env(safe-area-inset-bottom))" }}
+          >
             {children}
           </div>
         </main>
       </div>
 
-      {/* Overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/40 z-40 transition-opacity"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {showNotifications && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl border border-slate-100 shadow-2xl">
+            <div className="p-6 border-b border-slate-100">
+              <h3 className="text-lg font-bold">Notifications</h3>
+              <p className="text-sm text-muted-foreground">Latest activity (demo)</p>
+            </div>
+            <div className="p-6 space-y-3 text-sm">
+              {[
+                "Trip INC-004 completed and logged.",
+                "Vehicle ABC123 service due in 7 days.",
+                "New incident report pending review."
+              ].map((note, idx) => (
+                <div key={idx} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                  {note}
+                </div>
+              ))}
+            </div>
+            <div className="p-6 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowNotifications(false)}
+                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl border border-slate-100 shadow-2xl">
+            <div className="p-6 border-b border-slate-100">
+              <h3 className="text-lg font-bold">System Info</h3>
+              <p className="text-sm text-muted-foreground">Fleet operations overview</p>
+            </div>
+            <div className="p-6 space-y-3 text-sm text-slate-600">
+              <p>World Vision Fleet Platform centralizes trip tracking, vehicle lifecycle, and compliance records.</p>
+              <p>Use the sidebar to navigate operations, and review incidents and contracts regularly.</p>
+              <p>This panel is a demo placeholder; content will be connected to live data later.</p>
+            </div>
+            <div className="p-6 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowInfo(false)}
+                className="px-4 py-2 rounded-lg bg-primary text-primary-foreground"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

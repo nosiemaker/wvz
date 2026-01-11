@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import {
   Car, Wrench, AlertTriangle, DollarSign, TrendingUp,
   Fuel, Users, Calendar, Activity
@@ -147,7 +148,8 @@ export default function FleetDashboardPage() {
       {/* KPI Cards - Premium Style */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {/* Total Vehicles */}
-        <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] group hover:shadow-lg transition-all duration-300">
+        <Link href="/admin/vehicles" className="group">
+          <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] hover:shadow-lg transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-700 group-hover:bg-slate-900 group-hover:text-white transition-colors">
               <Car size={20} strokeWidth={2.5} />
@@ -158,10 +160,12 @@ export default function FleetDashboardPage() {
             <h3 className="text-[36px] font-black text-slate-800 leading-none tracking-tight">{stats.totalVehicles}</h3>
             <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Fleet Size</p>
           </div>
-        </div>
+          </div>
+        </Link>
 
         {/* Active Trips */}
-        <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] group hover:shadow-lg transition-all duration-300 border-l-4 border-l-green-500">
+        <Link href="/admin/trips" className="group">
+          <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] hover:shadow-lg transition-all duration-300 border-l-4 border-l-green-500">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-2xl bg-green-50 flex items-center justify-center text-green-600 group-hover:scale-110 transition-transform">
               <Activity size={20} strokeWidth={2.5} />
@@ -172,10 +176,12 @@ export default function FleetDashboardPage() {
             <h3 className="text-[36px] font-black text-slate-800 leading-none tracking-tight">{stats.activeTrips}</h3>
             <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Active Trips</p>
           </div>
-        </div>
+          </div>
+        </Link>
 
         {/* In Maintenance */}
-        <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] group hover:shadow-lg transition-all duration-300 border-l-4 border-l-orange-500">
+        <Link href="/admin/vehicles?status=maintenance" className="group">
+          <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] hover:shadow-lg transition-all duration-300 border-l-4 border-l-orange-500">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-600 group-hover:rotate-12 transition-transform">
               <Wrench size={20} strokeWidth={2.5} />
@@ -186,10 +192,12 @@ export default function FleetDashboardPage() {
             <h3 className="text-[36px] font-black text-slate-800 leading-none tracking-tight">{stats.inMaintenance}</h3>
             <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">In Maintenance</p>
           </div>
-        </div>
+          </div>
+        </Link>
 
         {/* Available */}
-        <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] group hover:shadow-lg transition-all duration-300">
+        <Link href="/admin/drivers" className="group">
+          <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] hover:shadow-lg transition-all duration-300">
           <div className="flex items-center justify-between mb-4">
             <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
               <Users size={20} strokeWidth={2.5} />
@@ -200,14 +208,16 @@ export default function FleetDashboardPage() {
             <h3 className="text-[36px] font-black text-slate-800 leading-none tracking-tight">{stats.totalDrivers}</h3>
             <p className="text-[12px] font-bold text-slate-400 uppercase tracking-wide">Registered Drivers</p>
           </div>
-        </div>
+          </div>
+        </Link>
       </div>
 
       {/* Split Section: Metrics & Maintenance */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Secondary Metrics */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:col-span-2">
-          <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <Link href="/admin/trips" className="group">
+            <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Distance</p>
@@ -220,9 +230,11 @@ export default function FleetDashboardPage() {
             <div className="mt-4 pt-4 border-t border-slate-50">
               <span className="text-[11px] font-bold text-slate-400">All-time fleet mileage</span>
             </div>
-          </div>
+            </div>
+          </Link>
 
-          <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <Link href="/admin/contracts?type=maintenance" className="group">
+            <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Fuel Consumption</p>
@@ -235,9 +247,11 @@ export default function FleetDashboardPage() {
             <div className="mt-4 pt-4 border-t border-slate-50 text-right">
               <span className="text-[10px] font-black text-slate-300 uppercase italic">Estimation</span>
             </div>
-          </div>
+            </div>
+          </Link>
 
-          <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <Link href="/admin/vehicles" className="group">
+            <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Utilization</p>
@@ -252,9 +266,11 @@ export default function FleetDashboardPage() {
                 <div className="h-full bg-blue-500 rounded-full" style={{ width: String(stats.utilizationRate) + "%" }}></div>
               </div>
             </div>
-          </div>
+            </div>
+          </Link>
 
-          <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+          <Link href="/admin/incidents" className="group">
+            <div className="bg-white rounded-[26px] p-6 border border-slate-100 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-1">Safety Index</p>
@@ -267,11 +283,13 @@ export default function FleetDashboardPage() {
             <div className="mt-4 pt-4 border-t border-slate-50">
               <span className="text-[11px] font-black text-green-500 uppercase">Excellent</span>
             </div>
-          </div>
+            </div>
+          </Link>
         </div>
 
         {/* Upcoming Maintenance List */}
-        <div className="bg-white rounded-[28px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] lg:row-span-2">
+        <Link href="/admin/contracts?type=maintenance" className="block">
+          <div className="bg-white rounded-[28px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] lg:row-span-2">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-[16px] font-black text-slate-800 italic">Upcoming Service</h3>
             <button className="text-[12px] font-bold text-[#EE401D] hover:underline">View All</button>
@@ -318,10 +336,12 @@ export default function FleetDashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+          </div>
+        </Link>
 
         {/* Cost Trend (Simple Visual) */}
-        <div className="bg-white rounded-[28px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] lg:col-span-2">
+        <Link href="/admin/contracts" className="block">
+          <div className="bg-white rounded-[28px] p-6 border border-slate-100 shadow-[0_12px_32px_rgba(0,0,0,0.05)] lg:col-span-2">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-[16px] font-black text-slate-800 italic uppercase">Financial Trend</h3>
           </div>
@@ -343,11 +363,13 @@ export default function FleetDashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+          </div>
+        </Link>
       </div>
 
       {/* Recent Alerts (Incidents) */}
-      <div className="bg-slate-900 rounded-[28px] p-6 text-white shadow-2xl overflow-hidden relative">
+      <Link href="/admin/incidents" className="block">
+        <div className="bg-slate-900 rounded-[28px] p-6 text-white shadow-2xl overflow-hidden relative">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#EE401D] opacity-10 blur-[100px] pointer-events-none"></div>
         <div className="flex items-center gap-3 mb-6 relative z-10">
           <AlertTriangle className="text-[#EE401D]" />
@@ -381,7 +403,8 @@ export default function FleetDashboardPage() {
             </div>
           ))}
         </div>
-      </div>
+        </div>
+      </Link>
     </div>
   )
 }

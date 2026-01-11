@@ -19,7 +19,8 @@ export default function AddVehiclePage() {
         fuelType: "diesel",
         status: "active",
         licenseRequired: "C",
-        maintenanceIntervalKm: 5000
+        maintenanceIntervalKm: 5000,
+        office: ""
     })
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -143,6 +144,22 @@ export default function AddVehiclePage() {
                                 placeholder="e.g. White"
                                 className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-slate-800 focus:ring-2 focus:ring-[#EE401D]/20 outline-none transition-all placeholder:text-slate-300"
                             />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Office (Optional)</label>
+                            <select
+                                value={formData.office}
+                                onChange={e => setFormData({ ...formData, office: e.target.value })}
+                                className="w-full p-4 bg-slate-50 border-none rounded-2xl font-bold text-slate-800 focus:ring-2 focus:ring-[#EE401D]/20 outline-none transition-all appearance-none"
+                            >
+                                <option value="">Select office</option>
+                                <option value="Lusaka">Lusaka</option>
+                                <option value="Chipata">Chipata</option>
+                                <option value="Ndola">Ndola</option>
+                                <option value="Livingstone">Livingstone</option>
+                                <option value="Kabwe">Kabwe</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                     </div>
                 </div>

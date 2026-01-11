@@ -1,16 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { FileText, AlertTriangle, CheckCircle, Calendar, DollarSign, Plus, Search, Filter } from "lucide-react"
 
 export default function ContractsPage() {
-    const [filter, setFilter] = useState("all")
+  const [filter, setFilter] = useState("all")
+  const [search, setSearch] = useState("")
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [activeContract, setActiveContract] = useState<any | null>(null)
+  const [formData, setFormData] = useState({
+    vehicle: "",
+    type: "insurance",
+    provider: "",
+    policyNumber: "",
+    startDate: "",
+    endDate: "",
+    cost: ""
+  })
 
-    // Mock contracts data
-    const contracts = [
-        {
-            id: 1,
-            vehicle: "ABC123 - Toyota Land Cruiser",
+  // Mock contracts data
+  const [contracts, setContracts] = useState([
+    {
+      id: 1,
+      vehicle: "ABC123 - Toyota Land Cruiser",
             type: "insurance",
             provider: "Madison Insurance",
             policyNumber: "POL-2024-5678",
@@ -64,11 +76,11 @@ export default function ContractsPage() {
             policyNumber: "MAINT-2024-7890",
             startDate: "2024-06-01",
             endDate: "2024-11-30",
-            cost: 6500,
-            status: "expired",
-            daysUntilExpiry: -45
-        }
-    ]
+      cost: 6500,
+      status: "expired",
+      daysUntilExpiry: -45
+    }
+  ])
 
     const getTypeColor = (type: string) => {
         const colors: Record<string, string> = {
@@ -98,30 +110,78 @@ export default function ContractsPage() {
         </span>
     }
 
-    const filteredContracts = filter === "all"
-        ? contracts
-        : contracts.filter(c => c.type === filter)
+  const filteredContracts = useMemo(() => {
+    const base = filter === "all" ? contracts : contracts.filter(c => c.type === filter)
+    if (!search.trim()) return base
+    const term = search.trim().toLowerCase()
+    return base.filter((c) =>
+      [c.vehicle, c.provider, c.policyNumber, c.type].some((field) =>
+        String(field).toLowerCase().includes(term)
+      )
+    )
+  }, [contracts, filter, search])
 
-    const stats = {
-        total: contracts.length,
-        active: contracts.filter(c => c.status === "active").length,
-        expiringSoon: contracts.filter(c => c.status === "expiring_soon").length,
-        expired: contracts.filter(c => c.status === "expired").length
-    }
+  const stats = {
+    total: contracts.length,
+    active: contracts.filter(c => c.status === "active").length,
+    expiringSoon: contracts.filter(c => c.status === "expiring_soon").length,
+    expired: contracts.filter(c => c.status === "expired").length
+  }
 
-    return (
-        <div className="space-y-6">
+  const handleAddContract = (e: React.FormEvent) => {
+    e.preventDefault()
+    const costValue = parseInt(formData.cost || "0", 10)
+    const endDate = formData.endDate || new Date().toISOString().slice(0, 10)
+    const daysUntilExpiry = Math.ceil(
+      (new Date(endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    )
+    const status =
+      daysUntilExpiry < 0 ? "expired" : daysUntilExpiry <= 30 ? "expiring_soon" : "active"
+
+    setContracts((prev) => [
+      {
+        id: prev.length + 1,
+        vehicle: formData.vehicle || "Unassigned Vehicle",
+        type: formData.type,
+        provider: formData.provider || "Unknown Provider",
+        policyNumber: formData.policyNumber || "N/A",
+        startDate: formData.startDate || new Date().toISOString().slice(0, 10),
+        endDate: endDate,
+        cost: Number.isNaN(costValue) ? 0 : costValue,
+        status: status,
+        daysUntilExpiry: daysUntilExpiry
+      },
+      ...prev
+    ])
+
+    setFormData({
+      vehicle: "",
+      type: "insurance",
+      provider: "",
+      policyNumber: "",
+      startDate: "",
+      endDate: "",
+      cost: ""
+    })
+    setShowAddModal(false)
+  }
+
+  return (
+    <div className="space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold">Contracts Management</h1>
                     <p className="text-muted-foreground">Track all vehicle contracts and expiry dates</p>
                 </div>
-                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-2">
-                    <Plus className="w-4 h-4" />
-                    Add Contract
-                </button>
-            </div>
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 flex items-center gap-2"
+        >
+          <Plus className="w-4 h-4" />
+          Add Contract
+        </button>
+      </div>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -150,6 +210,8 @@ export default function ContractsPage() {
                     <input
                         type="text"
                         placeholder="Search contracts..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                         className="bg-transparent border-none outline-none flex-1"
                     />
                 </div>
@@ -190,7 +252,7 @@ export default function ContractsPage() {
                                     <p className="font-semibold">{contract.vehicle}</p>
                                 </td>
                                 <td className="px-4 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase zmw{getTypeColor(contract.type)}`}>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${getTypeColor(contract.type)}`}>
                                         {contract.type}
                                     </span>
                                 </td>
@@ -207,19 +269,166 @@ export default function ContractsPage() {
                                     </div>
                                 </td>
                                 <td className="px-4 py-4 text-right">
-                                    <p className="font-bold">zmw{contract.cost.toLocaleString()}</p>
+                                    <p className="font-bold">ZMW {contract.cost.toLocaleString()}</p>
                                 </td>
                                 <td className="px-4 py-4 text-center">
                                     {getStatusBadge(contract.status, contract.daysUntilExpiry)}
                                 </td>
                                 <td className="px-4 py-4 text-right">
-                                    <button className="text-primary hover:underline text-sm">View Details</button>
+                                    <button
+                                      onClick={() => setActiveContract(contract)}
+                                      className="text-primary hover:underline text-sm"
+                                    >
+                                      View Details
+                                    </button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {showAddModal && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                <div className="w-full max-w-xl bg-white rounded-2xl border border-slate-100 shadow-2xl">
+                  <div className="p-6 border-b border-slate-100">
+                    <h3 className="text-lg font-bold">Add Contract</h3>
+                    <p className="text-sm text-muted-foreground">Create a contract entry (UI only).</p>
+                  </div>
+                  <form onSubmit={handleAddContract} className="p-6 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">Vehicle</label>
+                        <input
+                          value={formData.vehicle}
+                          onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                          placeholder="Plate - Model"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Type</label>
+                        <select
+                          value={formData.type}
+                          onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                        >
+                          <option value="insurance">Insurance</option>
+                          <option value="maintenance">Maintenance</option>
+                          <option value="lease">Lease</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Provider</label>
+                        <input
+                          value={formData.provider}
+                          onChange={(e) => setFormData({ ...formData, provider: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                          placeholder="Provider name"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Policy Number</label>
+                        <input
+                          value={formData.policyNumber}
+                          onChange={(e) => setFormData({ ...formData, policyNumber: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                          placeholder="POL-2025-0001"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Start Date</label>
+                        <input
+                          type="date"
+                          value={formData.startDate}
+                          onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">End Date</label>
+                        <input
+                          type="date"
+                          value={formData.endDate}
+                          onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Annual Cost (ZMW)</label>
+                        <input
+                          type="number"
+                          value={formData.cost}
+                          onChange={(e) => setFormData({ ...formData, cost: e.target.value })}
+                          className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddModal(false)}
+                        className="px-4 py-2 rounded-lg border border-border"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 rounded-lg bg-primary text-primary-foreground"
+                      >
+                        Save Contract
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {activeContract && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+                <div className="w-full max-w-xl bg-white rounded-2xl border border-slate-100 shadow-2xl">
+                  <div className="p-6 border-b border-slate-100">
+                    <h3 className="text-lg font-bold">Contract Details</h3>
+                    <p className="text-sm text-muted-foreground">{activeContract.policyNumber}</p>
+                  </div>
+                  <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Vehicle</p>
+                      <p className="font-semibold">{activeContract.vehicle}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Type</p>
+                      <p className="font-semibold capitalize">{activeContract.type}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Provider</p>
+                      <p className="font-semibold">{activeContract.provider}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Annual Cost</p>
+                      <p className="font-semibold">ZMW {activeContract.cost.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Start Date</p>
+                      <p className="font-semibold">{new Date(activeContract.startDate).toLocaleDateString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">End Date</p>
+                      <p className="font-semibold">{new Date(activeContract.endDate).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <div className="p-6 border-t border-slate-100 flex justify-end">
+                    <button
+                      onClick={() => setActiveContract(null)}
+                      className="px-4 py-2 rounded-lg bg-primary text-primary-foreground"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
         </div>
     )
 }

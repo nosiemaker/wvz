@@ -25,9 +25,9 @@ export default function VehiclesPage() {
 
   const getStatusBadge = (status: string) => {
     const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
-    if (status === "active") return `zmw{baseStyle} bg-primary/10 text-primary`
-    if (status === "maintenance") return `zmw{baseStyle} bg-accent/10 text-accent`
-    return `zmw{baseStyle} bg-destructive/10 text-destructive`
+    if (status === "active") return baseStyle + " bg-primary/10 text-primary"
+    if (status === "maintenance") return baseStyle + " bg-accent/10 text-accent"
+    return baseStyle + " bg-destructive/10 text-destructive"
   }
 
   if (isLoading) {
@@ -101,6 +101,10 @@ export default function VehiclesPage() {
                   <p className="font-bold text-slate-700 capitalize">{vehicle.fuel_type || 'N/A'}</p>
                 </div>
                 <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Office</p>
+                  <p className="font-bold text-slate-700">{vehicle.office || 'Not Set'}</p>
+                </div>
+                <div>
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Color</p>
                   <p className="font-bold text-slate-700">{vehicle.color || 'N/A'}</p>
                 </div>
@@ -125,14 +129,17 @@ export default function VehiclesPage() {
 
               {/* Actions */}
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <Link href={`/admin/vehicles/manage/?id=zmw{vehicle.id}`} className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors">
+                <Link href={"/admin/vehicles/manage/?id=" + vehicle.id} className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors">
                   <FileText size={16} />
                   View Details
                 </Link>
-                <button className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors">
+                <Link
+                  href={"/admin/vehicles/manage/?id=" + vehicle.id + "&section=service"}
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-[13px] font-bold flex items-center justify-center gap-2 transition-colors"
+                >
                   <Wrench size={16} />
                   Schedule Service
-                </button>
+                </Link>
               </div>
             </div>
           ))
