@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Play, Square, MapPin, Clock, Loader, Calendar, History, Compass, ChevronRight, Flag, Truck, Car, RotateCw, Coffee, Fuel as FuelIcon } from "lucide-react"
-import { getAllTrips, getActiveTrips, endTrip, logTripEvent } from "@/lib/trips"
+import { Square, MapPin, Clock, Loader, Calendar, History, Compass, ChevronRight, Truck, Car, RotateCw, Coffee } from "lucide-react"
+import { getAllTrips, getActiveTrips, logTripEvent } from "@/lib/trips"
 import { useRouter } from "next/navigation"
 
 export default function TripsPage() {
@@ -10,8 +10,6 @@ export default function TripsPage() {
   const [history, setHistory] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showLogModal, setShowLogModal] = useState(false)
-  const [showEndModal, setShowEndModal] = useState(false)
-  const [endMileage, setEndMileage] = useState("")
   const [logType, setLogType] = useState("stop")
   const [logReason, setLogReason] = useState("Food")
 
@@ -44,18 +42,6 @@ export default function TripsPage() {
       await loadData()
     } catch (e) {
       alert("Failed to log event")
-    }
-  }
-
-  const handleEndTrip = async () => {
-    if (!activeTrip || !endMileage) return
-    try {
-      await endTrip(activeTrip.id, parseInt(endMileage))
-      setShowEndModal(false)
-      setEndMileage("")
-      await loadData()
-    } catch (e) {
-      alert("Failed to end trip")
     }
   }
 
@@ -163,7 +149,7 @@ export default function TripsPage() {
                   Log Stop
                 </button>
                 <button
-                  onClick={() => setShowEndModal(true)}
+                  onClick={() => router.push("/mobile/inspections/post-trip/" + activeTrip.id)}
                   className="flex-1 py-4 bg-[#EE401D] text-white rounded-2xl font-black text-[12px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform"
                 >
                   <Square size={16} />
@@ -193,7 +179,7 @@ export default function TripsPage() {
               <div
                 key={trip.id}
                 className="bg-white rounded-[24px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-5 active:bg-slate-50 transition-colors"
-                onClick={() => router.push(`/mobile/trip-details?id=zmw{trip.id}`)}
+                onClick={() => router.push("/mobile/trip-details?id=" + trip.id)}
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-3">
@@ -209,7 +195,14 @@ export default function TripsPage() {
                       </p>
                     </div>
                   </div>
-                  <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest zmw{status.bg} zmw{status.text}`}>
+                  <span
+                    className={
+                      "px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest " +
+                      status.bg +
+                      " " +
+                      status.text
+                    }
+                  >
                     {status.label}
                   </span>
                 </div>
@@ -301,48 +294,6 @@ export default function TripsPage() {
         </div>
       )}
 
-      {/* End Trip Modal */}
-      {showEndModal && (
-        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-6 backdrop-blur-sm">
-          <div className="bg-white rounded-[40px] w-full max-w-sm p-8 space-y-6 shadow-2xl">
-            <div className="text-center space-y-2">
-              <h3 className="font-black text-2xl text-slate-800 tracking-tighter">End Trip</h3>
-              <p className="text-slate-500 text-sm font-bold">Please record your final odometer</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-white rounded-full border border-slate-200 shadow-sm flex items-center px-8 h-[64px] focus-within:ring-4 focus-within:ring-[#3E2723]/10 transition-all">
-                <div className="flex-1 flex flex-col justify-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest -mb-0.5">Final Odometer</span>
-                  <input
-                    type="number"
-                    className="w-full bg-transparent font-black text-slate-800 placeholder-slate-200 focus:outline-none text-[18px] tracking-tight"
-                    placeholder="e.g. 12050"
-                    value={endMileage}
-                    onChange={(e) => setEndMileage(e.target.value)}
-                  />
-                </div>
-                <Compass className="text-[#3E2723] w-5 h-5 opacity-80" />
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowEndModal(false)}
-                className="flex-1 h-[60px] font-black text-slate-400 active:scale-95 transition-transform uppercase tracking-wider"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleEndTrip}
-                className="flex-1 h-[60px] bg-[#3E2723] text-white rounded-full font-black shadow-xl shadow-brown-900/30 active:scale-95 transition-transform uppercase tracking-wider"
-              >
-                Finish
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

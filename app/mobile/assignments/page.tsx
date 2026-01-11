@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Car, Calendar, MapPin, User, Clock, CheckCircle, Play, RotateCw, ChevronRight, Compass, Hash, Loader, StopCircle } from "lucide-react"
+import { Calendar, User, Clock, Play, RotateCw, Compass, Loader, StopCircle } from "lucide-react"
 import { getMyAssignedBookings } from "@/lib/bookings"
-import { startTrip, endTrip } from "@/lib/trips"
+import { useRouter } from "next/navigation"
 
 export default function AssignmentsPage() {
     const [assignments, setAssignments] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
-    const [processingId, setProcessingId] = useState<string | null>(null)
+    const router = useRouter()
 
     const loadData = async () => {
         try {
@@ -25,64 +25,22 @@ export default function AssignmentsPage() {
         loadData()
     }, [])
 
-    const handleStartTrip = async (entry: any) => {
-        // For MVP, using prompt.
-        const mileageStr = prompt("Enter Current Odometer Reading (Start Mileage):")
-        if (!mileageStr) return
-
-        const mileage = parseInt(mileageStr)
-        if (isNaN(mileage)) return
-
-        setProcessingId(entry.id)
-        try {
-            const confirmInspection = confirm("Have you completed the Pre-Trip Inspection Checklist?")
-            if (!confirmInspection) return
-
-            // Use the unified startTrip from lib/trips
-            await startTrip({
-                vehicleId: entry.vehicle_id, // Assigned vehicle
-                bookingId: entry.id,
-                startMileage: mileage,
-                startLocation: "Assigned Location",
-                destination: entry.destination,
-                purpose: entry.purpose
-            })
-            await loadData()
-        } catch (error) {
-            console.error(error)
-            alert("Failed to start trip")
-        } finally {
-            setProcessingId(null)
-        }
+    const handleStartTrip = (entry: any) => {
+        const params = new URLSearchParams()
+        params.set("vehicleId", entry.vehicle_id || "")
+        params.set("destination", entry.destination || "")
+        params.set("purpose", entry.purpose || "")
+        params.set("startLocation", "Assigned Location")
+        router.push("/mobile/inspections/pre-trip/" + entry.id + "?" + params.toString())
     }
 
-    const handleCompleteTrip = async (entry: any) => {
-        const mileageStr = prompt("Enter Final Odometer Reading (End Mileage):")
-        if (!mileageStr) return
-
-        const mileage = parseInt(mileageStr)
-        if (isNaN(mileage)) return
-
-        setProcessingId(entry.id)
-        try {
-            // Find the active trip ID associated with this booking
-            const activeTrip = entry.trips?.find((t: any) => t.status === 'active')
-
-            if (activeTrip) {
-                await endTrip(activeTrip.id, mileage)
-            } else {
-                // Fallback if no trip record found (legacy data), just force close the booking
-                // We import completeTrip from bookings for this fallback if needed, but better to enforce Trips
-                alert("No active trip record found to end. Contact support.")
-            }
-
-            await loadData()
-        } catch (error) {
-            console.error(error)
-            alert("Failed to complete trip")
-        } finally {
-            setProcessingId(null)
+    const handleCompleteTrip = (entry: any) => {
+        const activeTrip = entry.trips?.find((t: any) => t.status === "active")
+        if (!activeTrip) {
+            alert("No active trip record found to end. Contact support.")
+            return
         }
+        router.push("/mobile/inspections/post-trip/" + activeTrip.id)
     }
 
     const getStatusStyle = (status: string) => {
@@ -162,7 +120,13 @@ export default function AssignmentsPage() {
                     </div>
                 ) : (
                     assignments.map((entry) => (
-                        <div key={entry.id} className={`bg-white rounded-[28px] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden border-l-4 zmw{getStatusBorderStyle(entry.status)}`}>
+                        <div
+                            key={entry.id}
+                            className={
+                                "bg-white rounded-[28px] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden border-l-4 " +
+                                getStatusBorderStyle(entry.status)
+                            }
+                        >
                             <div className="p-6 space-y-4">
                                 {/* Header Row */}
                                 <div className="flex justify-between items-start">
@@ -173,7 +137,12 @@ export default function AssignmentsPage() {
                                             <span className="text-[11px] font-black text-slate-800">{new Date(entry.start_date).toLocaleDateString()}</span>
                                         </div>
                                     </div>
-                                    <div className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest zmw{getStatusStyle(entry.status)}`}>
+                                    <div
+                                        className={
+                                            "px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest " +
+                                            getStatusStyle(entry.status)
+                                        }
+                                    >
                                         {entry.status === 'in_progress' ? 'ON TRIP' : entry.status}
                                     </div>
                                 </div>
@@ -222,33 +191,19 @@ export default function AssignmentsPage() {
                                 {entry.status === "in_progress" && (
                                     <button
                                         onClick={() => handleCompleteTrip(entry)}
-                                        disabled={processingId === entry.id}
                                         className="w-full py-4 bg-slate-900 text-white rounded-[20px] text-[12px] font-black uppercase tracking-[1.5px] flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform hover:opacity-90 disabled:opacity-70"
                                     >
-                                        {processingId === entry.id ? (
-                                            <Loader className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <>
-                                                <StopCircle size={14} className="fill-current" />
-                                                Complete Trip
-                                            </>
-                                        )}
+                                        <StopCircle size={14} className="fill-current" />
+                                        Complete Trip
                                     </button>
                                 )}
                                 {(entry.status === "approved" || entry.status === "pending_allocation") && (
                                     <button
                                         onClick={() => handleStartTrip(entry)}
-                                        disabled={processingId === entry.id}
                                         className="w-full py-4 bg-[#EE401D] text-white rounded-[20px] text-[12px] font-black uppercase tracking-[1.5px] flex items-center justify-center gap-2 shadow-lg active:scale-[0.98] transition-transform hover:opacity-90 disabled:opacity-70"
                                     >
-                                        {processingId === entry.id ? (
-                                            <Loader className="w-4 h-4 animate-spin" />
-                                        ) : (
-                                            <>
-                                                <Play size={14} className="fill-current" />
-                                                Start Trip
-                                            </>
-                                        )}
+                                        <Play size={14} className="fill-current" />
+                                        Start Trip
                                     </button>
                                 )}
                             </div>

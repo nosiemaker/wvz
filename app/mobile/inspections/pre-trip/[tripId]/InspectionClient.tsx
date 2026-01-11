@@ -1,14 +1,21 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter, useParams } from "next/navigation"
+import { useRouter, useParams, useSearchParams } from "next/navigation"
 import { ArrowLeft, Camera, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
+import { startTrip } from "@/lib/trips"
 
 
 export default function InspectionClient() {
     const router = useRouter()
     const params = useParams()
-    const tripId = params.tripId as string
+    const searchParams = useSearchParams()
+    const bookingId = params.tripId as string
+    const vehicleId = searchParams.get("vehicleId") || ""
+    const destination = searchParams.get("destination") || ""
+    const purpose = searchParams.get("purpose") || ""
+    const startLocation = searchParams.get("startLocation") || "Office"
+    const startMileageParam = searchParams.get("startMileage") || ""
 
     const [checklist, setChecklist] = useState([
         { id: 1, item: "Tires (condition & pressure)", status: null as boolean | null, photo: null as string | null },
@@ -24,6 +31,7 @@ export default function InspectionClient() {
     ])
 
     const [notes, setNotes] = useState("")
+    const [startMileage, setStartMileage] = useState(startMileageParam)
 
     const handleStatusChange = (id: number, status: boolean) => {
         setChecklist(prev => prev.map(item =>
@@ -38,12 +46,18 @@ export default function InspectionClient() {
         ))
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const allChecked = checklist.every(item => item.status !== null)
         const hasFailed = checklist.some(item => item.status === false)
+        const mileageValue = Number(startMileage)
 
         if (!allChecked) {
             alert("Please complete all inspection items")
+            return
+        }
+
+        if (!startMileage || Number.isNaN(mileageValue)) {
+            alert("Please enter a valid start odometer reading")
             return
         }
 
@@ -51,8 +65,21 @@ export default function InspectionClient() {
             alert("Inspection failed! Vehicle cannot be used. Maintenance required.")
             router.push("/mobile/trips")
         } else {
-            alert("Pre-trip inspection passed! You can now start the trip.")
-            router.push("/mobile/trips")
+            try {
+                await startTrip({
+                    vehicleId: vehicleId || null,
+                    bookingId: bookingId === "manual" ? undefined : bookingId,
+                    startMileage: mileageValue,
+                    startLocation: startLocation,
+                    destination: destination,
+                    purpose: purpose,
+                })
+                alert("Pre-trip inspection passed! You can now start the trip.")
+                router.push("/mobile/trips")
+            } catch (error) {
+                console.error(error)
+                alert("Failed to start trip after inspection")
+            }
         }
     }
 
@@ -86,7 +113,7 @@ export default function InspectionClient() {
                     <div className="w-full bg-muted rounded-full h-2">
                         <div
                             className="bg-primary h-2 rounded-full transition-all"
-                            style={{ width: `zmw{(completedItems / checklist.length) * 100}%` }}
+                            style={{ width: String((completedItems / checklist.length) * 100) + "%" }}
                         />
                     </div>
                     <div className="flex items-center gap-4 mt-3 text-xs">
@@ -111,19 +138,23 @@ export default function InspectionClient() {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => handleStatusChange(item.id, true)}
-                                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors zmw{item.status === true
-                                            ? "bg-green-600 text-white"
-                                            : "bg-green-100 text-green-700 hover:bg-green-200"
-                                            }`}
+                                        className={
+                                            "px-3 py-1 rounded-lg text-sm font-semibold transition-colors " +
+                                            (item.status === true
+                                                ? "bg-green-600 text-white"
+                                                : "bg-green-100 text-green-700 hover:bg-green-200")
+                                        }
                                     >
                                         Pass
                                     </button>
                                     <button
                                         onClick={() => handleStatusChange(item.id, false)}
-                                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors zmw{item.status === false
-                                            ? "bg-red-600 text-white"
-                                            : "bg-red-100 text-red-700 hover:bg-red-200"
-                                            }`}
+                                        className={
+                                            "px-3 py-1 rounded-lg text-sm font-semibold transition-colors " +
+                                            (item.status === false
+                                                ? "bg-red-600 text-white"
+                                                : "bg-red-100 text-red-700 hover:bg-red-200")
+                                        }
                                     >
                                         Fail
                                     </button>
@@ -151,6 +182,17 @@ export default function InspectionClient() {
                 </div>
 
                 {/* Notes */}
+                <div className="space-y-2">
+                    <label className="font-semibold">Start Odometer (KM)</label>
+                    <input
+                        type="number"
+                        value={startMileage}
+                        onChange={(e) => setStartMileage(e.target.value)}
+                        className="w-full p-3 border rounded-lg bg-background"
+                        placeholder="Enter current odometer"
+                    />
+                </div>
+
                 <div className="space-y-2">
                     <label className="font-semibold">Additional Notes</label>
                     <textarea

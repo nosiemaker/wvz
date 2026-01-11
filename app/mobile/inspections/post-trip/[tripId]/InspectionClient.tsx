@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { ArrowLeft, Camera, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
+import { endTrip } from "@/lib/trips"
 
 
 export default function InspectionClient() {
@@ -22,6 +23,7 @@ export default function InspectionClient() {
     ])
 
     const [notes, setNotes] = useState("")
+    const [endMileage, setEndMileage] = useState("")
 
     const handleStatusChange = (id: number, status: boolean) => {
         setChecklist(prev => prev.map(item =>
@@ -36,21 +38,33 @@ export default function InspectionClient() {
         ))
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const allChecked = checklist.every(item => item.status !== null)
         const hasIssues = checklist.some(item => item.status === false)
+        const mileageValue = Number(endMileage)
 
         if (!allChecked) {
             alert("Please complete all inspection items")
             return
         }
 
-        if (hasIssues) {
-            alert("Post-trip inspection submitted with reported issues.")
-            router.push("/mobile/surrender") // Suggesting surrender or report view
-        } else {
-            alert("Post-trip inspection passed! Thank you.")
-            router.push("/mobile/driver")
+        if (!endMileage || Number.isNaN(mileageValue)) {
+            alert("Please enter a valid final odometer reading")
+            return
+        }
+
+        try {
+            await endTrip(tripId, mileageValue)
+            if (hasIssues) {
+                alert("Post-trip inspection submitted with reported issues.")
+                router.push("/mobile/surrender")
+            } else {
+                alert("Post-trip inspection passed! Thank you.")
+                router.push("/mobile/driver")
+            }
+        } catch (error) {
+            console.error(error)
+            alert("Failed to complete trip after inspection")
         }
     }
 
@@ -84,7 +98,7 @@ export default function InspectionClient() {
                     <div className="w-full bg-muted rounded-full h-2">
                         <div
                             className="bg-primary h-2 rounded-full transition-all"
-                            style={{ width: `zmw{(completedItems / checklist.length) * 100}%` }}
+                            style={{ width: String((completedItems / checklist.length) * 100) + "%" }}
                         />
                     </div>
                     <div className="flex items-center gap-4 mt-3 text-xs">
@@ -109,19 +123,23 @@ export default function InspectionClient() {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => handleStatusChange(item.id, true)}
-                                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors zmw{item.status === true
-                                            ? "bg-green-600 text-white"
-                                            : "bg-green-100 text-green-700 hover:bg-green-200"
-                                            }`}
+                                        className={
+                                            "px-3 py-1 rounded-lg text-sm font-semibold transition-colors " +
+                                            (item.status === true
+                                                ? "bg-green-600 text-white"
+                                                : "bg-green-100 text-green-700 hover:bg-green-200")
+                                        }
                                     >
                                         Pass
                                     </button>
                                     <button
                                         onClick={() => handleStatusChange(item.id, false)}
-                                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors zmw{item.status === false
-                                            ? "bg-red-600 text-white"
-                                            : "bg-red-100 text-red-700 hover:bg-red-200"
-                                            }`}
+                                        className={
+                                            "px-3 py-1 rounded-lg text-sm font-semibold transition-colors " +
+                                            (item.status === false
+                                                ? "bg-red-600 text-white"
+                                                : "bg-red-100 text-red-700 hover:bg-red-200")
+                                        }
                                     >
                                         Fail
                                     </button>
@@ -148,7 +166,17 @@ export default function InspectionClient() {
                     ))}
                 </div>
 
-                {/* Notes */}
+                <div className="space-y-2">
+                    <label className="font-semibold">Final Odometer (KM)</label>
+                    <input
+                        type="number"
+                        value={endMileage}
+                        onChange={(e) => setEndMileage(e.target.value)}
+                        className="w-full p-3 border rounded-lg bg-background"
+                        placeholder="Enter final odometer"
+                    />
+                </div>
+
                 <div className="space-y-2">
                     <label className="font-semibold">Additional Notes</label>
                     <textarea

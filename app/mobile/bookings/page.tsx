@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { Calendar, Plus, ChevronRight, MapPin, Loader, Play, CheckCircle } from "lucide-react"
 import { getMyRequests, getMyAssignedBookings } from "@/lib/bookings"
-import { startTrip } from "@/lib/trips"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { createClient } from "@/lib/client"
@@ -11,7 +10,6 @@ import { createClient } from "@/lib/client"
 export default function BookingsPage() {
   const [requests, setRequests] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [processingId, setProcessingId] = useState<string | null>(null)
   const [userRole, setUserRole] = useState<string>("employee")
   const router = useRouter()
 
@@ -41,28 +39,15 @@ export default function BookingsPage() {
     loadData()
   }, [])
 
-  const handleStartTrip = async (e: React.MouseEvent, request: any) => {
+  const handleStartTrip = (e: React.MouseEvent, request: any) => {
     e.stopPropagation()
     e.preventDefault()
-    if (!confirm("Start this trip now?")) return
-
-    setProcessingId(request.id)
-    try {
-      // use vehicle_id if exists, else null (for external)
-      const vehicleId = request.vehicle_id || null
-      await startTrip({
-        vehicleId: vehicleId,
-        bookingId: request.id,
-        destination: request.destination,
-        purpose: request.purpose,
-      })
-      router.push("/mobile/trips")
-    } catch (error: any) {
-      console.error("Error starting trip:", error)
-      alert("Failed to start trip: " + (error.message || "Unknown error"))
-    } finally {
-      setProcessingId(null)
-    }
+    const params = new URLSearchParams()
+    params.set("vehicleId", request.vehicle_id || "")
+    params.set("destination", request.destination || "")
+    params.set("purpose", request.purpose || "")
+    params.set("startLocation", request.start_location || "Office")
+    router.push("/mobile/inspections/pre-trip/" + request.id + "?" + params.toString())
   }
 
   const getStatusColor = (status: string) => {
@@ -227,10 +212,9 @@ export default function BookingsPage() {
                     return (
                       <button
                         onClick={(e) => handleStartTrip(e, request)}
-                        disabled={!!processingId}
                         className="w-full bg-primary text-primary-foreground font-bold py-3 flex items-center justify-center gap-2 rounded-lg hover:opacity-90 transition-opacity shadow-md"
                       >
-                        {processingId === request.id ? <Loader className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                        <Play className="w-4 h-4" />
                         Start Trip
                       </button>
                     )

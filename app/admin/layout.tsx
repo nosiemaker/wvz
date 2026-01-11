@@ -18,6 +18,7 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [userName, setUserName] = useState<string>("Admin")
   const pathname = usePathname()
 
@@ -47,11 +48,16 @@ export default function AdminLayout({
   ]
 
   return (
-    <div className="flex h-screen bg-[#F5F5F5] font-sans overflow-hidden">
+    <div className="flex h-screen bg-[#F7F7F9] font-sans overflow-hidden">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 w-72 bg-white text-slate-800 transition-transform duration-300 z-50 shadow-2xl flex flex-col lg:static lg:translate-x-0 zmw{sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={
+          "fixed inset-y-0 left-0 bg-white text-slate-800 transition-transform duration-300 z-50 shadow-2xl flex flex-col " +
+          (sidebarOpen ? "translate-x-0" : "-translate-x-full") +
+          " lg:static lg:translate-x-0 " +
+          (sidebarCollapsed ? "lg:w-20" : "lg:w-72") +
+          " w-72"
+        }
       >
         {/* Sidebar Header with Geometric Pattern (Matching Mobile) */}
         <div className="relative h-[180px] bg-[#212121] overflow-hidden flex-shrink-0 shadow-lg cursor-pointer group" onClick={() => setSidebarOpen(false)}>
@@ -69,18 +75,22 @@ export default function AdminLayout({
             <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-2xl border-2 border-white/20">
               <User size={36} className="text-slate-400" />
             </div>
-            <div className="text-white">
-              <h2 className="text-[18px] font-black leading-tight tracking-tight">{userName}</h2>
-              <p className="text-[12px] opacity-90 italic font-bold tracking-tight text-[#EE401D]">
-                Fleet Administrator
-              </p>
-            </div>
+            {!sidebarCollapsed && (
+              <div className="text-white">
+                <h2 className="text-[18px] font-black leading-tight tracking-tight">{userName}</h2>
+                <p className="text-[11px] opacity-90 font-black tracking-[1px] uppercase text-[#EE401D]">
+                  Fleet Admin
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Navigation */}
-        <div className="flex-1 overflow-y-auto px-4 py-6">
-          <h3 className="px-5 py-2 text-[11px] font-black text-slate-300 uppercase tracking-[2px] italic mb-2">Management</h3>
+        <div className={"flex-1 overflow-y-auto py-6 " + (sidebarCollapsed ? "px-2" : "px-4")}>
+          {!sidebarCollapsed && (
+            <h3 className="px-5 py-2 text-[10px] font-black text-slate-300 uppercase tracking-[2.5px] mb-2">Management</h3>
+          )}
           <nav className="space-y-1">
             {navItems.map(({ href, label, icon: Icon }) => {
               const isActive = pathname === href
@@ -88,16 +98,21 @@ export default function AdminLayout({
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all group zmw{isActive
-                    ? "bg-slate-50 text-[#EE401D]"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                    }`}
+                  className={
+                    "flex items-center rounded-2xl transition-all group " +
+                    (sidebarCollapsed ? "justify-center px-0 py-3.5" : "gap-4 px-5 py-3.5 ") +
+                    (isActive
+                      ? "bg-slate-50 text-[#EE401D]"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900")
+                  }
                   onClick={() => setSidebarOpen(false)}
                 >
                   <Icon size={22} strokeWidth={isActive ? 2.5 : 2} className={isActive ? "text-[#EE401D]" : "text-slate-400 group-hover:text-slate-600"} />
-                  <span className={`text-[15px] font-black italic tracking-tight zmw{isActive ? "opacity-100" : "opacity-80"}`}>
-                    {label}
-                  </span>
+                  {!sidebarCollapsed && (
+                    <span className={"text-[14px] font-black tracking-tight " + (isActive ? "opacity-100" : "opacity-80")}>
+                      {label}
+                    </span>
+                  )}
                 </Link>
               )
             })}
@@ -108,10 +123,13 @@ export default function AdminLayout({
         <div className="p-4 border-t border-slate-100">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all font-black italic text-[15px]"
+            className={
+              "w-full flex items-center rounded-2xl text-slate-500 hover:bg-red-50 hover:text-red-600 transition-all font-black italic text-[15px] " +
+              (sidebarCollapsed ? "justify-center px-0 py-4" : "gap-4 px-5 py-4")
+            }
           >
             <LogOut size={22} strokeWidth={2.5} />
-            <span>Logout Account</span>
+            {!sidebarCollapsed && <span>Logout Account</span>}
           </button>
         </div>
       </aside>
@@ -119,16 +137,23 @@ export default function AdminLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header (Matching Mobile Theme) */}
-        <header className="bg-[#EE401D] text-white h-[64px] flex items-center justify-between px-6 sticky top-0 z-40 shadow-md flex-shrink-0">
+        <header className="bg-[#EE401D] text-white flex items-center justify-between px-4 sm:px-6 sticky top-0 z-40 shadow-md flex-shrink-0 h-[64px]">
           <div className="flex items-center gap-4">
             <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1 active:scale-90 transition-transform">
               <Menu size={24} />
+            </button>
+            <button
+              onClick={() => setSidebarCollapsed((prev) => !prev)}
+              className="hidden lg:flex p-1 active:scale-90 transition-transform"
+              aria-label="Toggle sidebar"
+            >
+              {sidebarCollapsed ? <Menu size={22} /> : <X size={22} />}
             </button>
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 relative">
                 <Image src="/logo.svg" alt="WV" fill className="object-contain brightness-0 invert" />
               </div>
-              <h1 className="text-[19px] font-black tracking-tight italic uppercase hidden sm:block">World Vision Portal</h1>
+              <h1 className="text-[16px] font-black tracking-[1.5px] uppercase hidden sm:block">World Vision Admin</h1>
             </div>
           </div>
 
@@ -152,8 +177,8 @@ export default function AdminLayout({
         </header>
 
         {/* Scrollable Content */}
-        <main className="flex-1 overflow-y-auto bg-[#F8F9FA] p-4 lg:p-8">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto bg-gradient-to-b from-[#F7F7F9] to-white p-4 sm:p-6 lg:p-8">
+          <div className="max-w-6xl mx-auto">
             {children}
           </div>
         </main>

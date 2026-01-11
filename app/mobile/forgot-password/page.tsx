@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Mail, ArrowRight, CheckCircle, AlertCircle } from "lucide-react"
+import { Mail, ArrowRight, CheckCircle, AlertCircle, ArrowLeft } from "lucide-react"
 
 export default function ForgotPasswordPage() {
     const router = useRouter()
@@ -23,6 +23,14 @@ export default function ForgotPasswordPage() {
         <div className="bg-white min-h-screen">
             {/* Header */}
             <div className="p-6 bg-gradient-to-br from-slate-50 to-white border-b border-slate-100">
+                <button
+                    type="button"
+                    onClick={() => router.push("/auth/login")}
+                    className="flex items-center gap-2 text-slate-500 text-sm font-bold mb-4"
+                >
+                    <ArrowLeft size={16} />
+                    Back to Login
+                </button>
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-1.5 h-6 bg-[#EE401D] rounded-full"></div>
                     <h2 className="text-[18px] font-black text-slate-800 tracking-tight">Forgot Password</h2>
@@ -42,7 +50,7 @@ export default function ForgotPasswordPage() {
                         We've sent password reset instructions to your email address.
                     </p>
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => router.push("/auth/login")}
                         className="mt-6 text-[#EE401D] font-bold text-sm tracking-wide"
                     >
                         Return to Login

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { MapPin, Truck, Play, ChevronRight, Hash, Compass, Target, Calendar, Clock, History } from "lucide-react"
 import { getMyAssignedBookings } from "@/lib/bookings"
-import { getActiveTrips, startTrip } from "@/lib/trips"
+import { getActiveTrips } from "@/lib/trips"
 import { useRouter } from "next/navigation"
 
 export default function DriverDashboard() {
@@ -48,30 +48,24 @@ export default function DriverDashboard() {
         loadData()
     }, [])
 
-    const handleStartTrip = async () => {
-        if (!vehicleId || !mileage) {
-            alert("Please fill in at least Vehicle ID and Mileage")
+    const handleStartTrip = () => {
+        if (!vehicleId) {
+            alert("Please fill in the Vehicle ID")
             return
         }
 
-        try {
-            // Find the vehicle in assigned bookings to get ID
-            const booking = assignedBookings.find(b => b.vehicles?.registration === vehicleId)
-            const vId = booking?.vehicle_id || "7806fbe4-3c82-491c-9ef4-d36c57917ec7" // fallback for demo
-
-            await startTrip({
-                vehicleId: vId,
-                bookingId: booking?.id,
-                startMileage: parseInt(mileage),
-                startLocation: fromLocation,
-                destination: toLocation,
-                purpose: purpose
-            })
-
-            router.push("/mobile/trips")
-        } catch (error) {
-            console.error("Start trip failed:", error)
+        const booking = assignedBookings.find(b => b.vehicles?.registration === vehicleId)
+        const vId = booking?.vehicle_id || ""
+        const bookingId = booking?.id || "manual"
+        const params = new URLSearchParams()
+        params.set("vehicleId", vId)
+        params.set("destination", toLocation || "")
+        params.set("purpose", purpose || "")
+        params.set("startLocation", fromLocation || "Office")
+        if (mileage) {
+            params.set("startMileage", mileage)
         }
+        router.push("/mobile/inspections/pre-trip/" + bookingId + "?" + params.toString())
     }
 
     if (isLoading) {

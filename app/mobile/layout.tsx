@@ -23,6 +23,7 @@ export default function MobileLayout({
   const [userName, setUserName] = useState<string>("User")
   const pathname = usePathname()
   const router = useRouter()
+  const hideChrome = pathname === "/mobile/forgot-password"
 
   useEffect(() => {
     const getUserRole = async () => {
@@ -68,6 +69,10 @@ export default function MobileLayout({
     { href: "/mobile/trips", label: "Trips", icon: Truck },
     { href: "/mobile/fuel", label: "Fuel", icon: Fuel },
   ]
+
+  if (hideChrome) {
+    return <div className="min-h-screen bg-white">{children}</div>
+  }
 
   return (
     <div className="flex h-screen bg-[#F5F5F5] font-sans">
