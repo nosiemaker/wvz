@@ -47,7 +47,7 @@ export default function BookingsPage() {
     params.set("destination", request.destination || "")
     params.set("purpose", request.purpose || "")
     params.set("startLocation", request.start_location || "Office")
-    router.push("/mobile/inspections/pre-trip/" + request.id + "?" + params.toString())
+    router.push("/mobile/inspections/pre-trip?tripId=" + request.id + "&" + params.toString())
   }
 
   const getStatusColor = (status: string) => {

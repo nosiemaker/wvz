@@ -203,7 +203,7 @@ export default function CreateBookingPage() {
   }
 
   return (
-    <div className="pb-20">
+    <div className="pb-40">
       <div className="p-4">
         <Link
           href="/mobile/bookings"
@@ -300,7 +300,7 @@ export default function CreateBookingPage() {
                 </div>
               )}
             </div>
-            <div className="mt-3 rounded-lg overflow-hidden border border-border">
+            <div className="mt-3 rounded-lg overflow-hidden border border-border mb-6">
               <MapPicker center={startMapCenter} selectedPos={startPos} onSelect={handleStartMapSelect} />
               <div className="px-4 py-2 text-xs text-muted-foreground bg-muted/30">
                 {startReverseLoading ? "Finding address..." : "Tap on the map to pick a start location."}
@@ -355,7 +355,7 @@ export default function CreateBookingPage() {
                 </div>
               )}
             </div>
-            <div className="mt-3 rounded-lg overflow-hidden border border-border">
+            <div className="mt-3 rounded-lg overflow-hidden border border-border mb-6">
               <MapPicker center={destMapCenter} selectedPos={destPos} onSelect={handleDestMapSelect} />
               <div className="px-4 py-2 text-xs text-muted-foreground bg-muted/30">
                 {reverseLoading ? "Finding address..." : "Tap on the map to pick a destination."}

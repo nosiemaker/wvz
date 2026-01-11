@@ -38,7 +38,7 @@ export default function MapPicker({
   const CircleMarkerAny = CircleMarker as unknown as React.ComponentType<any>
 
   return (
-    <MapContainerAny center={center} zoom={13} scrollWheelZoom={false} className="h-[260px] w-full">
+    <MapContainerAny center={center} zoom={13} scrollWheelZoom={false} className="h-[260px] w-full relative z-0">
       <TileLayerAny
         attribution="&copy; OpenStreetMap contributors"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

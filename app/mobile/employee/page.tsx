@@ -106,16 +106,52 @@ export default function EmployeeDashboard() {
                         </div>
                     ) : (
                         <div className="space-y-3">
-                            {requests.slice(0, 3).map((request) => (
+                            {requests.slice(0, 3).map((request) => {
+                                const statusLabel = request.status === "approved"
+                                    ? "Approved"
+                                    : request.status === "completed"
+                                        ? "Completed"
+                                        : request.status === "rejected"
+                                            ? "Rejected"
+                                            : request.status.includes("pending")
+                                                ? "Pending"
+                                                : request.status
+
+                                const statusClasses = request.status === "approved"
+                                    ? "bg-green-50 text-green-600"
+                                    : request.status === "completed"
+                                        ? "bg-slate-100 text-slate-600"
+                                        : request.status === "rejected"
+                                            ? "bg-red-50 text-red-600"
+                                            : request.status.includes("pending")
+                                                ? "bg-orange-50 text-orange-500"
+                                                : "bg-slate-50 text-slate-500"
+
+                                const iconWrapClasses = request.status === "approved"
+                                    ? "bg-green-100 text-green-600"
+                                    : request.status === "completed"
+                                        ? "bg-slate-100 text-slate-500"
+                                        : request.status === "rejected"
+                                            ? "bg-red-100 text-red-600"
+                                            : request.status.includes("pending")
+                                                ? "bg-orange-50 text-orange-500"
+                                                : "bg-slate-100 text-slate-500"
+
+                                const StatusIcon = request.status === "approved"
+                                    ? CheckCircle
+                                    : request.status === "completed"
+                                        ? CheckCircle
+                                        : request.status === "rejected"
+                                            ? XCircle
+                                            : request.status.includes("pending")
+                                                ? Clock
+                                                : FileText
+
+                                return (
                                 <div key={request.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 zmw{request.status === 'approved' ? 'bg-green-100 text-green-600' :
-                                                request.status.includes('pending') ? 'bg-orange-50 text-orange-500' :
-                                                    'bg-slate-100 text-slate-500'
-                                            }`}>
-                                            {request.status === 'approved' ? <CheckCircle className="w-5 h-5" /> :
-                                                request.status.includes('pending') ? <Clock className="w-5 h-5" /> :
-                                                    <FileText className="w-5 h-5" />}
+                                        <div className={"w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 " + iconWrapClasses}>
+                                            <StatusIcon className="w-5 h-5" />
                                         </div>
                                         <div>
                                             <h4 className="font-bold text-slate-800 text-sm">{request.destination}</h4>
@@ -124,14 +160,12 @@ export default function EmployeeDashboard() {
                                             </p>
                                         </div>
                                     </div>
-                                    <div className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider zmw{request.status === 'approved' ? 'bg-green-50 text-green-600' :
-                                            request.status.includes('pending') ? 'bg-orange-50 text-orange-500' :
-                                                'bg-slate-50 text-slate-500'
-                                        }`}>
-                                        {request.status === 'approved' ? 'Approved' : 'Pending'}
+                                    <div className={"px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider " + statusClasses}>
+                                        {statusLabel}
                                     </div>
                                 </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     )}
                 </div>

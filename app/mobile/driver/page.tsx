@@ -65,7 +65,7 @@ export default function DriverDashboard() {
         if (mileage) {
             params.set("startMileage", mileage)
         }
-        router.push("/mobile/inspections/pre-trip/" + bookingId + "?" + params.toString())
+        router.push("/mobile/inspections/pre-trip?tripId=" + bookingId + "&" + params.toString())
     }
 
     if (isLoading) {

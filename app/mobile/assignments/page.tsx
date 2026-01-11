@@ -31,7 +31,7 @@ export default function AssignmentsPage() {
         params.set("destination", entry.destination || "")
         params.set("purpose", entry.purpose || "")
         params.set("startLocation", "Assigned Location")
-        router.push("/mobile/inspections/pre-trip/" + entry.id + "?" + params.toString())
+        router.push("/mobile/inspections/pre-trip?tripId=" + entry.id + "&" + params.toString())
     }
 
     const handleCompleteTrip = (entry: any) => {
@@ -40,7 +40,7 @@ export default function AssignmentsPage() {
             alert("No active trip record found to end. Contact support.")
             return
         }
-        router.push("/mobile/inspections/post-trip/" + activeTrip.id)
+        router.push("/mobile/inspections/post-trip?tripId=" + activeTrip.id)
     }
 
     const getStatusStyle = (status: string) => {
