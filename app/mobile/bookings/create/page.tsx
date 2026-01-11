@@ -1,18 +1,25 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
+import { useMemo, useState, useEffect } from "react"
+import dynamic from "next/dynamic"
 import { ArrowLeft, MapPin, Calendar, Users, Car, FileText, Loader, Briefcase } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createTripRequest, type TripRequestData } from "@/lib/bookings"
 import { getCurrentUser } from "@/lib/auth"
+import "leaflet/dist/leaflet.css"
+
+const MapPicker = dynamic(() => import("./MapPicker"), { ssr: false })
+
+type MapPick = { lat: number; lng: number }
 
 export default function CreateBookingPage() {
   const [formData, setFormData] = useState<TripRequestData>({
     startDate: "",
     endDate: "",
     purpose: "",
+    startLocation: "",
     destination: "",
     passengers: 1,
     isSelfDrive: false,
@@ -23,6 +30,18 @@ export default function CreateBookingPage() {
   const [canDrive, setCanDrive] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [startSearchQuery, setStartSearchQuery] = useState("")
+  const [startSearchResults, setStartSearchResults] = useState<any[]>([])
+  const [startPos, setStartPos] = useState<MapPick | null>(null)
+  const [startSearchLoading, setStartSearchLoading] = useState(false)
+  const [startReverseLoading, setStartReverseLoading] = useState(false)
+
+  const [destSearchQuery, setDestSearchQuery] = useState("")
+  const [destSearchResults, setDestSearchResults] = useState<any[]>([])
+  const [destPos, setDestPos] = useState<MapPick | null>(null)
+  const [destSearchLoading, setDestSearchLoading] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [reverseLoading, setReverseLoading] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -34,6 +53,32 @@ export default function CreateBookingPage() {
     }
     checkUser()
   }, [])
+
+  const startMapCenter = useMemo(() => {
+    if (startPos) return [startPos.lat, startPos.lng] as [number, number]
+    return [-15.4167, 28.2833] as [number, number]
+  }, [startPos])
+
+  const destMapCenter = useMemo(() => {
+    if (destPos) return [destPos.lat, destPos.lng] as [number, number]
+    return [-15.4167, 28.2833] as [number, number]
+  }, [destPos])
+
+  const distanceKm = useMemo(() => {
+    if (!startPos || !destPos) return null
+    const toRad = (value: number) => (value * Math.PI) / 180
+    const R = 6371
+    const dLat = toRad(destPos.lat - startPos.lat)
+    const dLng = toRad(destPos.lng - startPos.lng)
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(startPos.lat)) *
+        Math.cos(toRad(destPos.lat)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    return Math.round(R * c * 10) / 10
+  }, [startPos, destPos])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -60,6 +105,100 @@ export default function CreateBookingPage() {
       setError(err instanceof Error ? err.message : "Failed to create request")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleStartSearch = async () => {
+    const term = startSearchQuery.trim()
+    if (!term) return
+    setStartSearchLoading(true)
+    try {
+      const res = await fetch(
+        "https://nominatim.openstreetmap.org/search?format=json&limit=5&q=" +
+          encodeURIComponent(term)
+      )
+      const data = await res.json()
+      setStartSearchResults(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error("Search failed:", err)
+    } finally {
+      setStartSearchLoading(false)
+    }
+  }
+
+  const handleSelectStartResult = async (result: any) => {
+    const lat = parseFloat(result.lat)
+    const lng = parseFloat(result.lon)
+    setStartPos({ lat, lng })
+    setFormData((prev) => ({ ...prev, startLocation: result.display_name || prev.startLocation }))
+    setStartSearchResults([])
+  }
+
+  const handleStartMapSelect = async (pos: MapPick) => {
+    setStartPos(pos)
+    setStartReverseLoading(true)
+    try {
+      const res = await fetch(
+        "https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
+          encodeURIComponent(String(pos.lat)) +
+          "&lon=" +
+          encodeURIComponent(String(pos.lng))
+      )
+      const data = await res.json()
+      if (data && data.display_name) {
+        setFormData((prev) => ({ ...prev, startLocation: data.display_name }))
+      }
+    } catch (err) {
+      console.error("Reverse geocode failed:", err)
+    } finally {
+      setStartReverseLoading(false)
+    }
+  }
+
+  const handleDestSearch = async () => {
+    const term = destSearchQuery.trim()
+    if (!term) return
+    setSearchLoading(true)
+    try {
+      const res = await fetch(
+        "https://nominatim.openstreetmap.org/search?format=json&limit=5&q=" +
+          encodeURIComponent(term)
+      )
+      const data = await res.json()
+      setDestSearchResults(Array.isArray(data) ? data : [])
+    } catch (err) {
+      console.error("Search failed:", err)
+    } finally {
+      setSearchLoading(false)
+    }
+  }
+
+  const handleSelectDestResult = async (result: any) => {
+    const lat = parseFloat(result.lat)
+    const lng = parseFloat(result.lon)
+    setDestPos({ lat, lng })
+    setFormData((prev) => ({ ...prev, destination: result.display_name || prev.destination }))
+    setDestSearchResults([])
+  }
+
+  const handleDestMapSelect = async (pos: MapPick) => {
+    setDestPos(pos)
+    setReverseLoading(true)
+    try {
+      const res = await fetch(
+        "https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
+          encodeURIComponent(String(pos.lat)) +
+          "&lon=" +
+          encodeURIComponent(String(pos.lng))
+      )
+      const data = await res.json()
+      if (data && data.display_name) {
+        setFormData((prev) => ({ ...prev, destination: data.display_name }))
+      }
+    } catch (err) {
+      console.error("Reverse geocode failed:", err)
+    } finally {
+      setReverseLoading(false)
     }
   }
 
@@ -115,6 +254,60 @@ export default function CreateBookingPage() {
             </div>
           </div>
 
+          {/* Start Location */}
+          <div>
+            <label className="block text-sm font-semibold mb-2">Start Location</label>
+            <div className="flex items-center bg-card border border-border rounded-lg px-4 py-3 focus-within:border-primary transition-colors">
+              <MapPin className="w-5 h-5 text-muted-foreground mr-3" />
+              <input
+                type="text"
+                name="startLocation"
+                value={formData.startLocation || ""}
+                onChange={handleChange}
+                placeholder="Where are you starting from?"
+                className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={startSearchQuery}
+                  onChange={(e) => setStartSearchQuery(e.target.value)}
+                  placeholder="Search start location"
+                  className="flex-1 bg-card border border-border rounded-lg px-4 py-2 outline-none text-foreground"
+                />
+                <button
+                  type="button"
+                  onClick={handleStartSearch}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold"
+                >
+                  {startSearchLoading ? "Searching..." : "Search"}
+                </button>
+              </div>
+              {startSearchResults.length > 0 && (
+                <div className="bg-card border border-border rounded-lg p-2">
+                  {startSearchResults.map((result) => (
+                    <button
+                      key={result.place_id}
+                      type="button"
+                      onClick={() => handleSelectStartResult(result)}
+                      className="w-full text-left px-3 py-2 rounded-md hover:bg-muted text-sm"
+                    >
+                      {result.display_name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="mt-3 rounded-lg overflow-hidden border border-border">
+              <MapPicker center={startMapCenter} selectedPos={startPos} onSelect={handleStartMapSelect} />
+              <div className="px-4 py-2 text-xs text-muted-foreground bg-muted/30">
+                {startReverseLoading ? "Finding address..." : "Tap on the map to pick a start location."}
+              </div>
+            </div>
+          </div>
+
           {/* Destination */}
           <div>
             <label className="block text-sm font-semibold mb-2">Destination</label>
@@ -130,7 +323,52 @@ export default function CreateBookingPage() {
                 required
               />
             </div>
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={destSearchQuery}
+                  onChange={(e) => setDestSearchQuery(e.target.value)}
+                  placeholder="Search on map (e.g. Lusaka Central)"
+                  className="flex-1 bg-card border border-border rounded-lg px-4 py-2 outline-none text-foreground"
+                />
+                <button
+                  type="button"
+                  onClick={handleDestSearch}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold"
+                >
+                  {searchLoading ? "Searching..." : "Search"}
+                </button>
+              </div>
+              {destSearchResults.length > 0 && (
+                <div className="bg-card border border-border rounded-lg p-2">
+                  {destSearchResults.map((result) => (
+                    <button
+                      key={result.place_id}
+                      type="button"
+                      onClick={() => handleSelectDestResult(result)}
+                      className="w-full text-left px-3 py-2 rounded-md hover:bg-muted text-sm"
+                    >
+                      {result.display_name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="mt-3 rounded-lg overflow-hidden border border-border">
+              <MapPicker center={destMapCenter} selectedPos={destPos} onSelect={handleDestMapSelect} />
+              <div className="px-4 py-2 text-xs text-muted-foreground bg-muted/30">
+                {reverseLoading ? "Finding address..." : "Tap on the map to pick a destination."}
+              </div>
+            </div>
           </div>
+
+          {distanceKm !== null && (
+            <div className="bg-card border border-border rounded-lg p-4 text-sm">
+              <p className="font-semibold">Approximate distance</p>
+              <p className="text-muted-foreground">{distanceKm} km</p>
+            </div>
+          )}
 
           {/* Cost Center */}
           <div>

@@ -5,6 +5,7 @@ export type TripRequestData = {
   startDate: string
   endDate: string
   purpose: string
+  startLocation?: string
   destination: string
   passengers: number
   isSelfDrive: boolean
@@ -43,6 +44,7 @@ export async function createTripRequest(data: TripRequestData) {
       requester_id: user.id,
       start_date: data.startDate,
       end_date: data.endDate,
+      start_location: data.startLocation || null,
       purpose: data.purpose,
       destination: data.destination,
       passengers: data.passengers,
