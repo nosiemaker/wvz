@@ -104,7 +104,7 @@ export default function FinanceDashboard() {
             <PieChart>
               <Pie data={costBreakdown} cx="50%" cy="50%" innerRadius={40} outerRadius={80} dataKey="value">
                 {costBreakdown.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell key={`cell-zmw{index}`} fill={entry.color} />
                 ))}
               </Pie>
             </PieChart>

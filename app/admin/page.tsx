@@ -55,7 +55,7 @@ export default function FleetDashboardPage() {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
             return {
               id: v.id,
-              vehicle: `${v.make} ${v.model} - ${v.registration}`,
+              vehicle: `zmw{v.make} zmw{v.model} - zmw{v.registration}`,
               type: "General Service",
               dueDate: v.next_service_date,
               daysLeft: diffDays,
@@ -95,7 +95,7 @@ export default function FleetDashboardPage() {
         const alerts = incidents?.slice(0, 3).map((inc: any) => ({
           id: inc.id,
           type: inc.severity === 'critical' ? 'error' : 'warning',
-          message: `${inc.type}: ${inc.description}`,
+          message: `zmw{inc.type}: zmw{inc.description}`,
           time: new Date(inc.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         })) || []
 
@@ -247,7 +247,7 @@ export default function FleetDashboardPage() {
             </div>
             <div className="mt-4">
               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${stats.utilizationRate}%` }}></div>
+                <div className="h-full bg-blue-500 rounded-full" style={{ width: `zmw{stats.utilizationRate}%` }}></div>
               </div>
             </div>
           </div>
@@ -281,7 +281,7 @@ export default function FleetDashboardPage() {
               </div>
             ) : upcomingMaintenance.map((item) => (
               <div key={item.id} className="group flex items-start gap-4 p-4 rounded-2xl bg-slate-50 hover:bg-white border border-transparent hover:border-slate-100 hover:shadow-md transition-all cursor-pointer">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${item.status === "urgent" ? "bg-red-100 text-red-600" :
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 zmw{item.status === "urgent" ? "bg-red-100 text-red-600" :
                   item.status === "soon" ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
                   }`}>
                   <Wrench size={18} strokeWidth={2.5} />
@@ -292,10 +292,10 @@ export default function FleetDashboardPage() {
                   <div className="flex items-center gap-2 mt-2">
                     <Calendar size={12} className="text-slate-400" />
                     <span className="text-[11px] font-bold text-slate-400">{new Date(item.dueDate).toLocaleDateString()}</span>
-                    <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded ml-auto ${item.status === "urgent" ? "bg-red-100 text-red-600" :
+                    <span className={`text-[10px] font-black uppercase px-1.5 py-0.5 rounded ml-auto zmw{item.status === "urgent" ? "bg-red-100 text-red-600" :
                       item.status === "soon" ? "bg-amber-100 text-amber-600" : "bg-blue-100 text-blue-600"
                       }`}>
-                      {item.daysLeft <= 0 ? 'Today' : `${item.daysLeft}d left`}
+                      {item.daysLeft <= 0 ? 'Today' : `zmw{item.daysLeft}d left`}
                     </span>
                   </div>
                 </div>
@@ -315,11 +315,11 @@ export default function FleetDashboardPage() {
                 <div className="w-full relative">
                   <div
                     className="w-full bg-slate-100 rounded-t-xl group-hover:bg-[#EE401D]/20 transition-colors cursor-pointer"
-                    style={{ height: `${(item.cost / 60000) * 100}px` }}
+                    style={{ height: `zmw{(item.cost / 60000) * 100}px` }}
                   >
                     <div
                       className="absolute bottom-0 w-full bg-slate-800 rounded-t-xl opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ height: `${(item.cost / 60000) * 100}px` }}
+                      style={{ height: `zmw{(item.cost / 60000) * 100}px` }}
                     ></div>
                   </div>
                 </div>
@@ -345,7 +345,7 @@ export default function FleetDashboardPage() {
           ) : recentAlerts.map((alert) => (
             <div key={alert.id} className="bg-white/5 border border-white/10 p-4 rounded-2xl hover:bg-white/10 transition-colors">
               <div className="flex items-start justify-between mb-2">
-                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg ${alert.type === "error" ? "bg-red-500/20 text-red-400" :
+                <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg zmw{alert.type === "error" ? "bg-red-500/20 text-red-400" :
                   alert.type === "warning" ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"
                   }`}>
                   {alert.type}

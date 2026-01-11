@@ -6,13 +6,13 @@ CREATE OR REPLACE FUNCTION public.get_my_role()
 RETURNS text
 LANGUAGE sql
 STABLE
-AS $$
+AS zmwzmw
   -- We use user_metadata because that is where we store the role in our signup/seed scripts
   SELECT COALESCE(
     (auth.jwt() -> 'user_metadata' ->> 'role'),
     'driver'
   );
-$$;
+zmwzmw;
 
 -- 2. Reset USERS policies (The root cause of most recursion)
 DROP POLICY IF EXISTS "managers_select_all" ON public.users;

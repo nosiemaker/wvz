@@ -193,7 +193,7 @@ export default function TripsPage() {
               <div
                 key={trip.id}
                 className="bg-white rounded-[24px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-5 active:bg-slate-50 transition-colors"
-                onClick={() => router.push(`/mobile/trip-details?id=${trip.id}`)}
+                onClick={() => router.push(`/mobile/trip-details?id=zmw{trip.id}`)}
               >
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-3">
@@ -209,7 +209,7 @@ export default function TripsPage() {
                       </p>
                     </div>
                   </div>
-                  <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${status.bg} ${status.text}`}>
+                  <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest zmw{status.bg} zmw{status.text}`}>
                     {status.label}
                   </span>
                 </div>

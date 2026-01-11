@@ -118,7 +118,7 @@ export default function SurrenderPage() {
                                     </span>
                                 </div>
                             </div>
-                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(entry.status)}`}>
+                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border zmw{getStatusStyle(entry.status)}`}>
                                 {getStatusIcon(entry.status)}
                                 {entry.status}
                             </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Hash, Calendar, DollarSign, FileText, CheckCircle, Clock, RotateCw, ChevronRight } from "lucide-react"
+import { Hash, Calendar, FileText, CheckCircle, Clock, RotateCw, ChevronRight } from "lucide-react"
 
 interface TCodeEntry {
     id: string
@@ -122,7 +122,7 @@ export default function TCodesPage() {
                         <div className="flex justify-between items-start">
                             <div className="space-y-2">
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-2 h-8 rounded-full ${getCategoryColor(entry.category)}`}></div>
+                                    <div className={"w-2 h-8 rounded-full " + getCategoryColor(entry.category)}></div>
                                     <div>
                                         <span className="text-[18px] font-[900] italic tracking-tight text-slate-800 block">
                                             {entry.code}
@@ -133,7 +133,12 @@ export default function TCodesPage() {
                                     </div>
                                 </div>
                             </div>
-                            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusStyle(entry.status)}`}>
+                            <div
+                                className={
+                                    "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border " +
+                                    getStatusStyle(entry.status)
+                                }
+                            >
                                 {entry.status === "active" ? <CheckCircle size={12} /> : <Clock size={12} />}
                                 {entry.status}
                             </div>
@@ -149,7 +154,6 @@ export default function TCodesPage() {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-6">
                                 <div className="flex items-center gap-2">
-                                    <DollarSign size={16} className="text-[#EE401D]" />
                                     <span className="text-[16px] font-black text-slate-800">{entry.amount}</span>
                                 </div>
                                 <div className="flex items-center gap-2">

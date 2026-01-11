@@ -62,7 +62,7 @@ export default function InspectionsPage() {
                 <div className="w-full bg-muted rounded-full h-2">
                   <div
                     className="bg-primary h-2 rounded-full transition-all"
-                    style={{ width: `${(inspection.completed / inspection.items) * 100}%` }}
+                    style={{ width: `zmw{(inspection.completed / inspection.items) * 100}%` }}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -71,7 +71,7 @@ export default function InspectionsPage() {
               </div>
 
               <button
-                className={`w-full font-semibold py-2 rounded-lg transition-colors ${
+                className={`w-full font-semibold py-2 rounded-lg transition-colors zmw{
                   inspection.status === "completed"
                     ? "text-primary hover:bg-primary/10"
                     : "bg-accent text-accent-foreground hover:opacity-90"

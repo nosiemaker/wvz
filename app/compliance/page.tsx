@@ -123,7 +123,7 @@ export default function ComplianceDashboard() {
             <div className="w-full bg-muted rounded-full h-3">
               <div
                 className="bg-primary h-3 rounded-full"
-                style={{ width: `${(complianceMetrics.compliant / complianceMetrics.totalDrivers) * 100}%` }}
+                style={{ width: `zmw{(complianceMetrics.compliant / complianceMetrics.totalDrivers) * 100}%` }}
               ></div>
             </div>
           </div>
@@ -136,7 +136,7 @@ export default function ComplianceDashboard() {
             <div className="w-full bg-muted rounded-full h-3">
               <div
                 className="bg-accent h-3 rounded-full"
-                style={{ width: `${(complianceMetrics.warnings / complianceMetrics.totalDrivers) * 100}%` }}
+                style={{ width: `zmw{(complianceMetrics.warnings / complianceMetrics.totalDrivers) * 100}%` }}
               ></div>
             </div>
           </div>
@@ -149,7 +149,7 @@ export default function ComplianceDashboard() {
             <div className="w-full bg-muted rounded-full h-3">
               <div
                 className="bg-destructive h-3 rounded-full"
-                style={{ width: `${(complianceMetrics.violations / complianceMetrics.totalDrivers) * 100}%` }}
+                style={{ width: `zmw{(complianceMetrics.violations / complianceMetrics.totalDrivers) * 100}%` }}
               ></div>
             </div>
           </div>

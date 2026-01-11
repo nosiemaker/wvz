@@ -52,7 +52,7 @@ export default function FinanceDashboard() {
                         <button
                             key={range}
                             onClick={() => setTimeRange(range)}
-                            className={`px-4 py-2 rounded-lg font-semibold capitalize transition-colors ${timeRange === range
+                            className={`px-4 py-2 rounded-lg font-semibold capitalize transition-colors zmw{timeRange === range
                                 ? "bg-primary text-primary-foreground"
                                 : "bg-muted text-muted-foreground hover:bg-muted/80"
                                 }`}
@@ -108,7 +108,7 @@ export default function FinanceDashboard() {
                                 <div className="w-full bg-muted rounded-full h-2">
                                     <div
                                         className="bg-primary h-2 rounded-full"
-                                        style={{ width: `${center.percentage}%` }}
+                                        style={{ width: `zmw{center.percentage}%` }}
                                     />
                                 </div>
                                 <div className="flex justify-between mt-1">

@@ -114,7 +114,9 @@ export default function BookingsPage() {
         {/* Requests List */}
         <div className="space-y-3">
           <h2 className="font-semibold text-lg">
-            {userRole === "driver" ? `My Assigned Trips (${requests.length})` : `My Trips (${requests.length})`}
+            {userRole === "driver"
+              ? "My Assigned Trips (" + requests.length + ")"
+              : "My Trips (" + requests.length + ")"}
           </h2>
           {requests.length === 0 ? (
             <div className="text-center py-10 bg-card border border-border rounded-xl">
@@ -141,7 +143,12 @@ export default function BookingsPage() {
                       <p className="text-xs text-muted-foreground line-clamp-1">{request.purpose || "No purpose specified"}</p>
                     </div>
                   </div>
-                  <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusColor(request.status)}`}>
+                  <span
+                    className={
+                      "px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider " +
+                      getStatusColor(request.status)
+                    }
+                  >
                     {getStatusLabel(request.status)}
                   </span>
                 </div>
@@ -181,7 +188,7 @@ export default function BookingsPage() {
                     if (existingTrip.status === "completed") {
                       return (
                         <button
-                          onClick={() => router.push(`/mobile/trip-details?id=${existingTrip.id}`)}
+                          onClick={() => router.push("/mobile/trip-details?id=" + existingTrip.id)}
                           className="w-full bg-green-500/10 text-green-700 font-semibold py-2 flex items-center justify-center gap-2 rounded-lg hover:bg-green-500/20 transition-colors border border-green-200"
                         >
                           <CheckCircle className="w-4 h-4" />

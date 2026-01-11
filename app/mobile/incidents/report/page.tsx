@@ -30,7 +30,7 @@ export default function ReportIncidentPage() {
     ]
 
     const handleAddPhoto = () => {
-        setPhotos([...photos, `/placeholder-incident-${photos.length + 1}.jpg`])
+        setPhotos([...photos, `/placeholder-incident-zmw{photos.length + 1}.jpg`])
     }
 
     const handleSubmit = () => {
@@ -70,7 +70,7 @@ export default function ReportIncidentPage() {
                             <button
                                 key={level.value}
                                 onClick={() => setFormData({ ...formData, severity: level.value })}
-                                className={`p-3 rounded-lg font-semibold transition-all ${formData.severity === level.value
+                                className={`p-3 rounded-lg font-semibold transition-all zmw{formData.severity === level.value
                                         ? level.color + " ring-2 ring-offset-2"
                                         : "bg-muted text-muted-foreground"
                                     }`}
@@ -113,7 +113,7 @@ export default function ReportIncidentPage() {
                     <div className="grid grid-cols-3 gap-2">
                         {photos.map((photo, index) => (
                             <div key={index} className="relative aspect-square border rounded-lg overflow-hidden">
-                                <img src={photo} alt={`Incident ${index + 1}`} className="w-full h-full object-cover" />
+                                <img src={photo} alt={`Incident zmw{index + 1}`} className="w-full h-full object-cover" />
                             </div>
                         ))}
                         {photos.length < 6 && (

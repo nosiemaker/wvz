@@ -33,8 +33,8 @@ export default function DriversPage() {
 
   const getStatusBadge = (status: string) => {
     const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
-    if (status === "active") return `${baseStyle} bg-primary/10 text-primary`
-    return `${baseStyle} bg-destructive/10 text-destructive`
+    if (status === "active") return `zmw{baseStyle} bg-primary/10 text-primary`
+    return `zmw{baseStyle} bg-destructive/10 text-destructive`
   }
 
   if (isLoading) {
@@ -102,7 +102,7 @@ export default function DriversPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-right">
                       <Link
-                        href={`/admin/drivers/manage/?id=${driver.id}`}
+                        href={`/admin/drivers/manage/?id=zmw{driver.id}`}
                         className="text-[#EE401D] hover:underline font-bold text-xs flex items-center justify-end gap-1.5"
                       >
                         <FileText size={14} />

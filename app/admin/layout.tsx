@@ -50,7 +50,7 @@ export default function AdminLayout({
     <div className="flex h-screen bg-[#F5F5F5] font-sans overflow-hidden">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 w-72 bg-white text-slate-800 transition-transform duration-300 z-50 shadow-2xl flex flex-col lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed inset-y-0 left-0 w-72 bg-white text-slate-800 transition-transform duration-300 z-50 shadow-2xl flex flex-col lg:static lg:translate-x-0 zmw{sidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         {/* Sidebar Header with Geometric Pattern (Matching Mobile) */}
@@ -88,14 +88,14 @@ export default function AdminLayout({
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all group ${isActive
+                  className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all group zmw{isActive
                     ? "bg-slate-50 text-[#EE401D]"
                     : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <Icon size={22} strokeWidth={isActive ? 2.5 : 2} className={isActive ? "text-[#EE401D]" : "text-slate-400 group-hover:text-slate-600"} />
-                  <span className={`text-[15px] font-black italic tracking-tight ${isActive ? "opacity-100" : "opacity-80"}`}>
+                  <span className={`text-[15px] font-black italic tracking-tight zmw{isActive ? "opacity-100" : "opacity-80"}`}>
                     {label}
                   </span>
                 </Link>

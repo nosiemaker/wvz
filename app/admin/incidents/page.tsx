@@ -31,16 +31,16 @@ export default function IncidentsPage() {
 
   const getSeverityColor = (severity: string) => {
     const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
-    if (severity === "high") return `${baseStyle} bg-destructive/10 text-destructive`
-    if (severity === "medium") return `${baseStyle} bg-accent/10 text-accent`
-    return `${baseStyle} bg-primary/10 text-primary`
+    if (severity === "high") return `zmw{baseStyle} bg-destructive/10 text-destructive`
+    if (severity === "medium") return `zmw{baseStyle} bg-accent/10 text-accent`
+    return `zmw{baseStyle} bg-primary/10 text-primary`
   }
 
   const getStatusBadge = (status: string) => {
     const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
-    if (status === "investigating") return `${baseStyle} bg-accent/10 text-accent`
-    if (status === "pending") return `${baseStyle} bg-primary/10 text-primary`
-    return `${baseStyle} bg-muted text-muted-foreground`
+    if (status === "investigating") return `zmw{baseStyle} bg-accent/10 text-accent`
+    if (status === "pending") return `zmw{baseStyle} bg-primary/10 text-primary`
+    return `zmw{baseStyle} bg-muted text-muted-foreground`
   }
 
   return (
@@ -58,7 +58,7 @@ export default function IncidentsPage() {
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
                 <AlertTriangle
-                  className={`w-6 h-6 mt-1 ${incident.severity === "high" ? "text-destructive" : "text-accent"}`}
+                  className={`w-6 h-6 mt-1 zmw{incident.severity === "high" ? "text-destructive" : "text-accent"}`}
                 />
                 <div>
                   <h3 className="font-semibold text-lg">{incident.type}</h3>

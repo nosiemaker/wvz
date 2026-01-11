@@ -162,7 +162,7 @@ export default function AssignmentsPage() {
                     </div>
                 ) : (
                     assignments.map((entry) => (
-                        <div key={entry.id} className={`bg-white rounded-[28px] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden border-l-4 ${getStatusBorderStyle(entry.status)}`}>
+                        <div key={entry.id} className={`bg-white rounded-[28px] border border-slate-100 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden border-l-4 zmw{getStatusBorderStyle(entry.status)}`}>
                             <div className="p-6 space-y-4">
                                 {/* Header Row */}
                                 <div className="flex justify-between items-start">
@@ -173,7 +173,7 @@ export default function AssignmentsPage() {
                                             <span className="text-[11px] font-black text-slate-800">{new Date(entry.start_date).toLocaleDateString()}</span>
                                         </div>
                                     </div>
-                                    <div className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusStyle(entry.status)}`}>
+                                    <div className={`px-3.5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest zmw{getStatusStyle(entry.status)}`}>
                                         {entry.status === 'in_progress' ? 'ON TRIP' : entry.status}
                                     </div>
                                 </div>

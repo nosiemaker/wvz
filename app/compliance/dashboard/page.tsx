@@ -111,7 +111,7 @@ export default function ComplianceDashboard() {
                     <div className="w-full bg-muted rounded-full h-3">
                         <div
                             className="bg-primary h-3 rounded-full"
-                            style={{ width: `${mockData.inspectionCompliance.rate}%` }}
+                            style={{ width: `zmw{mockData.inspectionCompliance.rate}%` }}
                         />
                     </div>
                 </div>
@@ -129,7 +129,7 @@ export default function ComplianceDashboard() {
                                     <p className="font-semibold">{license.driver}</p>
                                     <p className="text-sm text-muted-foreground">{license.licenseNumber}</p>
                                 </div>
-                                <span className={`font-bold ${getDaysLeftColor(license.daysLeft)}`}>
+                                <span className={`font-bold zmw{getDaysLeftColor(license.daysLeft)}`}>
                                     {license.daysLeft} days
                                 </span>
                             </div>
@@ -160,7 +160,7 @@ export default function ComplianceDashboard() {
                                         Expires: {new Date(doc.expiryDate).toLocaleDateString()}
                                     </p>
                                 </div>
-                                <span className={`font-bold ${getDaysLeftColor(doc.daysLeft)}`}>
+                                <span className={`font-bold zmw{getDaysLeftColor(doc.daysLeft)}`}>
                                     {doc.daysLeft} days
                                 </span>
                             </div>

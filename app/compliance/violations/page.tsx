@@ -50,15 +50,15 @@ export default function ViolationsPage() {
 
   const getSeverityColor = (severity: string) => {
     const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
-    if (severity === "high") return `${baseStyle} bg-destructive/10 text-destructive`
-    if (severity === "medium") return `${baseStyle} bg-accent/10 text-accent`
-    return `${baseStyle} bg-primary/10 text-primary`
+    if (severity === "high") return `zmw{baseStyle} bg-destructive/10 text-destructive`
+    if (severity === "medium") return `zmw{baseStyle} bg-accent/10 text-accent`
+    return `zmw{baseStyle} bg-primary/10 text-primary`
   }
 
   const getStatusBadge = (status: string) => {
     const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
-    if (status === "active") return `${baseStyle} bg-accent/10 text-accent`
-    return `${baseStyle} bg-primary/10 text-primary`
+    if (status === "active") return `zmw{baseStyle} bg-accent/10 text-accent`
+    return `zmw{baseStyle} bg-primary/10 text-primary`
   }
 
   return (
@@ -72,7 +72,7 @@ export default function ViolationsPage() {
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setFilterSeverity("all")}
-          className={`px-4 py-2 rounded-lg font-semibold ${
+          className={`px-4 py-2 rounded-lg font-semibold zmw{
             filterSeverity === "all" ? "bg-primary text-primary-foreground" : "border border-border hover:bg-muted"
           }`}
         >
@@ -80,7 +80,7 @@ export default function ViolationsPage() {
         </button>
         <button
           onClick={() => setFilterSeverity("high")}
-          className={`px-4 py-2 rounded-lg font-semibold ${
+          className={`px-4 py-2 rounded-lg font-semibold zmw{
             filterSeverity === "high"
               ? "bg-destructive text-destructive-foreground"
               : "border border-border hover:bg-muted"
@@ -90,7 +90,7 @@ export default function ViolationsPage() {
         </button>
         <button
           onClick={() => setFilterSeverity("medium")}
-          className={`px-4 py-2 rounded-lg font-semibold ${
+          className={`px-4 py-2 rounded-lg font-semibold zmw{
             filterSeverity === "medium" ? "bg-accent text-accent-foreground" : "border border-border hover:bg-muted"
           }`}
         >
@@ -106,7 +106,7 @@ export default function ViolationsPage() {
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
                 <AlertTriangle
-                  className={`w-6 h-6 mt-1 ${violation.severity === "high" ? "text-destructive" : "text-accent"}`}
+                  className={`w-6 h-6 mt-1 zmw{violation.severity === "high" ? "text-destructive" : "text-accent"}`}
                 />
                 <div>
                   <h3 className="font-semibold text-lg">{violation.type}</h3>
@@ -140,7 +140,7 @@ export default function ViolationsPage() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Points</p>
-                <p className={`font-bold text-lg ${violation.points > 2 ? "text-destructive" : "text-accent"}`}>
+                <p className={`font-bold text-lg zmw{violation.points > 2 ? "text-destructive" : "text-accent"}`}>
                   {violation.points}
                 </p>
               </div>

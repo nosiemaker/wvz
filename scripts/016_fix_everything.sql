@@ -6,12 +6,12 @@ CREATE OR REPLACE FUNCTION public.get_my_role()
 RETURNS text
 LANGUAGE sql
 STABLE
-AS $$
+AS zmwzmw
   SELECT COALESCE(
     (auth.jwt() -> 'user_metadata' ->> 'role'),
     'driver'
   );
-$$;
+zmwzmw;
 
 -- 2. Fix 'bookings' policies (The main culprit of recursion)
 DROP POLICY IF EXISTS "bookings_select_own_or_manager" ON public.bookings;

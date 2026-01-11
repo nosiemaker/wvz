@@ -73,8 +73,10 @@ export default function MobileLayout({
     <div className="flex h-screen bg-[#F5F5F5] font-sans">
       {/* Mobile Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 w-72 bg-white text-slate-800 transition-transform duration-300 z-50 shadow-2xl flex flex-col ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={
+          "fixed inset-y-0 left-0 w-72 bg-white text-slate-800 transition-transform duration-300 z-50 shadow-2xl flex flex-col " +
+          (sidebarOpen ? "translate-x-0" : "-translate-x-full")
+        }
       >
         {/* Sidebar Header with Exact Geometric Background from Screenshot */}
         <div
@@ -120,6 +122,9 @@ export default function MobileLayout({
               {[
                 { href: userRole === "driver" ? "/mobile/driver" : "/mobile/employee", label: "Home", icon: Home },
                 { href: "/mobile/fuel", label: "Fuel", icon: Fuel },
+                ...(["manager", "admin", "supervisor"].includes(userRole)
+                  ? [{ href: "/mobile/approvals", label: "Approvals", icon: FileText }]
+                  : []),
                 { href: "/mobile/surrender", label: "Hand Over Vehicle", icon: History },
                 { href: "/mobile/violations", label: "Violations", icon: MapPin },
                 { href: "/mobile/assignments", label: "My Assignments", icon: FileCheck },
@@ -132,7 +137,12 @@ export default function MobileLayout({
                 const isActive = isLink && pathname === item.href;
 
                 const content = (
-                  <div className={`flex items-center gap-5 px-5 py-3 rounded-2xl transition-all active:bg-slate-50 ${isActive ? "text-[#EE401D]" : "text-slate-900"}`}>
+                  <div
+                    className={
+                      "flex items-center gap-5 px-5 py-3 rounded-2xl transition-all active:bg-slate-50 " +
+                      (isActive ? "text-[#EE401D]" : "text-slate-900")
+                    }
+                  >
                     <Icon size={22} strokeWidth={2.5} className={isActive ? "text-[#EE401D]" : "text-black"} />
                     <span className="text-[16px] font-black italic tracking-tight">
                       {item.label}
@@ -162,7 +172,12 @@ export default function MobileLayout({
             <h3 className="px-5 py-2 text-[13px] font-black text-slate-300 uppercase tracking-[1.5px] italic mb-1">Vehicle Requests</h3>
             <nav className="space-y-0">
               <Link href="/mobile/bookings" onClick={() => setSidebarOpen(false)}>
-                <div className={`flex items-center gap-5 px-5 py-3 rounded-2xl transition-all active:bg-slate-50 ${pathname === "/mobile/bookings" ? "text-[#EE401D]" : "text-slate-900"}`}>
+                <div
+                  className={
+                    "flex items-center gap-5 px-5 py-3 rounded-2xl transition-all active:bg-slate-50 " +
+                    (pathname === "/mobile/bookings" ? "text-[#EE401D]" : "text-slate-900")
+                  }
+                >
                   <User size={22} strokeWidth={2.5} className={pathname === "/mobile/bookings" ? "text-[#EE401D]" : "text-black"} />
                   <span className="text-[16px] font-black italic tracking-tight">
                     My Requests
@@ -182,7 +197,13 @@ export default function MobileLayout({
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 relative">
         {/* Header - World Vision Orange (Exact Screenshot Style) */}
-        <header className="bg-[#EE401D] text-white h-[56px] flex items-center justify-between px-4 sticky top-0 z-40 shadow-sm flex-shrink-0">
+        <header
+          className="bg-[#EE401D] text-white flex items-center justify-between px-4 sticky top-0 z-40 shadow-sm flex-shrink-0"
+          style={{
+            paddingTop: "env(safe-area-inset-top)",
+            height: "calc(56px + env(safe-area-inset-top))",
+          }}
+        >
           <div className="flex items-center gap-4">
             <button onClick={() => setSidebarOpen(true)} className="p-1 active:scale-90 transition-transform">
               <Menu size={24} />
@@ -205,13 +226,22 @@ export default function MobileLayout({
 
         {/* Scrollable Content */}
         <main className="flex-1 overflow-y-auto bg-white">
-          <div className="max-w-md mx-auto min-h-full pb-20">
+          <div
+            className="max-w-md mx-auto min-h-full pb-20"
+            style={{ paddingBottom: "calc(80px + env(safe-area-inset-bottom))" }}
+          >
             {children}
           </div>
         </main>
 
         {/* Bottom Navigation - Fixed Bottom (Matching Screenshot) */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex items-stretch h-[68px] z-40 px-2 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]">
+        <nav
+          className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 flex items-stretch z-40 px-2 shadow-[0_-4px_16px_rgba(0,0,0,0.04)]"
+          style={{
+            height: "calc(68px + env(safe-area-inset-bottom))",
+            paddingBottom: "env(safe-area-inset-bottom)",
+          }}
+        >
           {[
             { href: userRole === "driver" ? "/mobile/driver" : "/mobile/employee", label: "Home", icon: Home },
             ...(['manager', 'admin'].includes(userRole) ? [{ href: "/mobile/approvals", label: "Approvals", icon: FileCheck }] : []),
@@ -230,8 +260,12 @@ export default function MobileLayout({
                   strokeWidth={isActive ? 2.5 : 2}
                   className={isActive ? "text-[#EE401D]" : "text-slate-400"}
                 />
-                <span className={`text-[10px] font-black uppercase tracking-[0.5px] transition-colors ${isActive ? "text-[#EE401D]" : "text-slate-400"
-                  }`}>
+                <span
+                  className={
+                    "text-[10px] font-black uppercase tracking-[0.5px] transition-colors " +
+                    (isActive ? "text-[#EE401D]" : "text-slate-400")
+                  }
+                >
                   {item.label}
                 </span>
               </Link>
@@ -242,7 +276,8 @@ export default function MobileLayout({
         {/* Floating Action Button (Screenshot 2 style - plus sign) */}
         <button
           onClick={() => router.push(userRole === "driver" ? "/mobile/trips" : "/mobile/bookings/create")}
-          className="fixed bottom-[84px] right-6 w-[56px] h-[56px] bg-[#3E2723] text-white rounded-full flex items-center justify-center shadow-2xl shadow-brown-900/40 active:scale-90 transition-transform z-30 ring-4 ring-white"
+          className="fixed right-6 w-[56px] h-[56px] bg-[#3E2723] text-white rounded-full flex items-center justify-center shadow-2xl shadow-brown-900/40 active:scale-90 transition-transform z-30 ring-4 ring-white"
+          style={{ bottom: "calc(84px + env(safe-area-inset-bottom))" }}
         >
           <PlusCircle size={28} strokeWidth={2.5} />
         </button>

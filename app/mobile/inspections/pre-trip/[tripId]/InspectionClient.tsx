@@ -86,7 +86,7 @@ export default function InspectionClient() {
                     <div className="w-full bg-muted rounded-full h-2">
                         <div
                             className="bg-primary h-2 rounded-full transition-all"
-                            style={{ width: `${(completedItems / checklist.length) * 100}%` }}
+                            style={{ width: `zmw{(completedItems / checklist.length) * 100}%` }}
                         />
                     </div>
                     <div className="flex items-center gap-4 mt-3 text-xs">
@@ -111,7 +111,7 @@ export default function InspectionClient() {
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => handleStatusChange(item.id, true)}
-                                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors ${item.status === true
+                                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors zmw{item.status === true
                                             ? "bg-green-600 text-white"
                                             : "bg-green-100 text-green-700 hover:bg-green-200"
                                             }`}
@@ -120,7 +120,7 @@ export default function InspectionClient() {
                                     </button>
                                     <button
                                         onClick={() => handleStatusChange(item.id, false)}
-                                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors ${item.status === false
+                                        className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors zmw{item.status === false
                                             ? "bg-red-600 text-white"
                                             : "bg-red-100 text-red-700 hover:bg-red-200"
                                             }`}

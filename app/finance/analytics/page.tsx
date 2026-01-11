@@ -106,7 +106,7 @@ export default function AnalyticsPage() {
               <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className="bg-primary h-2 rounded-full"
-                  style={{ width: `${(vehicle.efficiency / 14) * 100}%` }}
+                  style={{ width: `zmw{(vehicle.efficiency / 14) * 100}%` }}
                 ></div>
               </div>
             </div>

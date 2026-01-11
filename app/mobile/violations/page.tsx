@@ -72,6 +72,7 @@ export default function ViolationsPage() {
             status: "reviewed"
         },
     ])
+    const [activeViolation, setActiveViolation] = useState<ViolationEntry | null>(null)
 
     const getSeverityStyle = (severity: string) => {
         switch (severity) {
@@ -154,7 +155,12 @@ export default function ViolationsPage() {
                                 </div>
                             </div>
                             <div className="flex flex-col items-end gap-2">
-                                <div className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getSeverityStyle(entry.severity)}`}>
+                                <div
+                                    className={
+                                        "px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border " +
+                                        getSeverityStyle(entry.severity)
+                                    }
+                                >
                                     {entry.severity}
                                 </div>
                                 <div className="flex items-center gap-1.5 text-[12px] font-black text-slate-500">
@@ -189,13 +195,73 @@ export default function ViolationsPage() {
                                 <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Points Deducted:</span>
                                 <span className="text-[18px] font-black text-red-500">-{entry.points}</span>
                             </div>
-                            <button className="text-[11px] font-black text-[#EE401D] uppercase tracking-widest">
+                            <button
+                                type="button"
+                                onClick={() => setActiveViolation(entry)}
+                                className="text-[11px] font-black text-[#EE401D] uppercase tracking-widest"
+                            >
                                 View Details
                             </button>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {activeViolation && (
+                <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40">
+                    <div className="w-full max-w-md rounded-t-3xl bg-white p-6 shadow-2xl">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-[16px] font-black text-slate-800">Violation Details</h3>
+                            <button
+                                type="button"
+                                onClick={() => setActiveViolation(null)}
+                                className="text-slate-400"
+                            >
+                                <XCircle size={22} />
+                            </button>
+                        </div>
+                        <div className="mt-4 space-y-3 text-sm text-slate-600">
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Type</p>
+                                <p className="text-[14px] font-bold text-slate-800">{activeViolation.type}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Description</p>
+                                <p className="text-[13px] font-semibold text-slate-600">{activeViolation.description}</p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Driver</p>
+                                    <p className="text-[13px] font-semibold text-slate-700">{activeViolation.driver}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Vehicle</p>
+                                    <p className="text-[13px] font-semibold text-slate-700">{activeViolation.vehicle}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Plate</p>
+                                    <p className="text-[13px] font-semibold text-slate-700">{activeViolation.plate}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Date</p>
+                                    <p className="text-[13px] font-semibold text-slate-700">{activeViolation.date}</p>
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Location</p>
+                                <p className="text-[13px] font-semibold text-slate-700">{activeViolation.location}</p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setActiveViolation(null)}
+                            className="mt-6 w-full rounded-xl bg-[#EE401D] py-3 text-[12px] font-black uppercase tracking-widest text-white"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

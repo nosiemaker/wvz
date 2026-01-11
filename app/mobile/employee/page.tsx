@@ -109,7 +109,7 @@ export default function EmployeeDashboard() {
                             {requests.slice(0, 3).map((request) => (
                                 <div key={request.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${request.status === 'approved' ? 'bg-green-100 text-green-600' :
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 zmw{request.status === 'approved' ? 'bg-green-100 text-green-600' :
                                                 request.status.includes('pending') ? 'bg-orange-50 text-orange-500' :
                                                     'bg-slate-100 text-slate-500'
                                             }`}>
@@ -124,7 +124,7 @@ export default function EmployeeDashboard() {
                                             </p>
                                         </div>
                                     </div>
-                                    <div className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider ${request.status === 'approved' ? 'bg-green-50 text-green-600' :
+                                    <div className={`px-2 py-1 rounded-md text-[9px] font-black uppercase tracking-wider zmw{request.status === 'approved' ? 'bg-green-50 text-green-600' :
                                             request.status.includes('pending') ? 'bg-orange-50 text-orange-500' :
                                                 'bg-slate-50 text-slate-500'
                                         }`}>

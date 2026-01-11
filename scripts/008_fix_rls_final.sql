@@ -7,14 +7,14 @@ CREATE OR REPLACE FUNCTION public.get_my_role()
 RETURNS text
 LANGUAGE sql
 STABLE
-AS $$
+AS zmwzmw
   -- Reads the 'role' field from the user_metadata in the JWT
   -- This avoids querying public.users table completely, preventing recursion
   SELECT COALESCE(
     (auth.jwt() -> 'user_metadata' ->> 'role'),
     'driver' -- Default fallback
   );
-$$;
+zmwzmw;
 
 -- 2. Update RLS policies for 'users' table 
 -- We replace the recursive subquery with the robust helper function

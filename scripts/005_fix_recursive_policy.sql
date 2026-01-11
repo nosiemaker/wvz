@@ -7,7 +7,7 @@ RETURNS text
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
-AS $$
+AS zmwzmw
 DECLARE
   v_role text;
 BEGIN
@@ -19,7 +19,7 @@ BEGIN
   
   RETURN v_role;
 END;
-$$;
+zmwzmw;
 
 -- 2. Update RLS policies for 'users' table 
 -- We replace the recursive subquery with the security definer function

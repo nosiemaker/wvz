@@ -48,14 +48,14 @@ function AllocationModal({ booking, vehicles, drivers, onClose, onAllocate }: Al
         <div className="flex bg-muted p-1 rounded-lg mb-4">
           <button
             type="button"
-            className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${!isExternal ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+            className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all zmw{!isExternal ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
             onClick={() => setIsExternal(false)}
           >
             Internal Fleet
           </button>
           <button
             type="button"
-            className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all ${isExternal ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
+            className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all zmw{isExternal ? 'bg-background shadow-sm' : 'text-muted-foreground'}`}
             onClick={() => setIsExternal(true)}
           >
             External Provider
@@ -258,7 +258,7 @@ export default function AdminBookingsPage() {
           <button
             key={status}
             onClick={() => setStatusFilter(status)}
-            className={`px-4 py-2 rounded-lg font-semibold capitalize ${statusFilter === status ? "bg-accent text-accent-foreground" : "border border-border hover:bg-muted"}`}
+            className={`px-4 py-2 rounded-lg font-semibold capitalize zmw{statusFilter === status ? "bg-accent text-accent-foreground" : "border border-border hover:bg-muted"}`}
           >
             {status.replace('_', ' ')}
           </button>
@@ -318,7 +318,7 @@ export default function AdminBookingsPage() {
                     </td>
                     <td className="px-6 py-4 text-sm">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(booking.status)}`}
+                        className={`px-3 py-1 rounded-full text-xs font-semibold zmw{getStatusColor(booking.status)}`}
                       >
                         {booking.status.replace('_', ' ').toUpperCase()}
                       </span>

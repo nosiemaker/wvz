@@ -190,7 +190,7 @@ export default function ContractsPage() {
                                     <p className="font-semibold">{contract.vehicle}</p>
                                 </td>
                                 <td className="px-4 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${getTypeColor(contract.type)}`}>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase zmw{getTypeColor(contract.type)}`}>
                                         {contract.type}
                                     </span>
                                 </td>
@@ -207,7 +207,7 @@ export default function ContractsPage() {
                                     </div>
                                 </td>
                                 <td className="px-4 py-4 text-right">
-                                    <p className="font-bold">${contract.cost.toLocaleString()}</p>
+                                    <p className="font-bold">zmw{contract.cost.toLocaleString()}</p>
                                 </td>
                                 <td className="px-4 py-4 text-center">
                                     {getStatusBadge(contract.status, contract.daysUntilExpiry)}
