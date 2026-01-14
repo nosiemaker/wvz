@@ -53,7 +53,7 @@ The landing page includes the following important links:
 1. **Web App**: https://wvz.vercel.app/
 2. **Sign In**: https://wvz.vercel.app/auth/login
 3. **Sign Up**: https://wvz.vercel.app/auth/signup
-4. **APK Download**: `/fleet-manager.apk` (you'll need to place your APK file in the same directory)
+4. **APK Download**: `app-debug.apk` (the APK file is in the same directory)
 
 ## Customization
 
@@ -72,7 +72,7 @@ Edit `index.html` to update:
 
 ### APK Download
 To enable APK downloads:
-1. Place your `fleet-manager.apk` file in the `landing` folder
+1. Place your `app-debug.apk` file in the `landing` folder
 2. The download link is already configured in the HTML
 
 ## Browser Support
