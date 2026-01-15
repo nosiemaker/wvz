@@ -55,7 +55,7 @@ export default function AdminLayout({
   ]
 
   const operationsNavItems = [
-    { href: "/admin/drivers", label: "Drivers", icon: Users },
+    { href: "/admin/staff", label: "Staff Management", icon: Users },
     { href: "/admin/incidents", label: "Incidents", icon: AlertTriangle },
   ]
 

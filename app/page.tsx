@@ -17,7 +17,14 @@ export default function RootPage() {
                 return
             }
 
-            const role = user.user_metadata?.role || "employee"
+            // Fetch profile to get source-of-truth role
+            const { data: profile } = await supabase
+                .from("users")
+                .select("role")
+                .eq("id", user.id)
+                .single()
+
+            const role = profile?.role || user.user_metadata?.role || "employee"
 
             if (role === "admin") {
                 router.replace("/admin")

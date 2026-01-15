@@ -4,7 +4,7 @@ import { createAdminClient } from "@/lib/admin"
 export async function POST(request: Request) {
     try {
         const body = await request.json()
-        const { email, password, fullName, phone, licenseNumber, licenseClass, licenseExpiry } = body
+        const { email, password, fullName, phone, licenseNumber, licenseClass, licenseExpiry, role = "driver" } = body
 
         if (!email || !password || !fullName) {
             return NextResponse.json(
@@ -20,7 +20,10 @@ export async function POST(request: Request) {
             email,
             password,
             email_confirm: true,
-            user_metadata: { full_name: fullName }
+            user_metadata: {
+                full_name: fullName,
+                role: role
+            }
         })
 
         if (authError) {
@@ -38,7 +41,7 @@ export async function POST(request: Request) {
                 email: user.email,
                 full_name: fullName,
                 phone: phone,
-                role: "driver",
+                role: role,
                 license_number: licenseNumber,
                 license_class: licenseClass,
                 license_expiry: licenseExpiry || null
