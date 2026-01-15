@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { AlertTriangle } from "lucide-react"
+import { AlertTriangle, MapPin, Calendar, User, Eye, Plus, MessageSquare, History } from "lucide-react"
 
 export default function ViolationsPage() {
   const [violations] = useState([
@@ -48,124 +48,147 @@ export default function ViolationsPage() {
   const filteredViolations =
     filterSeverity === "all" ? violations : violations.filter((v) => v.severity === filterSeverity)
 
-  const getSeverityColor = (severity: string) => {
-    const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
-    if (severity === "high") return `zmw{baseStyle} bg-destructive/10 text-destructive`
-    if (severity === "medium") return `zmw{baseStyle} bg-accent/10 text-accent`
-    return `zmw{baseStyle} bg-primary/10 text-primary`
-  }
-
-  const getStatusBadge = (status: string) => {
-    const baseStyle = "px-3 py-1 rounded-full text-xs font-semibold"
-    if (status === "active") return `zmw{baseStyle} bg-accent/10 text-accent`
-    return `zmw{baseStyle} bg-primary/10 text-primary`
+  const getSeverityStyle = (severity: string) => {
+    if (severity === "high") return "bg-red-50 text-red-600 border-red-100"
+    if (severity === "medium") return "bg-orange-50 text-orange-600 border-orange-100"
+    return "bg-blue-50 text-blue-600 border-blue-100"
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Violations Management</h1>
-        <p className="text-muted-foreground">Track and manage driver violations</p>
+    <div className="space-y-8 pb-20">
+      {/* Premium Header */}
+      <div className="relative overflow-hidden bg-slate-900 rounded-[32px] p-10 text-white shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-red-600 opacity-10 blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/2"></div>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-2 h-8 bg-[#EE401D] rounded-full"></div>
+              <h1 className="text-3xl font-black tracking-tight uppercase italic">Violation Protocols</h1>
+            </div>
+            <p className="text-slate-400 font-medium max-w-md font-mono text-sm">
+              Operational infraction tracking and safety enforcement records.
+            </p>
+          </div>
+          <button className="flex items-center gap-2 bg-[#EE401D] text-white px-6 py-3 rounded-2xl font-black uppercase text-xs shadow-lg shadow-red-600/20 hover:-translate-y-1 transition-all">
+            <Plus size={18} />
+            Initialize Log
+          </button>
+        </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => setFilterSeverity("all")}
-          className={`px-4 py-2 rounded-lg font-semibold zmw{
-            filterSeverity === "all" ? "bg-primary text-primary-foreground" : "border border-border hover:bg-muted"
-          }`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setFilterSeverity("high")}
-          className={`px-4 py-2 rounded-lg font-semibold zmw{
-            filterSeverity === "high"
-              ? "bg-destructive text-destructive-foreground"
-              : "border border-border hover:bg-muted"
-          }`}
-        >
-          High
-        </button>
-        <button
-          onClick={() => setFilterSeverity("medium")}
-          className={`px-4 py-2 rounded-lg font-semibold zmw{
-            filterSeverity === "medium" ? "bg-accent text-accent-foreground" : "border border-border hover:bg-muted"
-          }`}
-        >
-          Medium
-        </button>
+      {/* Filters Overlay */}
+      <div className="flex flex-wrap items-center gap-2 p-2 bg-white/50 backdrop-blur-md rounded-2xl border border-slate-100 w-fit">
+        {["all", "high", "medium"].map((severity) => (
+          <button
+            key={severity}
+            onClick={() => setFilterSeverity(severity)}
+            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filterSeverity === severity
+              ? "bg-slate-900 text-white shadow-lg"
+              : "text-slate-500 hover:bg-slate-100"
+              }`}
+          >
+            {severity}
+          </button>
+        ))}
       </div>
 
-      {/* Violations List */}
-      <div className="space-y-4">
+      {/* Violations Feed */}
+      <div className="grid gap-6">
         {filteredViolations.map((violation) => (
-          <div key={violation.id} className="bg-card border border-border rounded-lg p-6 space-y-4">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <AlertTriangle
-                  className={`w-6 h-6 mt-1 zmw{violation.severity === "high" ? "text-destructive" : "text-accent"}`}
-                />
-                <div>
-                  <h3 className="font-semibold text-lg">{violation.type}</h3>
-                  <p className="text-sm text-muted-foreground">{violation.id}</p>
+          <div key={violation.id} className="group bg-white rounded-[32px] border border-slate-100 shadow-[0_12px_40px_rgba(0,0,0,0.03)] hover:shadow-xl hover:-translate-y-1 transition-all duration-500 overflow-hidden">
+            <div className="p-8">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                {/* Left Side: Type & ID */}
+                <div className="flex items-start gap-4">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${violation.severity === 'high' ? 'bg-red-50 text-red-600' : 'bg-orange-50 text-orange-600'
+                    }`}>
+                    <AlertTriangle size={24} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 uppercase italic tracking-tight">{violation.type}</h3>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">{violation.id}</p>
+                  </div>
+                </div>
+
+                {/* Badges */}
+                <div className="flex items-center gap-3">
+                  <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${getSeverityStyle(violation.severity)}`}>
+                    {violation.severity} SEVERITY
+                  </span>
+                  <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${violation.status === 'active' ? 'bg-slate-900 text-white border-slate-900' : 'bg-green-50 text-green-600 border-green-100'
+                    }`}>
+                    {violation.status}
+                  </span>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className={getSeverityColor(violation.severity)}>
-                  {violation.severity.charAt(0).toUpperCase() + violation.severity.slice(1)}
-                </span>
-                <span className={getStatusBadge(violation.status)}>
-                  {violation.status.charAt(0).toUpperCase() + violation.status.slice(1)}
-                </span>
-              </div>
-            </div>
 
-            {/* Details Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Driver</p>
-                <p className="font-semibold">{violation.driver}</p>
-                <p className="text-xs text-muted-foreground">{violation.driverId}</p>
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mt-10 pt-8 border-t border-slate-50">
+                <div className="space-y-2">
+                  <p className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <User size={12} /> Personnel
+                  </p>
+                  <p className="text-sm font-black text-slate-800 italic uppercase">{violation.driver}</p>
+                  <p className="text-[10px] font-bold text-slate-400 font-mono">{violation.driverId}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <Calendar size={12} /> Incident Date
+                  </p>
+                  <p className="text-sm font-black text-slate-800 italic">{new Date(violation.date).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <MapPin size={12} /> Zone
+                  </p>
+                  <p className="text-sm font-black text-slate-800 italic truncate">{violation.location}</p>
+                </div>
+                <div className="space-y-2">
+                  <p className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <AlertOctagon size={12} /> Impact Points
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-2xl font-black italic ${violation.points >= 3 ? 'text-red-500' : 'text-slate-800'}`}>-{violation.points}</span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase">Penalty</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Date</p>
-                <p className="font-semibold">{new Date(violation.date).toLocaleDateString()}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Location</p>
-                <p className="font-semibold">{violation.location}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Points</p>
-                <p className={`font-bold text-lg zmw{violation.points > 2 ? "text-destructive" : "text-accent"}`}>
-                  {violation.points}
+
+              {/* Description Block */}
+              <div className="mt-8 p-6 rounded-[24px] bg-slate-50/50 border border-slate-100 group-hover:bg-white transition-colors">
+                <p className="text-sm text-slate-600 font-medium leading-relaxed italic">
+                  "{violation.description}"
                 </p>
               </div>
-            </div>
 
-            {/* Description */}
-            <div className="bg-muted/50 rounded-lg p-3">
-              <p className="text-sm">{violation.description}</p>
-            </div>
-
-            {/* Actions */}
-            <div className="flex gap-2">
-              <button className="px-4 py-2 rounded-lg bg-primary text-primary-foreground font-semibold hover:opacity-90 text-sm">
-                Investigate
-              </button>
-              <button className="px-4 py-2 rounded-lg border border-border hover:bg-muted font-semibold text-sm">
-                Add Note
-              </button>
-              <button className="px-4 py-2 rounded-lg border border-border hover:bg-muted font-semibold text-sm">
-                View History
-              </button>
+              {/* Actions Button Row */}
+              <div className="flex flex-wrap items-center gap-3 mt-8">
+                <button className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg active:scale-95">
+                  <Eye size={14} />
+                  Investigate Detail
+                </button>
+                <button className="flex items-center gap-2 bg-white text-slate-700 border border-slate-200 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95">
+                  <MessageSquare size={14} />
+                  Add Protocol Note
+                </button>
+                <button className="flex items-center gap-2 bg-white text-slate-400 border border-transparent px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:text-slate-900 transition-all ml-auto">
+                  <History size={14} />
+                  View History
+                </button>
+              </div>
             </div>
           </div>
         ))}
       </div>
+
+      {filteredViolations.length === 0 && (
+        <div className="text-center py-20 bg-white rounded-[32px] border border-dashed border-slate-200">
+          <AlertTriangle size={48} className="mx-auto text-slate-200 mb-4" />
+          <p className="text-slate-400 font-black uppercase tracking-[0.3em] italic">No Protocol Deviations Found</p>
+        </div>
+      )}
     </div>
   )
 }
+
+import { AlertOctagon } from "lucide-react"
