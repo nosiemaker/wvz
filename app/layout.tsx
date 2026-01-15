@@ -5,6 +5,9 @@ import "./globals.css"
 export const metadata: Metadata = {
   title: "Fleet Manager - Integrated Fleet Management & Driver Log",
   description: "Comprehensive fleet management and digital driver logging platform",
+  icons: {
+    icon: "/logo.svg",
+  },
 }
 
 export const viewport: Viewport = {
