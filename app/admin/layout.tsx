@@ -16,6 +16,7 @@ import {
   User,
   Bell,
   Info,
+  History,
 } from "lucide-react"
 import Image from "next/image"
 import { logout } from "@/lib/auth"
@@ -51,6 +52,7 @@ export default function AdminLayout({
     { href: "/admin", label: "Fleet Dashboard", icon: LayoutDashboard },
     { href: "/admin/bookings", label: "Bookings", icon: FileText },
     { href: "/admin/vehicles", label: "Vehicles", icon: Truck },
+    { href: "/admin/service-history", label: "Service History", icon: History },
     { href: "/admin/contracts", label: "Contracts", icon: FileText },
   ]
 
