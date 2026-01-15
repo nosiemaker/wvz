@@ -113,7 +113,7 @@ export default function TripDetailClient() {
                                 <p className="text-sm text-muted-foreground">{trip.bookings?.purpose || "No purpose"}</p>
                             </div>
                         </div>
-                        <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase zmw{trip.status === "completed" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                        <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${trip.status === "completed" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
                             }`}>
                             {trip.status}
                         </span>
@@ -176,7 +176,7 @@ export default function TripDetailClient() {
                             {logs.map((log, index) => (
                                 <div
                                     key={log.id}
-                                    className={`border rounded-lg p-3 zmw{getLogColor(log.event_type)}`}
+                                    className={`border rounded-lg p-3 ${getLogColor(log.event_type)}`}
                                 >
                                     <div className="flex items-start gap-3">
                                         <div className="mt-0.5">

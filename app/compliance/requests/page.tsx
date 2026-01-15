@@ -65,7 +65,7 @@ export default function TripRequestsPage() {
             cancelled: "bg-gray-100 text-gray-800"
         }
         return (
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase zmw{styles[status] || "bg-gray-100 text-gray-800"}`}>
+            <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${styles[status] || "bg-gray-100 text-gray-800"}`}>
                 {status.replace("_", " ")}
             </span>
         )

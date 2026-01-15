@@ -74,18 +74,18 @@ export default function DriverProfilePage() {
         <div className="bg-card border rounded-lg p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <AlertTriangle className={`w-5 h-5 zmw{pointsColor}`} />
+              <AlertTriangle className={`w-5 h-5 ${pointsColor}`} />
               <h3 className="font-semibold">Violation Points</h3>
             </div>
-            <span className={`text-2xl font-bold zmw{pointsColor}`}>
+            <span className={`text-2xl font-bold ${pointsColor}`}>
               {mockProfile.violationPoints}/{mockProfile.maxPoints}
             </span>
           </div>
           <div className="w-full bg-muted rounded-full h-3 mb-2">
             <div
-              className={`h-3 rounded-full transition-all zmw{pointsPercentage < 50 ? "bg-green-600" : pointsPercentage < 75 ? "bg-yellow-600" : "bg-red-600"
+              className={`h-3 rounded-full transition-all ${pointsPercentage < 50 ? "bg-green-600" : pointsPercentage < 75 ? "bg-yellow-600" : "bg-red-600"
                 }`}
-              style={{ width: `zmw{pointsPercentage}%` }}
+              style={{ width: `${pointsPercentage}%` }}
             />
           </div>
           <p className="text-xs text-muted-foreground">

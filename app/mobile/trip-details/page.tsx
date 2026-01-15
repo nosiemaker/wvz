@@ -130,7 +130,7 @@ function TripDetailsContent() {
                                 <p className="text-sm font-semibold text-slate-400 mt-1">{trip.bookings?.purpose || "No purpose specified"}</p>
                             </div>
                         </div>
-                        <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest zmw{trip.status === "completed" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
+                        <span className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${trip.status === "completed" ? "bg-green-100 text-green-700" : "bg-blue-100 text-blue-700"
                             }`}>
                             {trip.status}
                         </span>
@@ -192,7 +192,7 @@ function TripDetailsContent() {
                             {logs.map((log) => (
                                 <div
                                     key={log.id}
-                                    className={`border rounded-2xl p-4 shadow-sm transition-all zmw{getLogColor(log.event_type)}`}
+                                    className={`border rounded-2xl p-4 shadow-sm transition-all ${getLogColor(log.event_type)}`}
                                 >
                                     <div className="flex items-start gap-4">
                                         <div className="mt-1 bg-white rounded-full p-1 shadow-sm">

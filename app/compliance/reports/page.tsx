@@ -89,9 +89,8 @@ export default function ComplianceReportsPage() {
         {reports.map((report) => (
           <div
             key={report.id}
-            className={`bg-card border rounded-lg p-6 cursor-pointer transition-colors zmw{
-              selectedReport === report.id ? "border-primary bg-primary/5" : "border-border hover:border-primary"
-            }`}
+            className={`bg-card border rounded-lg p-6 cursor-pointer transition-colors ${selectedReport === report.id ? "border-primary bg-primary/5" : "border-border hover:border-primary"
+              }`}
             onClick={() => setSelectedReport(selectedReport === report.id ? null : report.id)}
           >
             <div className="flex items-start justify-between mb-3">
@@ -113,7 +112,7 @@ export default function ComplianceReportsPage() {
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Violations</p>
-                <p className={`font-semibold zmw{report.violations > 0 ? "text-destructive" : "text-primary"}`}>
+                <p className={`font-semibold ${report.violations > 0 ? "text-destructive" : "text-primary"}`}>
                   {report.violations}
                 </p>
               </div>
@@ -133,7 +132,7 @@ export default function ComplianceReportsPage() {
                 <div className="w-full bg-muted rounded-full h-2">
                   <div
                     className="bg-primary h-2 rounded-full"
-                    style={{ width: `zmw{(report.compliant / report.drivers) * 100}%` }}
+                    style={{ width: `${(report.compliant / report.drivers) * 100}%` }}
                   ></div>
                 </div>
                 <div className="flex gap-2 mt-4">

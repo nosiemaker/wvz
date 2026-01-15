@@ -44,7 +44,7 @@ export default function SignupPage() {
             full_name: fullName,
             role: role,
           },
-          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `zmw{window.location.origin}/`,
+          emailRedirectTo: process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL || `${window.location.origin}/`,
         },
       })
 
