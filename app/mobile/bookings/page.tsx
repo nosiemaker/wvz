@@ -151,11 +151,18 @@ export default function BookingsPage() {
                     </div>
                   )}
 
-                  {!request.vehicles && request.status === 'approved' && !request.external_resource_details && (
-                    <div className="text-sm text-orange-600 font-medium">
-                      Vehicle assignment pending (Self-drive?)
+                  <div className="grid grid-cols-2 gap-4 mt-2 pt-2 border-t border-border/50">
+                    <div>
+                      <p className="text-[10px] text-muted-foreground uppercase font-black">Cost Center</p>
+                      <p className="text-xs font-bold text-slate-800">{request.cost_center || "Standard"}</p>
                     </div>
-                  )}
+                    {request.approximate_distance && (
+                      <div>
+                        <p className="text-[10px] text-muted-foreground uppercase font-black">Est. Distance</p>
+                        <p className="text-xs font-bold text-slate-800">{request.approximate_distance} km</p>
+                      </div>
+                    )}
+                  </div>
                   {request.external_resource_details && (
                     <div className="text-sm text-purple-600 font-medium">
                       External Provider: {request.external_resource_details.provider}

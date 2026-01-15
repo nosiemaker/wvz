@@ -42,6 +42,9 @@ export default function CreateBookingPage() {
   const [destSearchLoading, setDestSearchLoading] = useState(false)
   const [searchLoading, setSearchLoading] = useState(false)
   const [reverseLoading, setReverseLoading] = useState(false)
+  const [roadDistance, setRoadDistance] = useState<number | null>(null)
+  const [distanceLoading, setDistanceLoading] = useState(false)
+
   const router = useRouter()
 
   useEffect(() => {
@@ -64,21 +67,34 @@ export default function CreateBookingPage() {
     return [-15.4167, 28.2833] as [number, number]
   }, [destPos])
 
-  const distanceKm = useMemo(() => {
-    if (!startPos || !destPos) return null
-    const toRad = (value: number) => (value * Math.PI) / 180
-    const R = 6371
-    const dLat = toRad(destPos.lat - startPos.lat)
-    const dLng = toRad(destPos.lng - startPos.lng)
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(startPos.lat)) *
-        Math.cos(toRad(destPos.lat)) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-    return Math.round(R * c * 10) / 10
+  useEffect(() => {
+    const fetchRoadDistance = async () => {
+      if (!startPos || !destPos) {
+        setRoadDistance(null)
+        return
+      }
+
+      setDistanceLoading(true)
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${startPos.lng},${startPos.lat};${destPos.lng},${destPos.lat}?overview=false`
+        const res = await fetch(url)
+        const data = await res.json()
+
+        if (data.routes && data.routes.length > 0) {
+          // OSRM returns distance in meters
+          const km = Math.round((data.routes[0].distance / 1000) * 10) / 10
+          setRoadDistance(km)
+        }
+      } catch (err) {
+        console.error("Failed to fetch road distance:", err)
+      } finally {
+        setDistanceLoading(false)
+      }
+    }
+
+    fetchRoadDistance()
   }, [startPos, destPos])
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
@@ -99,7 +115,10 @@ export default function CreateBookingPage() {
     setError("")
 
     try {
-      await createTripRequest(formData)
+      await createTripRequest({
+        ...formData,
+        approximateDistance: roadDistance || undefined
+      })
       router.push("/mobile/bookings?success=Request submitted successfully")
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to create request")
@@ -115,7 +134,7 @@ export default function CreateBookingPage() {
     try {
       const res = await fetch(
         "https://nominatim.openstreetmap.org/search?format=json&limit=5&q=" +
-          encodeURIComponent(term)
+        encodeURIComponent(term)
       )
       const data = await res.json()
       setStartSearchResults(Array.isArray(data) ? data : [])
@@ -140,9 +159,9 @@ export default function CreateBookingPage() {
     try {
       const res = await fetch(
         "https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
-          encodeURIComponent(String(pos.lat)) +
-          "&lon=" +
-          encodeURIComponent(String(pos.lng))
+        encodeURIComponent(String(pos.lat)) +
+        "&lon=" +
+        encodeURIComponent(String(pos.lng))
       )
       const data = await res.json()
       if (data && data.display_name) {
@@ -162,7 +181,7 @@ export default function CreateBookingPage() {
     try {
       const res = await fetch(
         "https://nominatim.openstreetmap.org/search?format=json&limit=5&q=" +
-          encodeURIComponent(term)
+        encodeURIComponent(term)
       )
       const data = await res.json()
       setDestSearchResults(Array.isArray(data) ? data : [])
@@ -187,9 +206,9 @@ export default function CreateBookingPage() {
     try {
       const res = await fetch(
         "https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
-          encodeURIComponent(String(pos.lat)) +
-          "&lon=" +
-          encodeURIComponent(String(pos.lng))
+        encodeURIComponent(String(pos.lat)) +
+        "&lon=" +
+        encodeURIComponent(String(pos.lng))
       )
       const data = await res.json()
       if (data && data.display_name) {
@@ -363,10 +382,17 @@ export default function CreateBookingPage() {
             </div>
           </div>
 
-          {distanceKm !== null && (
+          {(roadDistance !== null || distanceLoading) && (
             <div className="bg-card border border-border rounded-lg p-4 text-sm">
-              <p className="font-semibold">Approximate distance</p>
-              <p className="text-muted-foreground">{distanceKm} km</p>
+              <p className="font-semibold">Approximate Road Distance</p>
+              {distanceLoading ? (
+                <div className="flex items-center gap-2 text-muted-foreground mt-1">
+                  <Loader className="w-3 h-3 animate-spin" />
+                  <span>Calculating route...</span>
+                </div>
+              ) : (
+                <p className="text-muted-foreground">{roadDistance} km</p>
+              )}
             </div>
           )}
 

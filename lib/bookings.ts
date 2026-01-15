@@ -11,6 +11,7 @@ export type TripRequestData = {
   isSelfDrive: boolean
   vehicleId?: string
   costCenter: string
+  approximateDistance?: number
 }
 
 export async function createTripRequest(data: TripRequestData) {
@@ -51,6 +52,7 @@ export async function createTripRequest(data: TripRequestData) {
       is_self_drive: data.isSelfDrive,
       vehicle_id: data.vehicleId || null,
       cost_center: data.costCenter,
+      approximate_distance: data.approximateDistance || null,
       status: initialStatus,
     })
     .select()

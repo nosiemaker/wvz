@@ -303,7 +303,13 @@ export default function AdminBookingsPage() {
                     <td className="px-6 py-4 text-sm">
                       <div className="flex flex-col">
                         <span className="font-semibold">{booking.destination}</span>
-                        <span className="text-xs text-muted-foreground truncate max-w-[150px]">{booking.purpose}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase">{booking.cost_center || "Standard"}</span>
+                          {booking.approximate_distance && (
+                            <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded uppercase">{booking.approximate_distance} KM</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground truncate max-w-[150px] mt-1">{booking.purpose}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm">
