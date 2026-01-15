@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Save, Truck, Calendar, FileText, Trash2 } from "lucide-react"
 import { getVehicle, updateVehicle } from "@/lib/vehicles"
+import { getVehicleTrips } from "@/lib/trips"
 
 function EditVehicleContent() {
     const router = useRouter()
@@ -11,6 +12,7 @@ function EditVehicleContent() {
     const id = searchParams.get("id")
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
+    const [trips, setTrips] = useState<any[]>([])
     const [formData, setFormData] = useState({
         registration: "",
         make: "",
@@ -46,6 +48,12 @@ function EditVehicleContent() {
                         current_mileage: data.current_mileage || 0,
                         office: data.office || ""
                     })
+                }
+
+                // Load trip history
+                const tripData = await getVehicleTrips(id as string)
+                if (tripData) {
+                    setTrips(tripData)
                 }
             } catch (error) {
                 console.error("Error loading vehicle:", error)
@@ -289,6 +297,89 @@ function EditVehicleContent() {
                     </button>
                 </div>
             </form>
+
+            {/* Trip History Section */}
+            <div className="bg-white rounded-[24px] p-8 border border-slate-100 shadow-sm mt-8">
+                <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-50">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-600">
+                            <Calendar size={20} strokeWidth={2.5} />
+                        </div>
+                        <h3 className="text-lg font-black text-slate-800 italic">Assignment History</h3>
+                    </div>
+                    <span className="text-[11px] font-black bg-slate-100 text-slate-600 uppercase tracking-widest px-3 py-1 rounded-full">
+                        {trips.length} Trips Total
+                    </span>
+                </div>
+
+                <div className="space-y-4">
+                    {trips.length === 0 ? (
+                        <div className="text-center py-12">
+                            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <FileText size={24} className="text-slate-300" />
+                            </div>
+                            <p className="text-slate-400 font-bold italic uppercase text-xs">No trip history found for this vehicle</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead>
+                                    <tr className="border-b border-slate-50">
+                                        <th className="pb-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                        <th className="pb-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">Driver</th>
+                                        <th className="pb-4 text-[11px] font-black text-slate-400 uppercase tracking-widest">Route / Purpose</th>
+                                        <th className="pb-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">Distance</th>
+                                        <th className="pb-4 text-[11px] font-black text-slate-400 uppercase tracking-widest text-right">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    {trips.map((trip) => {
+                                        const startDate = new Date(trip.start_time)
+                                        const dist = trip.end_mileage && trip.start_mileage
+                                            ? trip.end_mileage - trip.start_mileage
+                                            : 0
+
+                                        return (
+                                            <tr key={trip.id} className="group hover:bg-slate-50/50 transition-colors">
+                                                <td className="py-4 font-bold text-slate-800 text-sm">
+                                                    {startDate.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                </td>
+                                                <td className="py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-500 uppercase">
+                                                            {trip.users?.full_name?.substring(0, 2) || "DR"}
+                                                        </div>
+                                                        <span className="font-bold text-slate-700 text-sm">{trip.users?.full_name || "Unknown Driver"}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="py-4">
+                                                    <p className="font-bold text-slate-800 text-sm truncate max-w-[200px]">
+                                                        {trip.purpose || "Operational Trip"}
+                                                    </p>
+                                                    <p className="text-[11px] text-slate-400 font-medium italic mt-0.5">
+                                                        {trip.start_location || "N/A"} → {trip.destination || "N/A"}
+                                                    </p>
+                                                </td>
+                                                <td className="py-4 text-right">
+                                                    <span className="font-black text-slate-800 text-sm">{dist}</span>
+                                                    <span className="text-[10px] font-bold text-slate-400 ml-1 uppercase">km</span>
+                                                </td>
+                                                <td className="py-4 text-right">
+                                                    <span className={`text-[10px] font-black uppercase px-2 py-1 rounded-lg ${trip.status === 'completed' ? 'bg-green-100 text-green-600' :
+                                                        trip.status === 'active' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'
+                                                        }`}>
+                                                        {trip.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        )
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            </div>
         </div>
     )
 }

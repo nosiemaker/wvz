@@ -192,3 +192,15 @@ export async function getAdminAllTrips() {
   if (error) throw error
   return data
 }
+
+export async function getVehicleTrips(vehicleId: string) {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from("trips")
+    .select("*, users(full_name)")
+    .eq("vehicle_id", vehicleId)
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return data
+}

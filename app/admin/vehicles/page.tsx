@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Truck, Check, Wrench, FileText, PlusCircle } from "lucide-react"
+import { Truck, Check, Wrench, FileText, PlusCircle, Search } from "lucide-react"
 import { getVehicles } from "@/lib/vehicles"
 
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     const loadVehicles = async () => {
@@ -29,6 +30,15 @@ export default function VehiclesPage() {
     if (status === "maintenance") return baseStyle + " bg-accent/10 text-accent"
     return baseStyle + " bg-destructive/10 text-destructive"
   }
+
+  const filteredVehicles = vehicles.filter((vehicle) => {
+    const searchStr = searchTerm.toLowerCase()
+    return (
+      vehicle.registration?.toLowerCase().includes(searchStr) ||
+      vehicle.make?.toLowerCase().includes(searchStr) ||
+      vehicle.model?.toLowerCase().includes(searchStr)
+    )
+  })
 
   if (isLoading) {
     return (
@@ -59,16 +69,38 @@ export default function VehiclesPage() {
         </Link>
       </div>
 
+      {/* Search Bar */}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+          <Search size={20} className="text-slate-400" />
+        </div>
+        <input
+          type="text"
+          placeholder="Search by registration (e.g. ABC 1234) or vehicle name (e.g. Toyota Hilux)..."
+          className="w-full bg-white border border-slate-100 rounded-[20px] py-4 pl-12 pr-6 font-bold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-[#EE401D]/5 transition-all shadow-sm"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {/* Vehicles Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {vehicles.length === 0 ? (
-          <div className="col-span-full text-center py-12 bg-white rounded-[24px] border border-slate-100">
-            <Truck size={48} className="mx-auto text-slate-200 mb-4" />
-            <h3 className="text-lg font-bold text-slate-400">No vehicles found</h3>
-            <p className="text-slate-400 text-sm">Add a vehicle to get started.</p>
+        {filteredVehicles.length === 0 ? (
+          <div className="col-span-full text-center py-20 bg-white rounded-[32px] border border-slate-100 shadow-sm">
+            <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search size={32} className="text-slate-300" />
+            </div>
+            <h3 className="text-xl font-black text-slate-800 uppercase tracking-tight mb-2">No Matching Vehicles</h3>
+            <p className="text-slate-400 font-medium">We couldn't find any vehicle matching "{searchTerm}"</p>
+            <button
+              onClick={() => setSearchTerm("")}
+              className="mt-6 text-[#EE401D] font-black text-sm uppercase tracking-widest hover:underline"
+            >
+              Clear Search
+            </button>
           </div>
         ) : (
-          vehicles.map((vehicle) => (
+          filteredVehicles.map((vehicle) => (
             <div key={vehicle.id} className="bg-white rounded-[24px] p-6 border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] space-y-4 hover:shadow-lg transition-shadow">
               {/* Header */}
               <div className="flex items-start justify-between">
