@@ -12,6 +12,10 @@ export type TripRequestData = {
   vehicleId?: string
   costCenter: string
   approximateDistance?: number
+  startLat?: number
+  startLng?: number
+  destLat?: number
+  destLng?: number
 }
 
 export async function createTripRequest(data: TripRequestData) {
@@ -53,6 +57,10 @@ export async function createTripRequest(data: TripRequestData) {
       vehicle_id: data.vehicleId || null,
       cost_center: data.costCenter,
       approximate_distance: data.approximateDistance || null,
+      start_lat: data.startLat || null,
+      start_lng: data.startLng || null,
+      dest_lat: data.destLat || null,
+      dest_lng: data.destLng || null,
       status: initialStatus,
     })
     .select()

@@ -117,7 +117,11 @@ export default function CreateBookingPage() {
     try {
       await createTripRequest({
         ...formData,
-        approximateDistance: roadDistance || undefined
+        approximateDistance: roadDistance || undefined,
+        startLat: startPos?.lat,
+        startLng: startPos?.lng,
+        destLat: destPos?.lat,
+        destLng: destPos?.lng,
       })
       router.push("/mobile/bookings?success=Request submitted successfully")
     } catch (err: unknown) {

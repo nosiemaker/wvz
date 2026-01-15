@@ -1,10 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Check, X, ChevronRight, Car, User, Truck, ExternalLink, Loader } from "lucide-react"
+import dynamic from "next/dynamic"
+import { Check, X, ChevronRight, Car, User, Truck, ExternalLink, Loader, Eye, MapPin } from "lucide-react"
 import { getAllBookings, approveBooking, allocateBooking, rejectBooking } from "@/lib/bookings"
 import { getVehicles } from "@/lib/vehicles"
 import { getDrivers } from "@/lib/auth"
+
+const RouteViewer = dynamic(() => import("./RouteViewer"), { ssr: false })
 
 type AllocationModalProps = {
   booking: any
@@ -168,6 +171,50 @@ function AllocationModal({ booking, vehicles, drivers, onClose, onAllocate }: Al
   )
 }
 
+function ViewRouteModal({ booking, onClose }: { booking: any, onClose: () => void }) {
+  const hasCoords = booking.start_lat && booking.start_lng && booking.dest_lat && booking.dest_lng;
+
+  return (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+      <div className="bg-background rounded-[32px] max-w-4xl w-full p-8 shadow-2xl space-y-6 border border-border/50">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-1.5 h-6 bg-[#EE401D] rounded-full"></div>
+              <h2 className="text-2xl font-black italic uppercase tracking-tight">Mission Route Visualizer</h2>
+            </div>
+            <p className="text-sm text-muted-foreground font-medium pl-4">{booking.start_location || "Office"} <span className="text-[#EE401D] mx-2">→</span> {booking.destination}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        {hasCoords ? (
+          <RouteViewer
+            start={[booking.start_lat, booking.start_lng]}
+            dest={[booking.dest_lat, booking.dest_lng]}
+          />
+        ) : (
+          <div className="h-[400px] bg-muted/10 rounded-[24px] flex flex-col items-center justify-center border border-dashed border-border/50 text-center p-8">
+            <div className="w-16 h-16 bg-muted/20 rounded-full flex items-center justify-center mb-4">
+              <MapPin className="w-8 h-8 text-muted-foreground/40" />
+            </div>
+            <p className="text-muted-foreground font-black uppercase text-sm italic tracking-widest">Geographic Data Unavailable</p>
+            <p className="text-xs text-muted-foreground mt-2 max-w-xs font-medium">This request was created without precise map coordinates or predates the route visualizer implementation.</p>
+          </div>
+        )}
+
+        <div className="flex justify-end pt-2">
+          <button onClick={onClose} className="px-8 py-3 bg-slate-900 text-white font-black uppercase text-xs rounded-2xl hover:bg-slate-800 transition-all shadow-lg hover:-translate-y-0.5 active:translate-y-0">
+            Dismiss Details
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<any[]>([])
   const [vehicles, setVehicles] = useState<any[]>([])
@@ -175,6 +222,7 @@ export default function AdminBookingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedBooking, setSelectedBooking] = useState<any>(null)
+  const [viewingRoute, setViewingRoute] = useState<any>(null)
 
   useEffect(() => {
     loadData()
@@ -341,14 +389,23 @@ export default function AdminBookingsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      {booking.status === 'pending_allocation' && (
+                      <div className="flex items-center gap-2">
+                        {booking.status === 'pending_allocation' && (
+                          <button
+                            onClick={() => setSelectedBooking(booking)}
+                            className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-tight hover:opacity-90 shadow-sm transition-all active:scale-95"
+                          >
+                            Allocate
+                          </button>
+                        )}
                         <button
-                          onClick={() => setSelectedBooking(booking)}
-                          className="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs font-semibold hover:opacity-90"
+                          onClick={() => setViewingRoute(booking)}
+                          className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-tight hover:bg-slate-200 transition-all active:scale-95"
                         >
-                          Allocate
+                          <Eye className="w-3.5 h-3.5" />
+                          View
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -365,6 +422,13 @@ export default function AdminBookingsPage() {
           drivers={drivers}
           onClose={() => setSelectedBooking(null)}
           onAllocate={handleAllocate}
+        />
+      )}
+
+      {viewingRoute && (
+        <ViewRouteModal
+          booking={viewingRoute}
+          onClose={() => setViewingRoute(null)}
         />
       )}
     </div>
