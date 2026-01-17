@@ -7,10 +7,11 @@ import {
     MoreHorizontal, Pencil, Plus, Eye, CheckCircle,
     AlertCircle, Clock, MapPin, AlertTriangle, ChevronDown,
     Gauge, Fuel, Settings, Layers, Wrench, FileCheck, ShieldAlert,
-    DollarSign, Activity, ClipboardCheck, History, User
+    DollarSign, Activity, ClipboardCheck, History, User, X
 } from "lucide-react"
 import { getVehicle, updateVehicle } from "@/lib/vehicles"
 import { getVehicleTrips } from "@/lib/trips"
+import VehicleInspectionDiagram from "../components/VehicleInspectionDiagram"
 
 // --- Components ---
 
@@ -73,6 +74,7 @@ function ViewVehicleContent() {
     const [activeTab, setActiveTab] = useState(section || "overview")
     const [isLoading, setIsLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
+    const [isInspecting, setIsInspecting] = useState(false)
     const [vehicle, setVehicle] = useState<any>(null)
     const [trips, setTrips] = useState<any[]>([])
 
@@ -500,56 +502,81 @@ function ViewVehicleContent() {
                             <h2 className="text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
                                 <ClipboardCheck size={20} className="text-slate-400" /> Inspection History
                             </h2>
-                            <button className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2">
-                                Start Inspection
-                            </button>
+                            {!isInspecting ? (
+                                <button
+                                    onClick={() => setIsInspecting(true)}
+                                    className="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2"
+                                >
+                                    Start Inspection
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setIsInspecting(false)}
+                                    className="px-4 py-2 bg-slate-100 text-slate-500 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2 hover:bg-slate-200"
+                                >
+                                    <X size={16} /> Cancel
+                                </button>
+                            )}
                         </div>
-                        <table className="w-full text-left">
-                            <thead className="bg-slate-50 border-b border-slate-100">
-                                <tr>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Form Name</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Submitted By</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Items Failed</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Result</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-50">
-                                <tr className="hover:bg-slate-50/50">
-                                    <td className="px-6 py-4 text-xs font-bold text-slate-800">Today, 8:00 AM</td>
-                                    <td className="px-6 py-4 text-sm font-bold text-slate-700">Daily Pre-Trip Inspection</td>
-                                    <td className="px-6 py-4 text-xs font-bold text-slate-500 flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">JS</div> Jacob Silva
-                                    </td>
-                                    <td className="px-6 py-4 text-xs font-bold text-slate-400">0</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-[10px] font-black uppercase">Pass</span>
-                                    </td>
-                                </tr>
-                                <tr className="hover:bg-slate-50/50">
-                                    <td className="px-6 py-4 text-xs font-bold text-slate-800">Yesterday, 7:45 AM</td>
-                                    <td className="px-6 py-4 text-sm font-bold text-slate-700">Daily Pre-Trip Inspection</td>
-                                    <td className="px-6 py-4 text-xs font-bold text-slate-500 flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">JS</div> Jacob Silva
-                                    </td>
-                                    <td className="px-6 py-4 text-xs font-bold text-slate-400">0</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-[10px] font-black uppercase">Pass</span>
-                                    </td>
-                                </tr>
-                                <tr className="hover:bg-slate-50/50">
-                                    <td className="px-6 py-4 text-xs font-bold text-slate-800">Jan 12, 2024</td>
-                                    <td className="px-6 py-4 text-sm font-bold text-slate-700">Weekly Safety Inspection</td>
-                                    <td className="px-6 py-4 text-xs font-bold text-slate-500 flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">WK</div> W. Kalimukwa
-                                    </td>
-                                    <td className="px-6 py-4 text-xs font-bold text-orange-500">1</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-[10px] font-black uppercase">Fail</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        {isInspecting ? (
+                            <div className="p-6 bg-slate-50/50">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tight">Perform Digital Inspection</h3>
+                                        <p className="text-xs text-slate-500 font-medium">Tap map to log defects. Pre-trip check recommended.</p>
+                                    </div>
+                                    <button className="px-5 py-2 bg-[#EE401D] text-white rounded-lg text-xs font-black uppercase tracking-wide shadow-lg shadow-orange-500/20 hover:shadow-xl hover:translate-y-[-1px] transition-all">Submit Inspection</button>
+                                </div>
+                                <VehicleInspectionDiagram />
+                            </div>
+                        ) : (
+                            <table className="w-full text-left">
+                                <thead className="bg-slate-50 border-b border-slate-100">
+                                    <tr>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Form Name</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Submitted By</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Items Failed</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-50">
+                                    <tr className="hover:bg-slate-50/50">
+                                        <td className="px-6 py-4 text-xs font-bold text-slate-800">Today, 8:00 AM</td>
+                                        <td className="px-6 py-4 text-sm font-bold text-slate-700">Daily Pre-Trip Inspection</td>
+                                        <td className="px-6 py-4 text-xs font-bold text-slate-500 flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">JS</div> Jacob Silva
+                                        </td>
+                                        <td className="px-6 py-4 text-xs font-bold text-slate-400">0</td>
+                                        <td className="px-6 py-4 text-right">
+                                            <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-[10px] font-black uppercase">Pass</span>
+                                        </td>
+                                    </tr>
+                                    <tr className="hover:bg-slate-50/50">
+                                        <td className="px-6 py-4 text-xs font-bold text-slate-800">Yesterday, 7:45 AM</td>
+                                        <td className="px-6 py-4 text-sm font-bold text-slate-700">Daily Pre-Trip Inspection</td>
+                                        <td className="px-6 py-4 text-xs font-bold text-slate-500 flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">JS</div> Jacob Silva
+                                        </td>
+                                        <td className="px-6 py-4 text-xs font-bold text-slate-400">0</td>
+                                        <td className="px-6 py-4 text-right">
+                                            <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-[10px] font-black uppercase">Pass</span>
+                                        </td>
+                                    </tr>
+                                    <tr className="hover:bg-slate-50/50">
+                                        <td className="px-6 py-4 text-xs font-bold text-slate-800">Jan 12, 2024</td>
+                                        <td className="px-6 py-4 text-sm font-bold text-slate-700">Weekly Safety Inspection</td>
+                                        <td className="px-6 py-4 text-xs font-bold text-slate-500 flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[10px]">WK</div> W. Kalimukwa
+                                        </td>
+                                        <td className="px-6 py-4 text-xs font-bold text-orange-500">1</td>
+                                        <td className="px-6 py-4 text-right">
+                                            <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded text-[10px] font-black uppercase">Fail</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        )}
                     </div>
                 )}
 
@@ -686,7 +713,7 @@ function ViewVehicleContent() {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }
 

@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ArrowLeft, Camera, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
+import { ArrowLeft, Camera, CheckCircle, XCircle, AlertTriangle, Eye, ListChecks } from "lucide-react"
 import { startTrip } from "@/lib/trips"
+import VehicleInspectionDiagram from "@/app/admin/vehicles/components/VehicleInspectionDiagram"
 
 export default function InspectionClient() {
   const router = useRouter()
@@ -15,6 +16,7 @@ export default function InspectionClient() {
   const startLocation = searchParams.get("startLocation") || "Office"
   const startMileageParam = searchParams.get("startMileage") || ""
 
+  const [activeTab, setActiveTab] = useState<'visual' | 'checklist'>('visual')
   const [checklist, setChecklist] = useState([
     { id: 1, item: "Tires (condition & pressure)", status: null as boolean | null, photo: null as string | null },
     { id: 2, item: "Brakes (function test)", status: null as boolean | null, photo: null as string | null },
@@ -95,9 +97,27 @@ export default function InspectionClient() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-bold">Pre-Trip Inspection</h1>
-            <p className="text-sm text-muted-foreground">Complete before starting trip</p>
+            <h1 className="text-xl font-bold">Pre-Trip Inspection</h1>
+            <p className="text-xs text-muted-foreground">Complete before starting trip</p>
           </div>
+        </div>
+
+        {/* Tab Toggle */}
+        <div className="bg-slate-100 p-1 rounded-xl flex">
+          <button
+            onClick={() => setActiveTab('visual')}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase transition-all flex items-center justify-center gap-2 ${activeTab === 'visual' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-400 hover:text-slate-600'
+              }`}
+          >
+            <Eye size={16} /> Visual Exterior
+          </button>
+          <button
+            onClick={() => setActiveTab('checklist')}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase transition-all flex items-center justify-center gap-2 ${activeTab === 'checklist' ? 'bg-white shadow-sm text-slate-800' : 'text-slate-400 hover:text-slate-600'
+              }`}
+          >
+            <ListChecks size={16} /> Checklist
+          </button>
         </div>
 
         <div className="bg-card border rounded-lg p-4">
@@ -123,96 +143,117 @@ export default function InspectionClient() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <h3 className="font-semibold">Inspection Checklist</h3>
-          {checklist.map((item) => (
-            <div key={item.id} className="bg-card border rounded-lg p-4">
-              <div className="flex items-start justify-between mb-3">
-                <p className="font-medium flex-1">{item.item}</p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleStatusChange(item.id, true)}
-                    className={
-                      "px-3 py-1 rounded-lg text-sm font-semibold transition-colors " +
-                      (item.status === true
-                        ? "bg-green-600 text-white"
-                        : "bg-green-100 text-green-700 hover:bg-green-200")
-                    }
-                  >
-                    Pass
-                  </button>
-                  <button
-                    onClick={() => handleStatusChange(item.id, false)}
-                    className={
-                      "px-3 py-1 rounded-lg text-sm font-semibold transition-colors " +
-                      (item.status === false
-                        ? "bg-red-600 text-white"
-                        : "bg-red-100 text-red-700 hover:bg-red-200")
-                    }
-                  >
-                    Fail
-                  </button>
-                </div>
-              </div>
+        {activeTab === 'visual' && (
+          <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-100 p-4 rounded-xl">
+              <h3 className="text-sm font-bold text-blue-800 mb-1">Visual Damage Check</h3>
+              <p className="text-xs text-blue-600">Tap on the diagram below to mark any visible exterior damage (scratches, dents, etc.).</p>
+            </div>
+            <VehicleInspectionDiagram />
 
-              {item.status === false && (
-                <div className="space-y-2">
-                  <button
-                    onClick={() => handlePhotoUpload(item.id)}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-dashed rounded-lg hover:bg-muted transition-colors"
-                  >
-                    <Camera className="w-4 h-4" />
-                    {item.photo ? "Photo Added" : "Add Photo of Issue"}
-                  </button>
-                  {item.photo && (
-                    <div className="bg-green-50 border border-green-200 rounded p-2 text-xs text-green-700">
-                      バ" Photo uploaded
+            <button
+              onClick={() => setActiveTab('checklist')}
+              className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold uppercase text-xs tracking-widest mt-4"
+            >
+              Continue to Checklist
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'checklist' && (
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="font-semibold text-sm uppercase tracking-wide text-slate-500">Inspection Checklist</h3>
+              {checklist.map((item) => (
+                <div key={item.id} className="bg-card border rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <p className="font-medium flex-1 text-sm">{item.item}</p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleStatusChange(item.id, true)}
+                        className={
+                          "px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors " +
+                          (item.status === true
+                            ? "bg-green-600 text-white"
+                            : "bg-green-50 text-green-700 hover:bg-green-100")
+                        }
+                      >
+                        Pass
+                      </button>
+                      <button
+                        onClick={() => handleStatusChange(item.id, false)}
+                        className={
+                          "px-3 py-1 rounded-lg text-xs font-bold uppercase transition-colors " +
+                          (item.status === false
+                            ? "bg-red-600 text-white"
+                            : "bg-red-50 text-red-700 hover:bg-red-100")
+                        }
+                      >
+                        Fail
+                      </button>
+                    </div>
+                  </div>
+
+                  {item.status === false && (
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => handlePhotoUpload(item.id)}
+                        className="w-full flex items-center justify-center gap-2 px-3 py-2 border border-dashed rounded-lg hover:bg-muted transition-colors text-xs font-bold uppercase text-slate-500"
+                      >
+                        <Camera className="w-4 h-4" />
+                        {item.photo ? "Photo Added" : "Add Photo of Issue"}
+                      </button>
+                      {item.photo && (
+                        <div className="bg-green-50 border border-green-200 rounded p-2 text-xs text-green-700 font-bold">
+                          ✓ Photo uploaded
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className="space-y-2">
-          <label className="font-semibold">Start Odometer (KM)</label>
-          <input
-            type="number"
-            value={startMileage}
-            onChange={(e) => setStartMileage(e.target.value)}
-            className="w-full p-3 border rounded-lg bg-background"
-            placeholder="Enter current odometer"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label className="font-semibold">Additional Notes</label>
-          <textarea
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            className="w-full min-h-[100px] p-3 border rounded-lg bg-background"
-            placeholder="Any additional observations or concerns..."
-          />
-        </div>
-
-        <button
-          onClick={handleSubmit}
-          disabled={completedItems !== checklist.length}
-          className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-bold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Submit Inspection
-        </button>
-
-        {failedItems > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-red-900">Critical Issues Detected</p>
-              <p className="text-sm text-red-700">
-                {failedItems} item(s) failed inspection. Vehicle requires maintenance before use.
-              </p>
+            <div className="space-y-2">
+              <label className="font-semibold text-sm">Start Odometer (KM)</label>
+              <input
+                type="number"
+                value={startMileage}
+                onChange={(e) => setStartMileage(e.target.value)}
+                className="w-full p-4 border rounded-xl bg-slate-50 font-bold text-lg"
+                placeholder="000000"
+              />
             </div>
+
+            <div className="space-y-2">
+              <label className="font-semibold text-sm">Additional Notes</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="w-full min-h-[100px] p-3 border rounded-xl bg-slate-50"
+                placeholder="Any additional observations or concerns..."
+              />
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={completedItems !== checklist.length}
+              className="w-full bg-[#EE401D] text-white py-4 rounded-xl font-black uppercase tracking-widest hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-500/20"
+            >
+              Submit Inspection
+            </button>
+
+            {failedItems > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-black text-red-900 text-sm uppercase">Critical Issues Detected</p>
+                  <p className="text-xs text-red-700 mt-1 font-medium">
+                    {failedItems} item(s) failed inspection. Vehicle requires maintenance before use.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
