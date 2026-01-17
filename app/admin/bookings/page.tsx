@@ -8,6 +8,7 @@ import { getVehicles } from "@/lib/vehicles"
 import { getDrivers } from "@/lib/auth"
 
 const RouteViewer = dynamic(() => import("./RouteViewer"), { ssr: false })
+const CalendarView = dynamic(() => import("./CalendarView"), { ssr: false })
 
 type AllocationModalProps = {
   booking: any
@@ -219,10 +220,11 @@ export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<any[]>([])
   const [vehicles, setVehicles] = useState<any[]>([])
   const [drivers, setDrivers] = useState<any[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState("all")
   const [selectedBooking, setSelectedBooking] = useState<any>(null)
   const [viewingRoute, setViewingRoute] = useState<any>(null)
+  const [viewMode, setViewMode] = useState<"list" | "calendar">("list")
+  const [isLoading, setIsLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState("all")
 
   useEffect(() => {
     loadData()
@@ -303,9 +305,26 @@ export default function AdminBookingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Bookings Management</h1>
-        <p className="text-muted-foreground">Manage vehicle bookings and approvals</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Bookings Management</h1>
+          <p className="text-muted-foreground">Manage vehicle bookings and approvals</p>
+        </div>
+
+        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-sm">
+          <button
+            onClick={() => setViewMode("list")}
+            className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            List View
+          </button>
+          <button
+            onClick={() => setViewMode("calendar")}
+            className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all ${viewMode === 'calendar' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+          >
+            Calendar View
+          </button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -324,96 +343,103 @@ export default function AdminBookingsPage() {
         ))}
       </div>
 
-      {/* Bookings Table */}
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-muted border-b border-border">
-              <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Details</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Requester</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Dates</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Allocation</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredBookings.length === 0 ? (
+      {viewMode === "list" ? (
+        <div className="bg-card border border-border rounded-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted border-b border-border">
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
-                    No bookings found
-                  </td>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Details</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Requester</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Dates</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Allocation</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Status</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold">Actions</th>
                 </tr>
-              ) : (
-                filteredBookings.map((booking, idx) => (
-                  <tr key={booking.id} className={idx !== filteredBookings.length - 1 ? "border-b border-border" : ""}>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="flex flex-col">
-                        <span className="font-semibold">{booking.destination}</span>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase">{booking.cost_center || "Standard"}</span>
-                          {booking.approximate_distance && (
-                            <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded uppercase">{booking.approximate_distance} KM</span>
-                          )}
-                        </div>
-                        <span className="text-xs text-muted-foreground truncate max-w-[150px] mt-1">{booking.purpose}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div>
-                        <p className="font-medium">{booking.requester?.full_name || "Unknown"}</p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm">{new Date(booking.start_date).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 text-sm">
-                      {booking.vehicles ? (
-                        <div className="flex items-center gap-2">
-                          <Car className="w-4 h-4 text-muted-foreground" />
-                          <span>{booking.vehicles.registration}</span>
-                        </div>
-                      ) : booking.external_resource_details ? (
-                        <div className="flex items-center gap-2 text-purple-600">
-                          <ExternalLink className="w-4 h-4" />
-                          <span>External</span>
-                        </div>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <span
-                        className={"px-3 py-1 rounded-full text-xs font-semibold " + getStatusColor(booking.status)}
-                      >
-                        {booking.status.replace('_', ' ').toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        {booking.status === 'pending_allocation' && (
-                          <button
-                            onClick={() => setSelectedBooking(booking)}
-                            className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-tight hover:opacity-90 shadow-sm transition-all active:scale-95"
-                          >
-                            Allocate
-                          </button>
-                        )}
-                        <button
-                          onClick={() => setViewingRoute(booking)}
-                          className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-tight hover:bg-slate-200 transition-all active:scale-95"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          View
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {filteredBookings.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-muted-foreground">
+                      No bookings found
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredBookings.map((booking, idx) => (
+                    <tr key={booking.id} className={idx !== filteredBookings.length - 1 ? "border-b border-border" : ""}>
+                      <td className="px-6 py-4 text-sm">
+                        <div className="flex flex-col">
+                          <span className="font-semibold">{booking.destination}</span>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="text-[10px] font-black bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase">{booking.cost_center || "Standard"}</span>
+                            {booking.approximate_distance && (
+                              <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded uppercase">{booking.approximate_distance} KM</span>
+                            )}
+                          </div>
+                          <span className="text-xs text-muted-foreground truncate max-w-[150px] mt-1">{booking.purpose}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <div>
+                          <p className="font-medium">{booking.requester?.full_name || "Unknown"}</p>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm">{new Date(booking.start_date).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 text-sm">
+                        {booking.vehicles ? (
+                          <div className="flex items-center gap-2">
+                            <Car className="w-4 h-4 text-muted-foreground" />
+                            <span>{booking.vehicles.registration}</span>
+                          </div>
+                        ) : booking.external_resource_details ? (
+                          <div className="flex items-center gap-2 text-purple-600">
+                            <ExternalLink className="w-4 h-4" />
+                            <span>External</span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <span
+                          className={"px-3 py-1 rounded-full text-xs font-semibold " + getStatusColor(booking.status)}
+                        >
+                          {booking.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          {booking.status === 'pending_allocation' && (
+                            <button
+                              onClick={() => setSelectedBooking(booking)}
+                              className="bg-primary text-primary-foreground px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-tight hover:opacity-90 shadow-sm transition-all active:scale-95"
+                            >
+                              Allocate
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setViewingRoute(booking)}
+                            className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-tight hover:bg-slate-200 transition-all active:scale-95"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            View
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      ) : (
+        <CalendarView
+          bookings={bookings}
+          vehicles={vehicles}
+          onSelectBooking={(b) => setSelectedBooking(b)}
+        />
+      )}
 
       {selectedBooking && (
         <AllocationModal
