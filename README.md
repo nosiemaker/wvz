@@ -3,6 +3,8 @@
 ## Overview
 A comprehensive full-stack fleet management system with mobile app, admin web portal, finance portal, and compliance dashboard. Built with Next.js 16, Supabase, and Tailwind CSS.
 
+> **Note**: For a detailed concept note and implementation roadmap, please refer to [CONCEPT_NOTE.md](./CONCEPT_NOTE.md).
+
 ## Features
 
 ### Mobile App (Driver Interface)

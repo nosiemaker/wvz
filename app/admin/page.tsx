@@ -1,8 +1,7 @@
 "use client"
 
 import {
-  Car, Wrench, AlertTriangle, CheckCircle, Clock,
-  Fuel, Users, MessageSquare, AlertCircle, TrendingUp
+  Fuel, Users, MessageSquare, AlertCircle, TrendingUp, Leaf
 } from "lucide-react"
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip,
@@ -122,6 +121,54 @@ const recentComments = [
     color: "bg-blue-600",
     ping: "@FleetManager"
   }
+]
+
+// New Charts Data
+const mostUtilizedData = [
+  { vehicle: "BAF 2650", days: 31 },
+  { vehicle: "CAD 7631", days: 31 },
+  { vehicle: "CAE 282 M/BIKE", days: 31 },
+  { vehicle: "CAE 4492", days: 31 },
+  { vehicle: "CAF 921", days: 31 },
+  { vehicle: "BAD 8593", days: 30 },
+]
+
+const leastUtilizedData = [
+  { vehicle: "BAL 9306 M/BIKE", days: 1 },
+  { vehicle: "BAD 8287", days: 1 },
+  { vehicle: "BAD 8597", days: 1 },
+  { vehicle: "ABZ 9641 M/BIKE", days: 1 },
+  { vehicle: "BAJ 8331", days: 1 },
+  { vehicle: "CAA 3553 M/BIKE", days: 1 },
+]
+
+const maxSpeedData = [
+  { vehicle: "BAF 1334", speed: 123 },
+  { vehicle: "BAK 400ZM", speed: 122 },
+  { vehicle: "BAK 5737", speed: 120 },
+  { vehicle: "BBA 7579", speed: 120 },
+  { vehicle: "BAK 7464", speed: 120 },
+  { vehicle: "CAC 582", speed: 120 },
+  { vehicle: "BAJ 2598", speed: 120 },
+]
+
+const aggressiveDrivingData = [
+  { vehicle: "CAF 9827", count: 1 },
+  { vehicle: "CAF 9857", count: 1 },
+  { vehicle: "CAF 9855", count: 1 },
+  { vehicle: "CAF 9810", count: 1 },
+  { vehicle: "CAF 9809", count: 1 },
+  { vehicle: "CAF 9807", count: 1 },
+  { vehicle: "CAF 9806", count: 1 },
+]
+
+const carbonEmissionsData = [
+  { month: "Aug", emissions: 185, target: 180 },
+  { month: "Sept", emissions: 192, target: 180 },
+  { month: "Oct", emissions: 178, target: 180 },
+  { month: "Nov", emissions: 205, target: 180 },
+  { month: "Dec", emissions: 198, target: 180 },
+  { month: "Jan", emissions: 190, target: 180 },
 ]
 
 
@@ -322,7 +369,6 @@ export default function FleetDashboardPage() {
           </div>
         </DashboardCard>
 
-        {/* Adjusted placement for other widgets to flow around comments */}
         <DashboardCard title="Pending ROs by Status">
           <StatusList data={pendingROsData} />
         </DashboardCard>
@@ -402,6 +448,164 @@ export default function FleetDashboardPage() {
                 <Bar dataKey="cost" fill="#f59e0b" radius={[2, 2, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+          </div>
+        </DashboardCard>
+
+        {/* --- New Widgets --- */}
+
+        {/* Possible Collisions */}
+        <DashboardCard title="Possible Collisions">
+          <div className="flex flex-col items-center justify-center h-full bg-red-50 rounded-lg border border-red-100 p-4">
+            <h4 className="text-xs font-bold text-red-800 uppercase tracking-widest mb-2 bg-red-200 px-2 py-1 rounded">Possible Collision Vehicles</h4>
+            <span className="text-6xl font-black text-slate-800">13</span>
+            <div className="w-full mt-4 flex justify-between text-[10px] bg-red-900/10 p-1.5 rounded text-red-900 font-bold">
+              <span>From: Dec 17, 2025</span>
+              <span>To: Jan 16, 2026</span>
+            </div>
+          </div>
+        </DashboardCard>
+
+        {/* Asset Utilization Report */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Most Utilized */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-[#D4E8B4] px-4 py-2 border-b border-[#C2DB9D]">
+              <h3 className="text-xs font-black text-[#5C7D29] uppercase tracking-wider text-center">Most Utilized Vehicles</h3>
+            </div>
+            <div className="p-0">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 font-bold text-slate-500 border-b border-slate-100">
+                  <tr>
+                    <th className="px-3 py-2">#</th>
+                    <th className="px-3 py-2">Vehicle</th>
+                    <th className="px-3 py-2 text-right">Days Driven</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {mostUtilizedData.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/50">
+                      <td className="px-3 py-1.5 font-bold text-slate-400 bg-emerald-50/50 w-8 text-center">{idx + 1}</td>
+                      <td className="px-3 py-1.5 font-bold text-slate-700">{item.vehicle}</td>
+                      <td className="px-3 py-1.5 font-bold text-slate-600 text-right">{item.days}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Least Utilized */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-[#F8A8B3] px-4 py-2 border-b border-[#EFA0AB]">
+              <h3 className="text-xs font-black text-[#962534] uppercase tracking-wider text-center">Least Utilized Vehicles</h3>
+            </div>
+            <div className="p-0">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 font-bold text-slate-500 border-b border-slate-100">
+                  <tr>
+                    <th className="px-3 py-2">#</th>
+                    <th className="px-3 py-2">Vehicle</th>
+                    <th className="px-3 py-2 text-right">Days Driven</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {leastUtilizedData.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/50">
+                      <td className="px-3 py-1.5 font-bold text-slate-400 bg-red-50/50 w-8 text-center">{idx + 1}</td>
+                      <td className="px-3 py-1.5 font-bold text-slate-700">{item.vehicle}</td>
+                      <td className="px-3 py-1.5 font-bold text-slate-600 text-right">{item.days}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Highest Max Speed */}
+        <DashboardCard title="Highest Max Speed" className="lg:col-span-2">
+          <div className="h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={maxSpeedData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="vehicle"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 9 }}
+                  interval={0}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis hide />
+                <RechartsTooltip cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                <Bar dataKey="speed" fill="#F472B6" radius={[4, 4, 0, 0]} barSize={20}>
+                  {maxSpeedData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill="#FABDD3" />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </DashboardCard>
+
+        {/* Aggressive Driving */}
+        <DashboardCard title="Aggressive Driving" className="lg:col-span-2">
+          <div className="h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={aggressiveDrivingData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis
+                  dataKey="vehicle"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 9 }}
+                  interval={0}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis hide />
+                <RechartsTooltip cursor={{ fill: 'rgba(0,0,0,0.03)' }} />
+                <Bar dataKey="count" fill="#009688" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </DashboardCard>
+
+        {/* Carbon Emissions Widget */}
+        <DashboardCard title="Carbon Emissions Analysis" className="lg:col-span-2">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Leaf className="text-emerald-500" size={18} />
+                <div>
+                  <span className="text-2xl font-black text-slate-800">190</span>
+                  <span className="text-[10px] font-bold text-slate-400 ml-1 uppercase">Avg g/km</span>
+                </div>
+              </div>
+              <div className="text-right">
+                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">-4.2%</span>
+                <p className="text-[10px] text-slate-400 font-bold uppercase mt-1">vs Last Month</p>
+              </div>
+            </div>
+            <div className="flex-1 min-h-[140px] w-full -ml-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={carbonEmissionsData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10 }} />
+                  <YAxis hide domain={['dataMin - 20', 'dataMax + 20']} />
+                  <RechartsTooltip />
+                  <Line type="monotone" dataKey="emissions" stroke="#10b981" strokeWidth={3} dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                  <Line type="monotone" dataKey="target" stroke="#cbd5e1" strokeWidth={2} strokeDasharray="5 5" dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-2 flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+              <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-500"></div>Actual Emissions</div>
+              <div className="flex items-center gap-1.5"><div className="w-2 h-2 border-t-2 border-slate-300 border-dashed"></div>Sustainability Target</div>
+            </div>
           </div>
         </DashboardCard>
 
